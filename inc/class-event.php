@@ -1,60 +1,66 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: paul
- * Date: 07/02/2018
- * Time: 11:02
+ * Event class
+ *
+ * This is a class that defines an event handler, its available actions and recipient callbacks, and its UI.
+ *
+ * @link https://github.com/humanmade/Workflow/issues/1
+ *
+ * @package HM\Workflow
+ * @since 0.1.0
  */
 
 namespace HM\Workflow;
 
 /**
  * Class Event
- * @package HM\Workflow
  */
 class Event {
 
 	/**
-	 * @var
+	 * @var array Collection of registered Event objects.
 	 */
-	protected static $events;
+	protected static $events = [];
+
+	/**
+	 * @var array Collection of registered event listeners.
+	 */
+	protected $listeners = [];
+
+	/**
+	 * @var array Array of key/value pairs that can be substituted into the message delivered to the destination.
+	 */
+	protected $message_tags = [];
 
 	/**
 	 * @var
 	 */
-	protected $listeners;
+	protected $message_actions = [];
 
 	/**
 	 * @var
 	 */
-	protected $message_tags;
+	protected $recipients_handlers = [];
 
 	/**
-	 * @var
-	 */
-	protected $message_actions;
-
-	/**
-	 * @var
-	 */
-	protected $recipients_handlers;
-
-	/**
-	 * @var
+	 * @var UI
 	 */
 	protected $ui;
 
 	/**
 	 * @var
 	 */
-	protected $name;
+	protected $name = '';
 
 	/**
-	 * @param $id
+	 * Creates a new Event object.
+	 *
+	 * @param string $id Event ID.
 	 */
 	public static function register( $id ) {
 		$event               = new self( $id );
 		self::$events[ $id ] = $event;
+
 		return $event;
 	}
 
@@ -68,88 +74,124 @@ class Event {
 	}
 
 	/**
-	 * @param $action
+	 * @param string|array|callable $action
 	 *
 	 * @return mixed
 	 */
 	public function add_listener( $action ) {
+		$this->recipients_handlers[] = $action;
+
 		return $this;
 	}
 
 	/**
-	 * @param $tags
+	 * @param array|callable $tags Array of key/value pairs.
 	 *
-	 * @return mixed
+	 * @return array
 	 */
 	public function add_message_tags( $tags ) {
-		return $this;
+		$this->message_tags = array_merge( $this->message_tags, $tags );
+
+		return $this->message_tags;
 	}
 
 	/**
-	 * @param $id
-	 * @param $text
-	 * @param $callback_or_url
-	 * @param $args
+	 * @param string          $id              A reference name for the action.
+	 * @param string          $text            The link or button text for the action.
+	 * @param string|callable $callback_or_url Description.
+	 * @param null|callable   $args            An optional function that receives the return value of the event action.
+	 * @param array           $schema          An array of accepted $_GET arguments and their corresponding sanitisation callback.
 	 *
-	 * @return mixed
+	 * @return $this
 	 */
-	public function add_message_action( $id, $text, $callback_or_url, $args ) {
+	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema ) {
 		return $this;
 	}
 
 	/**
-	 * @param $ui
+	 * This method should add the $name and $callback parameter to $this->recipient_handlers with $id as the key.
 	 *
-	 * @return mixed
+	 * @param string   $id       An identifier for the recipient handler to be used in the WorkFlow()->who() method.
+	 * @param string   $name     A nice name to be shown in the UI.
+	 * @param callable $callback This receives the event action value as it’s 1st parameter and should return one or an array of email addresses, user objects, user IDs or user roles.
+	 *
+	 * @return $this
+	 */
+	public function add_recipient_handler( $id, $name, $callback ) {
+		$this->recipients_handlers[ $id ] = $callback;
+		return $this;
+	}
+
+	/**
+	 * Set the $this->ui property to the UI object.
+	 *
+	 * @param string $ui A nice name to show in the UI or a UI object.
+	 *
+	 * @return $this
 	 */
 	public function add_ui( $ui ) {
 		if ( is_string( $ui ) ) {
 			$this->ui = new UI( $ui );
 		}
+
 		return $this;
 	}
 
 	/**
-	 * @param $id
+	 * Gets an Event from the collection by ID.
 	 *
-	 * @return mixed
+	 * @param string $id Event ID.
+	 *
+	 * @return Event|null
 	 */
 	public static function get( $id ) {
-		return self::$events[ $id ];
+		return self::$events[ $id ] ?? null;
 	}
 
 	/**
-	 * @return mixed
+	 * Gets the Event listeners.
+	 *
+	 * @return array
 	 */
 	public function get_listeners() {
+		if ( empty( $this->listeners ) ) {
+			return [ $this->id ];
+		}
+
 		return $this->listeners;
 	}
 
 	/**
-	 * @return mixed
+	 * Gets the message tags.
+	 *
+	 * @return array
 	 */
 	public function get_message_tags() {
 		return $this->message_tags;
 	}
 
 	/**
-	 * @param $id
+	 * Gets the recipeint handler function.
 	 *
-	 * @return mixed
+	 * @param strin $id The handler ID.
+	 *
+	 * @return callable
 	 */
 	public function get_recipient_handler( $id ) {
-		return $this->recipients_handlers;
+		return $this->recipients_handler[ $id ];
 	}
 
 	/**
-	 * @return mixed
+	 * @return array
 	 */
 	public function get_message_actions() {
 		return $this->message_actions;
 	}
 
 	/**
-	 * @return mixed
+	 * Gets the Event UI object.
+	 *
+	 * @return UI
 	 */
 	public function get_ui() {
 		return $this->ui;

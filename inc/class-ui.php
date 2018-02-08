@@ -1,16 +1,20 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: paul
- * Date: 07/02/2018
- * Time: 11:52
+ * UI class
+ *
+ * The UI class is for defining a set of fields and storing and retrieving the values of which are passed to the destination objects,
+ * recipient and event handlers.
+ *
+ * @link https://github.com/humanmade/Workflow/issues/4
+ *
+ * @package HM\Workflow
+ * @since 0.1.0
  */
 
 namespace HM\Workflow;
 
 /**
  * Class UI
- * @package HM\Workflow
  */
 class UI {
 	/**
@@ -101,7 +105,8 @@ class UI {
 	 * @return mixed
 	 */
 	public function get_data() {
-		return get_post_meta();
+		//return get_post_meta();
+		return 'Test data';
 	}
 
 	/**

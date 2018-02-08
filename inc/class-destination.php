@@ -1,16 +1,20 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: paul
- * Date: 07/02/2018
- * Time: 11:22
+ * Destination class.
+ *
+ * This class handles the list of recipients and messages and optionally allows you to specify a UI for the destination.
+ *
+ * @link https://github.com/humanmade/Workflow/issues/2
+ *
+ * @package WordPress
+ * @subpackage Component
+ * @since 0.1.0
  */
 
 namespace HM\Workflow;
 
 /**
  * Class Destination
- * @package HM\Workflow
  */
 class Destination {
 	/**
@@ -21,34 +25,35 @@ class Destination {
 	/**
 	 * @var
 	 */
-	protected static $instances;
+	protected static $instances = [];
 
 	/**
-	 * @var
+	 * @var UI
 	 */
 	protected $ui;
 
 	/**
-	 * @var
+	 * @var callable
 	 */
 	protected $handler;
 
 	/**
 	 *
 	 *
-	 * @param $id
-	 * @param $handler
+	 * @param string $id
+	 * @param callable $handler
 	 */
 	public static function register( $id, $handler ) {
 		$destination            = new self( $id, $handler );
 		self::$instances[ $id ] = $destination;
+		return $destination;
 	}
 
 	/**
 	 * Destination constructor.
 	 *
-	 * @param $id
-	 * @param $handler
+	 * @param string $id
+	 * @param callable $handler
 	 */
 	protected function __construct( $id, $handler ) {
 		$this->handler = $handler;
@@ -56,20 +61,23 @@ class Destination {
 	}
 
 	/**
-	 * @param $recipients
-	 * @param $messages
+	 * @param array $recipients
+	 * @param array $messages
 	 */
 	public function call_handler( $recipients, $messages ) {
-		$this->handler( $recipients, $messages, $this->ui->get_data() );
+		$message = $messages[0];
+		( $this->handler )( $recipients, 'A message for you sir.', $messages );
 	}
 
 	/**
-	 * @param $ui
+	 * Add the UI object.
 	 *
-	 * @return mixed
+	 * @param UI $ui
+	 *
+	 * @return $this
 	 */
 	public function add_ui( $ui ) {
 		$this->ui = $ui;
-		return self;
+		return $this;
 	}
 }

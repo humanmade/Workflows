@@ -1,9 +1,11 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: paul
- * Date: 07/02/2018
- * Time: 10:56
+ * HM\Workflow Namespace related functions and includes.
+ *
+ *  Declares functions and constants in the HM\Workflow namespace
+ *
+ * @package HM\Workflow
+ * @since 0.1.0
  */
 
 require_once __DIR__ . '/class-workflow.php';
