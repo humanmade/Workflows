@@ -66,7 +66,7 @@ class Destination {
 	 */
 	public function call_handler( $recipients, $messages ) {
 		$message = $messages[0];
-		( $this->handler )( $recipients, 'A message for you sir.', $messages );
+		( $this->handler )( $recipients, $messages );
 	}
 
 	/**

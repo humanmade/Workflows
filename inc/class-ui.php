@@ -25,7 +25,7 @@ class UI {
 	/**
 	 * @var
 	 */
-	protected $fields;
+	protected $fields = [];
 
 	/**
 	 * @var
@@ -40,12 +40,12 @@ class UI {
 	/**
 	 * @var
 	 */
-	protected $instances;
+	protected static $instances = [];
 
 	/**
 	 * UI constructor.
 	 *
-	 * @param $name
+	 * @param string $name
 	 */
 	public function __construct( $name ) {
 		$this->name = $name;
@@ -53,36 +53,42 @@ class UI {
 	}
 
 	/**
-	 * @param $key
+	 * This method should set the value of $this->key
 	 *
-	 * @return mixed
+	 * @param string $key An identifier for the UI to store & fetch data against.
+	 *
+	 * @return $this
 	 */
 	public function set_key( $key ) {
 		$this->key = $key;
 
-		return self;
+		return $this;
 	}
 
 	/**
-	 * @param $description
+	 * This method should set the value of $this->description
 	 *
-	 * @return mixed
+	 * @param string $description  A description of the UI, this should be text to help the user understand the interface.
+	 *
+	 * @return $this
 	 */
 	public function set_description( $description ) {
 		$this->description = $description;
 
-		return self;
+		return $this;
 	}
 
 	/**
-	 * @param $name
-	 * @param $label
-	 * @param $type
-	 * @param $params
+	 * This method will create an array from the passed parameters.
 	 *
-	 * @return mixed
+	 * @param string $name   The identifier used in the name attribute, will be passed through sanitize_key().
+	 * @param string $label  The user facing text label.
+	 * @param string $type   The field type.
+	 * @param array  $params An optional array of custom parameters to configure fields other than text type.
+	 *
+	 * @return $this
 	 */
-	public function add_field( $name, $label, $type, $params ) {
+	public function add_field( $name, $label, $type = 'text', array $params = array() ) {
 		$this->fields[] = [
 			'name'   => $name,
 			'label'  => $label,
@@ -91,28 +97,33 @@ class UI {
 			'value'  => $this->get_data(),
 		];
 
-		return self;
+		return $this;
 	}
 
 	/**
-	 * @param $data
+	 * This method should save the data using the key value, this might be implemented in options or post meta.
+	 *
+	 * @param array $data An array of the field values with the field names as the keys.
 	 */
 	public function save_data( $data ) {
-		// return update_post_meta()
+		// @todo: handle this
 	}
 
 	/**
-	 * @return mixed
+	 * Returns the keyed array of data associated with this UI.
+	 *
+	 * @return array
 	 */
 	public function get_data() {
-		//return get_post_meta();
-		return 'Test data';
+		// @todo: handle this
 	}
 
 	/**
+	 * A configuration object ready for JSON encoding or parsing in PHP to build the form fields.
+	 *
 	 * @return array
 	 */
 	public function get_config() {
-		return [];
+		// @todo: handle this
 	}
 }

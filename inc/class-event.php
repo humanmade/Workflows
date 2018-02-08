@@ -105,6 +105,7 @@ class Event {
 	 * @return $this
 	 */
 	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema ) {
+		// @todo: handle this
 		return $this;
 	}
 
