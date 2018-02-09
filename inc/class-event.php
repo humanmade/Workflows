@@ -146,14 +146,15 @@ class Event {
 	/**
 	 * Set the $this->ui property to the UI object.
 	 *
-	 * @param string $ui A nice name to show in the UI or a UI object.
+	 * @param string|UI $ui A nice name to show in the UI or a UI object.
 	 *
 	 * @return $this
 	 */
 	public function add_ui( $ui ) {
 		if ( is_string( $ui ) ) {
-			$this->ui = new UI( $ui );
+			$this->ui = UI::register( $this->id );
 		}
+		$this->ui->set_key( 'event_' . $this->id );
 
 		return $this;
 	}

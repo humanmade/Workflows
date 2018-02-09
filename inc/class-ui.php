@@ -20,7 +20,7 @@ class UI {
 	/**
 	 * The identifier used in the name attribute, will be passed through sanitize_key().
 	 *
-	 * @var int $name Nice name for the UI.
+	 * @var int $name A user facing text label for the UI component.
 	 */
 	protected $name;
 
@@ -53,13 +53,25 @@ class UI {
 	protected static $instances = [];
 
 	/**
+	 * Registers and adds a UI object to the collection.
+	 *
+	 * @param string $name A user facing text label for the UI component.
+	 *
+	 * @return UI
+	 */
+	public static function register( $name ) : UI {
+		$ui                       = new self( $name );
+		self::$instances[ $name ] = $ui;
+		return $ui;
+	}
+
+	/**
 	 * UI constructor.
 	 *
-	 * @param string $name Nice name for the UI.
+	 * @param string $name A user facing text label for the UI component.
 	 */
-	public function __construct( $name ) {
+	protected function __construct( $name ) {
 		$this->name = $name;
-		$this->set_key( sanitize_key( $name ) );
 	}
 
 	/**
@@ -115,7 +127,7 @@ class UI {
 	 *
 	 * @param array $data An array of the field values with the field names as the keys.
 	 */
-	public function save_data( $data ) : void {
+	public function save_data( $data ) {
 		// @todo: handle this
 	}
 
@@ -124,7 +136,7 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_data() :?array {
+	public function get_data() : array {
 		// @todo: handle this
 	}
 
@@ -133,7 +145,7 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_config() :?array {
+	public function get_config() : array {
 		// @todo: handle this
 	}
 }
