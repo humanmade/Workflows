@@ -74,7 +74,7 @@ class Destination {
 	 * @param array $recipients The recipients.
 	 * @param array $messages The messages to display.
 	 */
-	public function call_handler( $recipients, $messages ) :void {
+	public function call_handler( $recipients, $messages ) {
 		$message = $messages[0];
 		( $this->handler )( $recipients, $messages );
 	}

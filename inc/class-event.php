@@ -165,7 +165,7 @@ class Event {
 	 *
 	 * @return Event|null
 	 */
-	public static function get( $id ) : ?Event {
+	public static function get( $id ) {
 		return self::$events[ $id ] ?? null;
 	}
 

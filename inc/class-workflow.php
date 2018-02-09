@@ -164,7 +164,7 @@ class Workflow {
 	 *
 	 * @param array $args The return value from the callback or arguments from the action.
 	 */
-	protected function run( array $args ) :void {
+	protected function run( array $args ) {
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
 			// @todo: case If it matches one of $this->event->get_recipient_handler( $id ), get the return value from the callback, passing $args to the callback.
@@ -208,9 +208,9 @@ class Workflow {
 	 *
 	 * @param array $actions The actions to run.
 	 */
-	protected function run_actions( array $actions ) :void {
+	protected function run_actions( array $actions ) {
 		foreach ( $actions as $action ) {
-
+			// @todo: handle this
 		}
 	}
 }
