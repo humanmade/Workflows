@@ -18,34 +18,44 @@ namespace HM\Workflow;
  */
 class UI {
 	/**
-	 * @var
+	 * The identifier used in the name attribute, will be passed through sanitize_key().
+	 *
+	 * @var int $name Nice name for the UI.
 	 */
 	protected $name;
 
 	/**
-	 * @var
+	 * Fields definitions.
+	 *
+	 * @var array $fields The UI fields array.
 	 */
 	protected $fields = [];
 
 	/**
-	 * @var
+	 * A description of the UI, this should be text to help the user understand the interface.
+	 *
+	 * @var string $description A description of the UI.
 	 */
 	protected $description;
 
 	/**
-	 * @var
+	 * An identifier for the UI to store & fetch data against.
+	 *
+	 * @var string $key The key of the UI.
 	 */
 	protected $key;
 
 	/**
-	 * @var
+	 * Stores the collection of UI objects.
+	 *
+	 * @var array $instances The collection of UI objects.
 	 */
 	protected static $instances = [];
 
 	/**
 	 * UI constructor.
 	 *
-	 * @param string $name
+	 * @param string $name Nice name for the UI.
 	 */
 	public function __construct( $name ) {
 		$this->name = $name;
@@ -68,7 +78,7 @@ class UI {
 	/**
 	 * This method should set the value of $this->description
 	 *
-	 * @param string $description  A description of the UI, this should be text to help the user understand the interface.
+	 * @param string $description A description of the UI, this should be text to help the user understand the interface.
 	 *
 	 * @return $this
 	 */
@@ -105,7 +115,7 @@ class UI {
 	 *
 	 * @param array $data An array of the field values with the field names as the keys.
 	 */
-	public function save_data( $data ) {
+	public function save_data( $data ) : void {
 		// @todo: handle this
 	}
 
@@ -114,7 +124,7 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_data() {
+	public function get_data() :?array {
 		// @todo: handle this
 	}
 
@@ -123,7 +133,7 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_config() {
+	public function get_config() :?array {
 		// @todo: handle this
 	}
 }

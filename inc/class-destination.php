@@ -18,32 +18,40 @@ namespace HM\Workflow;
  */
 class Destination {
 	/**
-	 * @var
+	 * Destination ID.
+	 *
+	 * @var string
 	 */
 	protected $id;
 
 	/**
-	 * @var
+	 * Array of Destinations.
+	 *
+	 * @var array
 	 */
 	protected static $instances = [];
 
 	/**
+	 * Destination UI.
+	 *
 	 * @var UI
 	 */
 	protected $ui;
 
 	/**
+	 * Destination handler function.
+	 *
 	 * @var callable
 	 */
 	protected $handler;
 
 	/**
+	 * Registers a new Destination.
 	 *
-	 *
-	 * @param string $id
-	 * @param callable $handler
+	 * @param string   $id Destination ID.
+	 * @param callable $handler Destination handler function.
 	 */
-	public static function register( $id, $handler ) {
+	public static function register( $id, $handler ) : Destination {
 		$destination            = new self( $id, $handler );
 		self::$instances[ $id ] = $destination;
 		return $destination;
@@ -52,8 +60,8 @@ class Destination {
 	/**
 	 * Destination constructor.
 	 *
-	 * @param string $id
-	 * @param callable $handler
+	 * @param string   $id Destination ID.
+	 * @param callable $handler Destination handler function.
 	 */
 	protected function __construct( $id, $handler ) {
 		$this->handler = $handler;
@@ -61,10 +69,12 @@ class Destination {
 	}
 
 	/**
-	 * @param array $recipients
-	 * @param array $messages
+	 * Run the destination handler.
+	 *
+	 * @param array $recipients The recipients.
+	 * @param array $messages The messages to display.
 	 */
-	public function call_handler( $recipients, $messages ) {
+	public function call_handler( $recipients, $messages ) :void {
 		$message = $messages[0];
 		( $this->handler )( $recipients, $messages );
 	}
@@ -72,7 +82,7 @@ class Destination {
 	/**
 	 * Add the UI object.
 	 *
-	 * @param UI $ui
+	 * @param UI $ui Destination UI.
 	 *
 	 * @return $this
 	 */

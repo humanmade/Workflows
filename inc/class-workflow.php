@@ -18,36 +18,48 @@ namespace HM\Workflow;
 class Workflow {
 
 	/**
-	 * @var
+	 * Workflow instances.
+	 *
+	 * @var array
 	 */
 	protected static $instances = [];
 
 	/**
+	 * The Workflow Event.
+	 *
 	 * @var Event
 	 */
 	protected $event;
 
 	/**
-	 * @var
+	 * The workflow recipients.
+	 *
+	 * @var array
 	 */
 	protected $recipients = [];
 
 	/**
-	 * @var
+	 * The messages.
+	 *
+	 * @var array
 	 */
 	protected $messages = [];
 
 	/**
-	 * @var
+	 * Workflow destinations.
+	 *
+	 * @var array
 	 */
 	protected $destinations = [];
 
 	/**
-	 * @param $id
+	 * Registers a new Workflow object.
 	 *
-	 * @return mixed
+	 * @param string $id Workflow ID.
+	 *
+	 * @return Workflow
 	 */
-	public static function register( $id ) {
+	public static function register( $id ) :Workflow {
 		$wf                = new self( $id );
 		self::$instances[] = $wf;
 		return $wf;
@@ -100,8 +112,8 @@ class Workflow {
 	/**
 	 * Message builder.
 	 *
-	 * @param string|callable $message
-	 * @param callable|array $actions
+	 * @param string|callable $message Message.
+	 * @param callable|array  $actions Actions.
 	 *
 	 * @return $this
 	 */
@@ -115,7 +127,9 @@ class Workflow {
 	}
 
 	/**
-	 * @param $who
+	 * Sets the recipients property.
+	 *
+	 * @param array|int|string|callable $who Workflow destination.
 	 *
 	 * @return $this
 	 */
@@ -137,7 +151,7 @@ class Workflow {
 	 * @return $this
 	 */
 	public function where( $destination ) {
-		if ( is_string( $destination ) || is_a( $destination, 'HM\Workflow\Destination' ) ) {
+		if ( is_string( $destination ) || is_a( $destination, HM\Workflow\Destination::class ) ) {
 			$this->destinations[] = $destination;
 		} elseif ( is_callable( $destination ) ) {
 			$destination->call_handler( $this->recipients, $this->messages );
@@ -150,7 +164,7 @@ class Workflow {
 	 *
 	 * @param array $args The return value from the callback or arguments from the action.
 	 */
-	protected function run( array $args ) {
+	protected function run( array $args ) :void {
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
 			// @todo: case If it matches one of $this->event->get_recipient_handler( $id ), get the return value from the callback, passing $args to the callback.
@@ -194,7 +208,7 @@ class Workflow {
 	 *
 	 * @param array $actions The actions to run.
 	 */
-	protected function run_actions( array $actions ) {
+	protected function run_actions( array $actions ) :void {
 		foreach ( $actions as $action ) {
 
 		}

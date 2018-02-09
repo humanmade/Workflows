@@ -18,37 +18,51 @@ namespace HM\Workflow;
 class Event {
 
 	/**
-	 * @var array Collection of registered Event objects.
+	 * Events array.
+	 *
+	 * @var array
 	 */
 	protected static $events = [];
 
 	/**
-	 * @var array Collection of registered event listeners.
+	 * Collection of registered event listeners.
+	 *
+	 * @var array
 	 */
 	protected $listeners = [];
 
 	/**
-	 * @var array Array of key/value pairs that can be substituted into the message delivered to the destination.
+	 * Array of key/value pairs that can be substituted into the message delivered to the destination.
+	 *
+	 * @var array
 	 */
 	protected $message_tags = [];
 
 	/**
-	 * @var
+	 *  Event message actions.
+	 *
+	 * @var array
 	 */
 	protected $message_actions = [];
 
 	/**
-	 * @var
+	 * Event recipient handlers.
+	 *
+	 * @var array
 	 */
 	protected $recipients_handlers = [];
 
 	/**
+	 * Event UI.
+	 *
 	 * @var UI
 	 */
 	protected $ui;
 
 	/**
-	 * @var
+	 * Event name.
+	 *
+	 * @var string
 	 */
 	protected $name = '';
 
@@ -57,7 +71,7 @@ class Event {
 	 *
 	 * @param string $id Event ID.
 	 */
-	public static function register( $id ) {
+	public static function register( $id ) :Event {
 		$event               = new self( $id );
 		self::$events[ $id ] = $event;
 
@@ -67,14 +81,16 @@ class Event {
 	/**
 	 * Event constructor.
 	 *
-	 * @param $id
+	 * @param string $id Event ID.
 	 */
 	protected function __construct( $id ) {
 		$this->id = $id;
 	}
 
 	/**
-	 * @param string|array|callable $action
+	 * Adds a listener.
+	 *
+	 * @param string|array|callable $action The action to perform.
 	 *
 	 * @return mixed
 	 */
@@ -85,17 +101,21 @@ class Event {
 	}
 
 	/**
+	 * Adds the message tags.
+	 *
 	 * @param array|callable $tags Array of key/value pairs.
 	 *
 	 * @return array
 	 */
-	public function add_message_tags( $tags ) {
+	public function add_message_tags( $tags ) :array {
 		$this->message_tags = array_merge( $this->message_tags, $tags );
 
 		return $this->message_tags;
 	}
 
 	/**
+	 * Adds a message action.
+	 *
 	 * @param string          $id              A reference name for the action.
 	 * @param string          $text            The link or button text for the action.
 	 * @param string|callable $callback_or_url Description.
@@ -145,7 +165,7 @@ class Event {
 	 *
 	 * @return Event|null
 	 */
-	public static function get( $id ) {
+	public static function get( $id ) : ?Event {
 		return self::$events[ $id ] ?? null;
 	}
 
@@ -154,12 +174,8 @@ class Event {
 	 *
 	 * @return array
 	 */
-	public function get_listeners() {
-		if ( empty( $this->listeners ) ) {
-			return [ $this->id ];
-		}
-
-		return $this->listeners;
+	public function get_listeners() : array {
+		return empty( $this->listeners ) ? [ $this->id ] : $this->listeners;
 	}
 
 	/**
@@ -167,7 +183,7 @@ class Event {
 	 *
 	 * @return array
 	 */
-	public function get_message_tags() {
+	public function get_message_tags() : array {
 		return $this->message_tags;
 	}
 
@@ -178,14 +194,16 @@ class Event {
 	 *
 	 * @return callable
 	 */
-	public function get_recipient_handler( $id ) {
+	public function get_recipient_handler( $id ) : callable {
 		return $this->recipients_handler[ $id ];
 	}
 
 	/**
+	 * Gets the message actions.
+	 *
 	 * @return array
 	 */
-	public function get_message_actions() {
+	public function get_message_actions() : array {
 		return $this->message_actions;
 	}
 
@@ -194,7 +212,7 @@ class Event {
 	 *
 	 * @return UI
 	 */
-	public function get_ui() {
+	public function get_ui() : UI {
 		return $this->ui;
 	}
 }
