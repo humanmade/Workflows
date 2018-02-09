@@ -48,7 +48,7 @@ class Destination {
 	/**
 	 * Registers a new Destination.
 	 *
-	 * @param string   $id Destination ID.
+	 * @param string   $id      Destination ID.
 	 * @param callable $handler Destination handler function.
 	 */
 	public static function register( $id, $handler ) : Destination {
@@ -60,7 +60,7 @@ class Destination {
 	/**
 	 * Destination constructor.
 	 *
-	 * @param string   $id Destination ID.
+	 * @param string   $id      Destination ID.
 	 * @param callable $handler Destination handler function.
 	 */
 	protected function __construct( $id, $handler ) {
@@ -72,7 +72,7 @@ class Destination {
 	 * Run the destination handler.
 	 *
 	 * @param array $recipients The recipients.
-	 * @param array $messages The messages to display.
+	 * @param array $messages   The messages to display.
 	 */
 	public function call_handler( $recipients, $messages ) {
 		$message = $messages[0];

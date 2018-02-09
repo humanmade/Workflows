@@ -20,10 +20,11 @@ namespace HM\Workflow;
 require_once __DIR__ . '/inc/namespace.php';
 
 add_action( 'plugins_loaded', function() {
+	// @todo: does this need to run on DOING_AJAX/DOING_CRON?
 	$wf = Workflow::register( 'draft_to_pending' )
 			->when( 'draft_to_pending' ) // creates the Workflow Event.
-			->what( 'Post is ready to publish' )
-			->who( 'administrator' )
+			->what( 'A draft is ready to publish' )
+			->who( 'author' )
 			->where( Destination::register( 'email', __NAMESPACE__ . '\\email_handler' ) );
 });
 
@@ -35,5 +36,8 @@ add_action( 'plugins_loaded', function() {
  */
 function email_handler( $recipients, $messages ) {
 	$message = $messages[0];
-	wp_mail( array_column( $recipients, 'user_email' ), 'A message for you sir.', $message );
+	$headers = array_map( function( $email ) {
+		return 'BCC: ' . $email;
+	}, array_column( $recipients, 'user_email' ) );
+	wp_mail( [], 'A message for you sir.', $message, $headers );
 }

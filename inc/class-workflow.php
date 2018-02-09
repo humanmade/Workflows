@@ -12,6 +12,8 @@
 
 namespace HM\Workflow;
 
+use HM\Workflow\Destination;
+
 /**
  * Class Workflow
  */
@@ -151,7 +153,7 @@ class Workflow {
 	 * @return $this
 	 */
 	public function where( $destination ) {
-		if ( is_string( $destination ) || is_a( $destination, HM\Workflow\Destination::class ) ) {
+		if ( is_string( $destination ) || is_a( $destination, Destination::class ) ) {
 			$this->destinations[] = $destination;
 		} elseif ( is_callable( $destination ) ) {
 			$destination->call_handler( $this->recipients, $this->messages );
