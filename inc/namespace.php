@@ -9,6 +9,6 @@
  */
 
 require_once __DIR__ . '/class-ui.php';
-require_once __DIR__ . '/class-workflow.php';
-require_once __DIR__ . '/class-event.php';
 require_once __DIR__ . '/class-destination.php';
+require_once __DIR__ . '/class-event.php';
+require_once __DIR__ . '/class-workflow.php';

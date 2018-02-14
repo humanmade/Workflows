@@ -81,8 +81,8 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function set_key( $key ) {
-		$this->key = $key;
+	public function set_key( $key ) : self {
+		$this->key = sanitize_key( $key );
 
 		return $this;
 	}
@@ -94,7 +94,7 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function set_description( $description ) {
+	public function set_description( $description ) : self {
 		$this->description = $description;
 
 		return $this;
@@ -110,7 +110,7 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function add_field( $name, $label, $type = 'text', array $params = array() ) {
+	public function add_field( string $name, string $label, string $type = 'text', array $params = [] ) : self {
 		$this->fields[] = [
 			'name'   => $name,
 			'label'  => $label,
@@ -127,7 +127,7 @@ class UI {
 	 *
 	 * @param array $data An array of the field values with the field names as the keys.
 	 */
-	public function save_data( $data ) {
+	public function save_data( array $data ) {
 		// @todo: handle this
 	}
 

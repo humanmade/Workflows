@@ -22,7 +22,7 @@ class Event {
 	 *
 	 * @var array
 	 */
-	protected static $events = [];
+	protected static $instances = [];
 
 	/**
 	 * Collection of registered event listeners.
@@ -72,8 +72,8 @@ class Event {
 	 * @param string $id Event ID.
 	 */
 	public static function register( $id ) :Event {
-		$event               = new self( $id );
-		self::$events[ $id ] = $event;
+		$event                  = new self( $id );
+		self::$instances[ $id ] = $event;
 
 		return $event;
 	}
@@ -110,7 +110,7 @@ class Event {
 	public function add_message_tags( $tags ) :array {
 		$this->message_tags = array_merge( $this->message_tags, $tags );
 
-		return $this->message_tags;
+		return $this;
 	}
 
 	/**
@@ -124,7 +124,7 @@ class Event {
 	 *
 	 * @return $this
 	 */
-	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema ) {
+	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema ) : self {
 		// @todo: handle this
 		return $this;
 	}
@@ -138,7 +138,7 @@ class Event {
 	 *
 	 * @return $this
 	 */
-	public function add_recipient_handler( $id, $name, $callback ) {
+	public function add_recipient_handler( $id, $name, $callback ) : self {
 		$this->recipients_handlers[ $id ] = $callback;
 		return $this;
 	}
@@ -150,7 +150,7 @@ class Event {
 	 *
 	 * @return $this
 	 */
-	public function add_ui( $ui ) {
+	public function add_ui( UI $ui ) : self {
 		if ( is_string( $ui ) ) {
 			$this->ui = UI::register( $this->id );
 		}
@@ -166,8 +166,8 @@ class Event {
 	 *
 	 * @return Event|null
 	 */
-	public static function get( $id ) {
-		return self::$events[ $id ] ?? null;
+	public static function get( string $id ) {
+		return self::$instances[ $id ] ?? null;
 	}
 
 	/**
@@ -191,11 +191,11 @@ class Event {
 	/**
 	 * Gets the recipeint handler function.
 	 *
-	 * @param strin $id The handler ID.
+	 * @param string $id The handler ID.
 	 *
 	 * @return callable
 	 */
-	public function get_recipient_handler( $id ) : callable {
+	public function get_recipient_handler( string $id ) : callable {
 		return $this->recipients_handler[ $id ];
 	}
 

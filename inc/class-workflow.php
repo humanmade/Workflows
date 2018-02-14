@@ -61,7 +61,7 @@ class Workflow {
 	 *
 	 * @return Workflow
 	 */
-	public static function register( $id ) :Workflow {
+	public static function register( string $id ) : Workflow {
 		$wf                = new self( $id );
 		self::$instances[] = $wf;
 		return $wf;
@@ -72,7 +72,7 @@ class Workflow {
 	 *
 	 * @param string $id The workflow ID.
 	 */
-	protected function __construct( $id ) {
+	protected function __construct( string $id ) {
 		$this->id = $id;
 	}
 
@@ -83,7 +83,7 @@ class Workflow {
 	 *
 	 * @return $this
 	 */
-	public function when( $event ) {
+	public function when( $event ) : self {
 		if ( is_string( $event ) ) {
 			$this->event = Event::get( $event );
 			if ( null === $this->event ) {
@@ -119,7 +119,7 @@ class Workflow {
 	 *
 	 * @return $this
 	 */
-	public function what( $message, array $actions = [] ) {
+	public function what( $message, array $actions = [] ) : self {
 		if ( is_callable( $message ) ) {
 			// @todo
 		}
@@ -135,7 +135,7 @@ class Workflow {
 	 *
 	 * @return $this
 	 */
-	public function who( $who ) {
+	public function who( $who ) : self {
 		if ( is_array( $who ) ) {
 			$this->recipients = array_merge( $this->recipients, $who );
 		} else {
@@ -152,7 +152,7 @@ class Workflow {
 	 *
 	 * @return $this
 	 */
-	public function where( $destination ) {
+	public function where( $destination ) : self {
 		if ( is_string( $destination ) || is_a( $destination, Destination::class ) ) {
 			$this->destinations[] = $destination;
 		} elseif ( is_callable( $destination ) ) {

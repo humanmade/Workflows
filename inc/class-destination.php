@@ -51,7 +51,7 @@ class Destination {
 	 * @param string   $id      Destination ID.
 	 * @param callable $handler Destination handler function.
 	 */
-	public static function register( $id, $handler ) : Destination {
+	public static function register( string $id, callable $handler ) : Destination {
 		$destination            = new self( $id, $handler );
 		self::$instances[ $id ] = $destination;
 		return $destination;
@@ -63,7 +63,7 @@ class Destination {
 	 * @param string   $id      Destination ID.
 	 * @param callable $handler Destination handler function.
 	 */
-	protected function __construct( $id, $handler ) {
+	protected function __construct( string $id, callable $handler ) {
 		$this->handler = $handler;
 		$this->id      = $id;
 	}
@@ -74,7 +74,7 @@ class Destination {
 	 * @param array $recipients The recipients.
 	 * @param array $messages   The messages to display.
 	 */
-	public function call_handler( $recipients, $messages ) {
+	public function call_handler( array $recipients, array $messages ) {
 		$message = $messages[0];
 		( $this->handler )( $recipients, $messages );
 	}
@@ -86,7 +86,7 @@ class Destination {
 	 *
 	 * @return $this
 	 */
-	public function add_ui( $ui ) {
+	public function add_ui( UI $ui ) : self {
 		$this->ui = $ui;
 		return $this;
 	}
