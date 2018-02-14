@@ -59,7 +59,7 @@ class UI {
 	 *
 	 * @return UI
 	 */
-	public static function register( $name ) : UI {
+	public static function register( string $name ) : UI {
 		$ui                       = new self( $name );
 		self::$instances[ $name ] = $ui;
 		return $ui;
@@ -70,7 +70,7 @@ class UI {
 	 *
 	 * @param string $name A user facing text label for the UI component.
 	 */
-	protected function __construct( $name ) {
+	protected function __construct( string $name ) {
 		$this->name = $name;
 	}
 
@@ -81,7 +81,7 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function set_key( $key ) : self {
+	public function set_key( string $key ) : self {
 		$this->key = sanitize_key( $key );
 
 		return $this;
@@ -94,7 +94,7 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function set_description( $description ) : self {
+	public function set_description( string $description ) : self {
 		$this->description = $description;
 
 		return $this;

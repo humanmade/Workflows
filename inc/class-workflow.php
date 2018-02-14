@@ -18,6 +18,12 @@ use HM\Workflow\Destination;
  * Class Workflow
  */
 class Workflow {
+	/**
+	 * Workflow name.
+	 *
+	 * @var string
+	 */
+	protected $name;
 
 	/**
 	 * Workflow instances.
@@ -58,11 +64,12 @@ class Workflow {
 	 * Registers a new Workflow object.
 	 *
 	 * @param string $id Workflow ID.
+	 * @param string $name Human readable name.
 	 *
 	 * @return Workflow
 	 */
-	public static function register( string $id ) : Workflow {
-		$wf                = new self( $id );
+	public static function register( string $id, string $name ) : Workflow {
+		$wf                = new self( $id, $name );
 		self::$instances[] = $wf;
 		return $wf;
 	}
@@ -71,9 +78,11 @@ class Workflow {
 	 * Workflow constructor.
 	 *
 	 * @param string $id The workflow ID.
+	 * @param string $name Human readable name.
 	 */
-	protected function __construct( string $id ) {
-		$this->id = $id;
+	protected function __construct( string $id, string $name ) {
+		$this->id   = $id;
+		$this->name = $name;
 	}
 
 	/**
@@ -190,18 +199,26 @@ class Workflow {
 			}
 		}
 
-		$messages = $this->messages; // Will need to parse.
-//		foreach ( $this->messages as $message ) {
-//			if ( is_callable( $message ) ) {
-//				$result = $message( $args );
-//			}
-//			$message_tags = $this->event->get_message_tags();
-//			// @todo: build message.
-//		}
+		$parsed_messages = [];
+		$tags            = [];
+		foreach ( $this->event->get_message_tags() as $key => $val ) {
+			if ( is_callable( $val ) ) {
+				$tags[ '%' . $key . '%' ] = $val( $args );
+			} else {
+				$tags[ '%' . $key . '%' ] = $val;
+			}
+		}
+		foreach ( $this->messages as $message ) {
+			if ( is_callable( $message ) ) {
+				$parsed_messages[] = $message( $args );
+			} else {
+				$parsed_messages[] = str_replace( array_keys( $tags ), array_values( $tags ), $message );
+			}
+		}
 
 		foreach ( $this->destinations as $destination ) {
 			// @todo Filter out recipients with this destination notification disabled
-			$destination->call_handler( $recipients, $messages );
+			$destination->call_handler( $recipients, $parsed_messages );
 		}
 	}
 

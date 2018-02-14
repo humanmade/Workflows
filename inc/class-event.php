@@ -107,7 +107,7 @@ class Event {
 	 *
 	 * @return array
 	 */
-	public function add_message_tags( $tags ) :array {
+	public function add_message_tags( $tags ) : Event {
 		$this->message_tags = array_merge( $this->message_tags, $tags );
 
 		return $this;
