@@ -122,7 +122,7 @@ class Workflow {
 	 * Message builder.
 	 *
 	 * @param string|callable $message Message.
-	 * @param callable|array  $actions Actions.
+	 * @param array           $actions Actions.
 	 *
 	 * @return $this
 	 */
@@ -132,6 +132,13 @@ class Workflow {
 		}
 
 		$this->messages[] = $message;
+
+		if ( ! empty( $actions ) ) {
+			foreach ( $actions as $action ) {
+				$this->event->add_message_action( $action['id'], $action['text'], $action['callback_or_url'], $action['args'], $action['schema'] );
+			}
+		}
+
 		return $this;
 	}
 
@@ -212,26 +219,26 @@ class Workflow {
 		}
 		foreach ( $this->messages as $message ) {
 			if ( is_callable( $message ) ) {
-				$parsed_messages[] = $message( $args );
+				$parsed_messages['messages'][] = $message( $args );
 			} else {
-				$parsed_messages[] = str_replace( array_keys( $tags ), array_values( $tags ), $message );
+				$parsed_messages['messages'][] = str_replace( array_keys( $tags ), array_values( $tags ), $message );
 			}
+		}
+
+		foreach ( $this->event->get_message_actions() as $id => $action ) {
+			$url = '';
+			if ( is_callable( $action['callback_or_url'] ) ) {
+				$url = rest_url( 'workflows/v1/webhooks/' . $this->event->id . '/' . $id . '/' . $action['callback_or_url']( $args ) );
+			}
+			$parsed_messages['actions'][ $id ] = [
+				'text' => $action['text'],
+				'url'  => $url,
+			];
 		}
 
 		foreach ( $this->destinations as $destination ) {
 			// @todo Filter out recipients with this destination notification disabled
 			$destination->call_handler( $recipients, $parsed_messages );
-		}
-	}
-
-	/**
-	 * Parse actions.
-	 *
-	 * @param array $actions The actions to run.
-	 */
-	protected function run_actions( array $actions ) {
-		foreach ( $actions as $action ) {
-			// @todo: handle this
 		}
 	}
 }

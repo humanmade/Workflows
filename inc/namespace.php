@@ -14,6 +14,7 @@ require_once __DIR__ . '/class-ui.php';
 require_once __DIR__ . '/class-destination.php';
 require_once __DIR__ . '/class-event.php';
 require_once __DIR__ . '/class-workflow.php';
+require_once __DIR__ . '/class-rest-webhook-controller.php';
 
 /**
  * Register post type
@@ -57,3 +58,11 @@ add_action( 'init', function() {
 	register_post_type( 'hm_workflow', $args );
 
 }, 1 );
+
+/**
+ * REST API endpoints.
+ */
+add_action( 'rest_api_init', function() {
+	$rest_controller = new REST_Webhook_Controller( 'workflows/v1', 'webhooks' );
+	$rest_controller->register_routes();
+});

@@ -125,7 +125,7 @@ class Event {
 	 * @return $this
 	 */
 	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema = [] ) : self {
-		$this->message_actions[ $id ] = [ $text, $callback_or_url, $args ];
+		$this->message_actions[ $id ] = [ 'text' => $text, 'callback_or_url' => $callback_or_url, 'args' => $args ];
 		return $this;
 	}
 
