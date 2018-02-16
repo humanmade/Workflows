@@ -12,8 +12,6 @@
 
 namespace HM\Workflow;
 
-use HM\Workflow\Destination;
-
 /**
  * Class Workflow
  */
@@ -176,6 +174,10 @@ class Workflow {
 	 * @param array $args The return value from the callback or arguments from the action.
 	 */
 	protected function run( array $args ) {
+		if ( count( $args ) === 1 ) {
+			$args = array_shift( $args );
+		}
+
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
 			// @todo: case If it matches one of $this->event->get_recipient_handler( $id ), get the return value from the callback, passing $args to the callback.
