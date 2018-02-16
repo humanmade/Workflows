@@ -112,7 +112,8 @@ function email_handler( array $recipients, array $messages ) {
 	$headers = array_map( function( $email ) {
 		return 'BCC: ' . $email;
 	}, array_column( $recipients, 'user_email' ) );
-	$result = wp_mail(
+	$headers[] = 'Content-Type: text/html; charset=UTF-8';
+	$result    = wp_mail(
 		[],
 		/* translators: the current site URL. */
 		sprintf( __( 'Notification for %s from HM Workflows', 'hm-workflow' ), esc_url( home_url() ) ),
