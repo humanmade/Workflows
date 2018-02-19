@@ -75,7 +75,6 @@ class Destination {
 	 * @param array $messages   The messages to display.
 	 */
 	public function call_handler( array $recipients, array $messages ) {
-		$message = $messages[0];
 		( $this->handler )( $recipients, $messages );
 	}
 
