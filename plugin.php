@@ -74,7 +74,7 @@ add_action( 'plugins_loaded', function() {
 				],
 			] ) // @todo: consider i18n
 			->who( 'editor' )
-			->where( Destination::register( 'email', __NAMESPACE__ . '\\email_handler' ) );
+			->where( $email_destination );
 
 	$wf_publish_post = Workflow::register( 'publish_post', __( 'Notify editors by email when a post has been published', 'hm-workflow' ) )
 			->when( 'publish_post' )
@@ -93,20 +93,21 @@ add_action( 'plugins_loaded', function() {
  * Custom handler for the email Event.
  *
  * @param WP_User[] $recipients Array of WP_Users.
- * @param array     $messages Messages.
+ * @param array[]   $data Messages and actions.
  */
-function email_handler( array $recipients, array $messages ) {
-	if ( empty( $recipients ) || empty( $messages ) ) {
+function email_handler( array $recipients, array $data ) {
+	if ( empty( $recipients ) || empty( $data ) ) {
 		return false;
 	}
 
-	$message = $messages['messages'][0];
-	if ( ! empty( $messages['actions'] ) ) {
-		$message .= '<ul>';
-		foreach ( $messages['actions'] as $action ) {
-			$message .= '<li><a href="' . $action['url'] . '">' . $action['text'] . '</a></li>';
+	$body = implode( ' ', $data['messages'] );
+
+	if ( ! empty( $data['actions'] ) ) {
+		$body .= '<ul>';
+		foreach ( $data['actions'] as $action ) {
+			$body .= '<li><a href="' . esc_url( $action['url'] ) . '">' . esc_html( $action['text'] ) . '</a></li>';
 		}
-		$message .= '</ul>';
+		$body .= '</ul>';
 	}
 
 	$headers = array_map( function( $email ) {
@@ -117,7 +118,7 @@ function email_handler( array $recipients, array $messages ) {
 		[],
 		/* translators: the current site URL. */
 		sprintf( __( 'Notification for %s from HM Workflows', 'hm-workflow' ), esc_url( home_url() ) ),
-		$message,
+		$body,
 		$headers
 	);
 	return $result;
