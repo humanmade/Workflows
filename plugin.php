@@ -82,14 +82,14 @@ add_action( 'plugins_loaded', function() {
 				[
 					'id'              => 'view',
 					'text'            => __( 'View', 'hm-workflow' ),
-					'callback_or_url' => function( $post ) { return $post->ID; },
+					'callback_or_url' => function( $post_id ) { return $post_id; },
 					'args'            => [],
 					'schema'          => [],
 				],
 				[
 					'id'              => 'edit',
 					'text'            => __( 'Edit', 'hm-workflow' ),
-					'callback_or_url' => function( $post ) { return $post->ID; },
+					'callback_or_url' => function( $post_id ) { return $post_id; },
 					'args'            => [],
 					'schema'          => [],
 				],
