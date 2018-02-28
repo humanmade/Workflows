@@ -66,3 +66,38 @@ add_action( 'rest_api_init', function() {
 	$rest_controller = new REST_Webhook_Controller( 'workflows/v1', 'webhooks' );
 	$rest_controller->register_routes();
 });
+
+/**
+ * Custom handler for the email Event.
+ *
+ * @param WP_User[] $recipients Array of WP_Users.
+ * @param array[]   $data Messages and actions.
+ */
+function email_handler( array $recipients, array $data ) {
+	if ( empty( $recipients ) || empty( $data ) ) {
+		return false;
+	}
+
+	$body = implode( ' ', $data['messages'] );
+
+	if ( ! empty( $data['actions'] ) ) {
+		$body .= '<ul>';
+		foreach ( $data['actions'] as $action ) {
+			$body .= sprintf( '<li><a href="%1$s">%2$s</a></li>', esc_url( $action['url'] ), esc_html( $action['text'] ) );
+		}
+		$body .= '</ul>';
+	}
+
+	$headers = array_map( function( $email ) {
+		return 'BCC: ' . $email;
+	}, array_column( $recipients, 'user_email' ) );
+	$headers[] = 'Content-Type: text/html; charset=UTF-8';
+	$result    = wp_mail(
+		[],
+		/* translators: the current site URL. */
+		sprintf( __( 'Notification for %s from HM Workflows', 'hm-workflow' ), esc_url( home_url() ) ),
+		$body,
+		$headers
+	);
+	return $result;
+}
