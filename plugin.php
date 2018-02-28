@@ -34,10 +34,10 @@ add_action( 'plugins_loaded', function() {
 
 	$event_post_published = Event::register( 'publish_post' )
 		->add_message_tags( [
-			'title' => function( $args ) {
-			// $args array contains [$ID, $post].
-				if ( is_a( $args[1], 'WP_Post' ) ) {
-					return $args[1]->post_title;
+			'title' => function( $post_id ) {
+				$post = get_post( $post_id );
+				if ( is_a( $post, 'WP_Post' ) ) {
+					return $post->post_title;
 				}
 				return null;
 			},
@@ -45,10 +45,10 @@ add_action( 'plugins_loaded', function() {
 
 	$event_page_published = Event::register( 'publish_page' )
 		->add_message_tags( [
-			'title' => function( $args ) {
-				// $args array contains [$ID, $post].
-				if ( is_a( $args[1], 'WP_Post' ) ) {
-						return $args[1]->post_title;
+			'title' => function( $post_id ) {
+				$post = get_post( $post_id );
+				if ( is_a( $post, 'WP_Post' ) ) {
+					return $post->post_title;
 				}
 				return null;
 			},
@@ -78,13 +78,43 @@ add_action( 'plugins_loaded', function() {
 
 	$wf_publish_post = Workflow::register( 'publish_post', __( 'Notify editors by email when a post has been published', 'hm-workflow' ) )
 			->when( 'publish_post' )
-			->what( '%title% has been published' ) // @todo: consider i18n
+			->what( '%title% is ready to be published', [
+				[
+					'id'              => 'view',
+					'text'            => __( 'View', 'hm-workflow' ),
+					'callback_or_url' => function( $post ) { return $post->ID; },
+					'args'            => [],
+					'schema'          => [],
+				],
+				[
+					'id'              => 'edit',
+					'text'            => __( 'Edit', 'hm-workflow' ),
+					'callback_or_url' => function( $post ) { return $post->ID; },
+					'args'            => [],
+					'schema'          => [],
+				],
+			] ) // @todo: consider i18n
 			->who( 'editor' )
 			->where( $email_destination );
 
 	$wf_publish_page = Workflow::register( 'publish_page', __( 'Notify editors by email when a page has been published', 'hm-workflow' ) )
 			->when( 'publish_page' )
-			->what( '%title% has been published' ) // @todo: consider i18n
+			->what( '%title% is ready to be published', [
+				[
+					'id'              => 'view',
+					'text'            => __( 'View', 'hm-workflow' ),
+					'callback_or_url' => function( $post_id ) { return $post_id; },
+					'args'            => [],
+					'schema'          => [],
+				],
+				[
+					'id'              => 'edit',
+					'text'            => __( 'Edit', 'hm-workflow' ),
+					'callback_or_url' => function( $post_id ) { return $post_id; },
+					'args'            => [],
+					'schema'          => [],
+				],
+			] ) // @todo: consider i18n
 			->who( 'editor' )
 			->where( $email_destination );
 });
