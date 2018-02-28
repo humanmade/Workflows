@@ -4,18 +4,24 @@
  *
  * This is a class that defines an event handler, its available actions and recipient callbacks, and its UI.
  *
- * @link https://github.com/humanmade/Workflow/issues/1
+ * @link    https://github.com/humanmade/Workflow/issues/1
  *
  * @package HM\Workflow
- * @since 0.1.0
+ * @since   0.1.0
  */
 
-namespace HM\Workflow;
+namespace HM\Workflows;
 
 /**
  * Class Event
  */
 class Event {
+	/**
+	 * Event object identifier.
+	 *
+	 * @var string
+	 */
+	protected $id;
 
 	/**
 	 * Events array.
@@ -27,9 +33,9 @@ class Event {
 	/**
 	 * Collection of registered event listeners.
 	 *
-	 * @var array
+	 * @var mixed
 	 */
-	protected $listeners = [];
+	protected $listener;
 
 	/**
 	 * Array of key/value pairs that can be substituted into the message delivered to the destination.
@@ -70,8 +76,9 @@ class Event {
 	 * Creates a new Event object.
 	 *
 	 * @param string $id Event ID.
+	 * @return Event
 	 */
-	public static function register( $id ) :Event {
+	public static function register( string $id ): Event {
 		$event                  = new self( $id );
 		self::$instances[ $id ] = $event;
 
@@ -83,7 +90,7 @@ class Event {
 	 *
 	 * @param string $id Event ID.
 	 */
-	protected function __construct( $id ) {
+	protected function __construct( string $id ) {
 		$this->id = $id;
 	}
 
@@ -92,10 +99,27 @@ class Event {
 	 *
 	 * @param string|array|callable $action The action to perform.
 	 *
-	 * @return mixed
+	 * @return Event
 	 */
 	public function add_listener( $action ) {
-		$this->recipients_handlers[] = $action;
+		// Sanitize and set defaults for an array type action.
+		if ( is_array( $action ) ) {
+			if ( ! isset( $action['action'] ) || ! is_string( $action['action'] ) ) {
+				trigger_error( '`action` is a required key and must be a string when adding an event listener array.', E_USER_WARNING );
+
+				return $this;
+			}
+
+			$action = wp_parse_args( $action, [
+				'priority'      => 10,
+				'accepted_args' => 1,
+			] );
+
+			$action['priority']      = intval( $action['priority'] );
+			$action['accepted_args'] = intval( $action['accepted_args'] );
+		}
+
+		$this->listener = $action;
 
 		return $this;
 	}
@@ -103,11 +127,11 @@ class Event {
 	/**
 	 * Adds the message tags.
 	 *
-	 * @param array|callable $tags Array of key/value pairs.
+	 * @param array $tags Array of key/value pairs.
 	 *
-	 * @return array
+	 * @return Event
 	 */
-	public function add_message_tags( $tags ) : Event {
+	public function add_message_tags( array $tags ): Event {
 		$this->message_tags = array_merge( $this->message_tags, $tags );
 
 		return $this;
@@ -118,14 +142,25 @@ class Event {
 	 *
 	 * @param string          $id              A reference name for the action.
 	 * @param string          $text            The link or button text for the action.
-	 * @param string|callable $callback_or_url Description.
+	 * @param string|callable $callback_or_url A handler for when the action is clicked or a URL to send users to
+	 *                                         directly.
 	 * @param null|callable   $args            An optional function that receives the return value of the event action.
-	 * @param array           $schema          An array of accepted $_GET arguments and their corresponding sanitisation callback.
+	 * @param array           $schema          An array of accepted $_GET arguments and their corresponding
+	 *                                         sanitisation callbacks.
+	 * @param array           $data            Arbitrary data passed to the Destination via $messages to any other
+	 *                                         action data such as type.
 	 *
-	 * @return $this
+	 * @return Event
 	 */
-	public function add_message_action( $id, $text, $callback_or_url, $args = null, array $schema = [] ) : self {
-		$this->message_actions[ $id ] = [ 'text' => $text, 'callback_or_url' => $callback_or_url, 'args' => $args ];
+	public function add_message_action( string $id, string $text, $callback_or_url, $args = null, array $schema = [], array $data = [] ): Event {
+		$this->message_actions[ $id ] = [
+			'text'            => $text,
+			'callback_or_url' => $callback_or_url,
+			'args'            => $args,
+			'schema'          => $schema,
+			'data'            => $data,
+		];
+
 		return $this;
 	}
 
@@ -133,13 +168,18 @@ class Event {
 	 * This method should add the $name and $callback parameter to $this->recipient_handlers with $id as the key.
 	 *
 	 * @param string   $id       An identifier for the recipient handler to be used in the WorkFlow()->who() method.
-	 * @param string   $name     A nice name to be shown in the UI.
-	 * @param callable $callback This receives the event action value as it’s 1st parameter and should return one or an array of email addresses, user objects, user IDs or user roles.
+	 * @param callable $callback This receives the event action value as it’s 1st parameter and should return one or an
+	 *                           array of email addresses, user objects, user IDs or user roles.
+	 * @param string   $name     A nice name to be shown in the UI, optional.
 	 *
-	 * @return $this
+	 * @return Event
 	 */
-	public function add_recipient_handler( $id, $name, $callback ) : self {
-		$this->recipients_handlers[ $id ] = $callback;
+	public function add_recipient_handler( string $id, callable $callback, string $name = '' ): Event {
+		$this->recipients_handlers[ $id ] = [
+			'name'     => $name,
+			'callback' => $callback,
+		];
+
 		return $this;
 	}
 
@@ -148,12 +188,13 @@ class Event {
 	 *
 	 * @param string|UI $ui A nice name to show in the UI or a UI object.
 	 *
-	 * @return $this
+	 * @return Event
 	 */
-	public function add_ui( UI $ui ) : self {
+	public function add_ui( UI $ui ): Event {
 		if ( is_string( $ui ) ) {
 			$this->ui = UI::register( $this->id );
 		}
+
 		$this->ui->set_key( 'event_' . $this->id );
 
 		return $this;
@@ -171,12 +212,21 @@ class Event {
 	}
 
 	/**
+	 * Gets the Event ID.
+	 *
+	 * @return string
+	 */
+	public function get_id(): string {
+		return $this->id;
+	}
+
+	/**
 	 * Gets the Event listeners.
 	 *
-	 * @return array
+	 * @return mixed
 	 */
-	public function get_listeners() : array {
-		return empty( $this->listeners ) ? [ $this->id ] : $this->listeners;
+	public function get_listener(): array {
+		return $this->listener;
 	}
 
 	/**
@@ -184,19 +234,19 @@ class Event {
 	 *
 	 * @return array
 	 */
-	public function get_message_tags() : array {
+	public function get_message_tags(): array {
 		return $this->message_tags;
 	}
 
 	/**
-	 * Gets the recipeint handler function.
+	 * Gets the recipient handler function.
 	 *
 	 * @param string $id The handler ID.
 	 *
 	 * @return callable
 	 */
-	public function get_recipient_handler( string $id ) : callable {
-		return $this->recipients_handler[ $id ];
+	public function get_recipient_handler( string $id ): callable {
+		return $this->recipients_handlers[ $id ]['callback'];
 	}
 
 	/**
@@ -204,8 +254,17 @@ class Event {
 	 *
 	 * @return array
 	 */
-	public function get_message_actions() : array {
+	public function get_message_actions(): array {
 		return $this->message_actions;
+	}
+
+	/**
+	 * Gets the message actions.
+	 *
+	 * @return array|null
+	 */
+	public function get_message_action( string $id ): array {
+		return $this->message_actions[ $id ] ?? null;
 	}
 
 	/**
@@ -213,7 +272,7 @@ class Event {
 	 *
 	 * @return UI
 	 */
-	public function get_ui() : UI {
+	public function get_ui(): UI {
 		return $this->ui;
 	}
 }

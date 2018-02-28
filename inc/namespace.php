@@ -5,10 +5,10 @@
  *  Declares functions and constants in the HM\Workflow namespace
  *
  * @package HM\Workflow
- * @since 0.1.0
+ * @since   0.1.0
  */
 
-namespace HM\Workflow;
+namespace HM\Workflows;
 
 require_once __DIR__ . '/class-ui.php';
 require_once __DIR__ . '/class-destination.php';
@@ -19,7 +19,7 @@ require_once __DIR__ . '/class-rest-webhook-controller.php';
 /**
  * Register post type
  */
-add_action( 'init', function() {
+add_action( 'init', function () {
 
 	$labels = [
 		'name'               => _x( 'Workflows', 'post type general name', 'hm-workflow' ),
@@ -46,23 +46,33 @@ add_action( 'init', function() {
 		'show_ui'            => true,
 		'show_in_menu'       => true,
 		'query_var'          => true,
-		'capability_type'    => 'post',
+		'capability_type'    => 'workflow',
 		'has_archive'        => false,
 		'hierarchical'       => false,
 		'menu_position'      => null,
 		'menu_icon'          => 'dashicons-randomize',
-		'rewrite'            => [ 'slug' => 'workflows' ],
+		'rewrite'            => false,
 		'supports'           => [ 'title' ],
 	];
 
 	register_post_type( 'hm_workflow', $args );
-
 }, 1 );
 
 /**
  * REST API endpoints.
  */
-add_action( 'rest_api_init', function() {
-	$rest_controller = new REST_Webhook_Controller( 'workflows/v1', 'webhooks' );
+function get_webhook_controller() {
+	static $controller;
+
+	if ( $controller ) {
+		return $controller;
+	}
+
+	$controller = new REST_Webhook_Controller( 'workflows/v1', 'webhooks' );
+	return $controller;
+}
+
+add_action( 'rest_api_init', function () {
+	$rest_controller = get_webhook_controller();
 	$rest_controller->register_routes();
-});
+} );

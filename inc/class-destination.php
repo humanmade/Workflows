@@ -4,14 +4,14 @@
  *
  * This class handles the list of recipients and messages and optionally allows you to specify a UI for the destination.
  *
- * @link https://github.com/humanmade/Workflow/issues/2
+ * @link       https://github.com/humanmade/Workflow/issues/2
  *
- * @package WordPress
+ * @package    WordPress
  * @subpackage Component
- * @since 0.1.0
+ * @since      0.1.0
  */
 
-namespace HM\Workflow;
+namespace HM\Workflows;
 
 /**
  * Class Destination
@@ -50,10 +50,13 @@ class Destination {
 	 *
 	 * @param string   $id      Destination ID.
 	 * @param callable $handler Destination handler function.
+	 *
+	 * @return Destination
 	 */
-	public static function register( string $id, callable $handler ) : Destination {
+	public static function register( string $id, callable $handler ): Destination {
 		$destination            = new self( $id, $handler );
 		self::$instances[ $id ] = $destination;
+
 		return $destination;
 	}
 
@@ -75,6 +78,16 @@ class Destination {
 	 * @param array $messages   The messages to display.
 	 */
 	public function call_handler( array $recipients, array $messages ) {
+		// Filter out recipients with the notification disabled.
+		$recipients = array_filter( $recipients, function ( $recipient ) {
+			if ( is_a( $recipient, 'WP_User' ) ) {
+				return ! get_user_meta( $recipient->ID, "hm.workflows.destinations.disable.{$this->id}", true );
+			}
+
+			return true;
+		} );
+
+		// @todo Pass UI data
 		( $this->handler )( $recipients, $messages );
 	}
 
@@ -83,10 +96,11 @@ class Destination {
 	 *
 	 * @param UI $ui Destination UI.
 	 *
-	 * @return $this
+	 * @return Destination
 	 */
-	public function add_ui( UI $ui ) : self {
+	public function add_ui( UI $ui ): self {
 		$this->ui = $ui;
+
 		return $this;
 	}
 }

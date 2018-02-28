@@ -2,16 +2,16 @@
 /**
  * UI class
  *
- * The UI class is for defining a set of fields and storing and retrieving the values of which are passed to the destination objects,
- * recipient and event handlers.
+ * The UI class is for defining a set of fields and storing and retrieving the values of which are passed to the
+ * destination objects, recipient and event handlers.
  *
- * @link https://github.com/humanmade/Workflow/issues/4
+ * @link    https://github.com/humanmade/Workflow/issues/4
  *
  * @package HM\Workflow
- * @since 0.1.0
+ * @since   0.1.0
  */
 
-namespace HM\Workflow;
+namespace HM\Workflows;
 
 /**
  * Class UI
@@ -59,9 +59,10 @@ class UI {
 	 *
 	 * @return UI
 	 */
-	public static function register( string $name ) : UI {
+	public static function register( string $name ): UI {
 		$ui                       = new self( $name );
 		self::$instances[ $name ] = $ui;
+
 		return $ui;
 	}
 
@@ -81,7 +82,7 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function set_key( string $key ) : self {
+	public function set_key( string $key ): UI {
 		$this->key = sanitize_key( $key );
 
 		return $this;
@@ -90,11 +91,12 @@ class UI {
 	/**
 	 * This method should set the value of $this->description
 	 *
-	 * @param string $description A description of the UI, this should be text to help the user understand the interface.
+	 * @param string $description A description of the UI, this should be text to help the user understand the
+	 *                            interface.
 	 *
 	 * @return $this
 	 */
-	public function set_description( string $description ) : self {
+	public function set_description( string $description ): UI {
 		$this->description = $description;
 
 		return $this;
@@ -110,13 +112,13 @@ class UI {
 	 *
 	 * @return $this
 	 */
-	public function add_field( string $name, string $label, string $type = 'text', array $params = [] ) : self {
+	public function add_field( string $name, string $label, string $type = 'text', array $params = [] ): UI {
 		$this->fields[] = [
 			'name'   => $name,
 			'label'  => $label,
 			'type'   => $type,
 			'params' => $params,
-			'value'  => $this->get_data(),
+			'value'  => $this->get_field_data( $name ),
 		];
 
 		return $this;
@@ -136,8 +138,17 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_data() : array {
+	public function get_data(): array {
 		// @todo: handle this
+	}
+
+	/**
+	 * Returns the keyed array of data associated with this UI.
+	 *
+	 * @return array
+	 */
+	public function get_field_data( $name ) {
+		return $this->get_data()[ $name ] ?? null;
 	}
 
 	/**
@@ -145,7 +156,12 @@ class UI {
 	 *
 	 * @return array
 	 */
-	public function get_config() : array {
-		// @todo: handle this
+	public function get_config(): array {
+		return [
+			'name'        => $this->name,
+			'description' => $this->description,
+			'key'         => $this->key,
+			'fields'      => $this->fields,
+		];
 	}
 }
