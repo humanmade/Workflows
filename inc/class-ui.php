@@ -144,6 +144,24 @@ class UI {
 	}
 
 	/**
+	 * Get the human readable name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return $this->name;
+	}
+
+	/**
+	 * Get the human readable description.
+	 *
+	 * @return string
+	 */
+	public function get_description() {
+		return $this->description;
+	}
+
+	/**
 	 * Returns the keyed array of data associated with this UI.
 	 *
 	 * @return array

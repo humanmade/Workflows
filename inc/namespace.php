@@ -39,20 +39,23 @@ add_action( 'init', function () {
 	];
 
 	$args = [
-		'labels'             => $labels,
-		'description'        => __( 'Description.', 'hm-workflow' ),
-		'public'             => false,
-		'publicly_queryable' => false,
-		'show_ui'            => true,
-		'show_in_menu'       => true,
-		'query_var'          => true,
-		'capability_type'    => 'workflow',
-		'has_archive'        => false,
-		'hierarchical'       => false,
-		'menu_position'      => null,
-		'menu_icon'          => 'dashicons-randomize',
-		'rewrite'            => false,
-		'supports'           => [ 'title' ],
+		'labels'                => $labels,
+		'description'           => __( 'Description.', 'hm-workflow' ),
+		'public'                => false,
+		'publicly_queryable'    => false,
+		'show_ui'               => true,
+		'show_in_menu'          => true,
+		'query_var'             => true,
+		'capability_type'       => 'workflow',
+		'has_archive'           => false,
+		'hierarchical'          => false,
+		'menu_position'         => null,
+		'menu_icon'             => 'dashicons-randomize',
+		'rewrite'               => false,
+		'supports'              => [ 'title' ],
+		'show_in_rest'          => true,
+		'rest_base'             => 'workflows',
+		'rest_controller_class' => __NAMESPACE__ . '\REST_Workflows_Controller',
 	];
 
 	register_post_type( 'hm_workflow', $args );
@@ -69,6 +72,7 @@ function get_webhook_controller() {
 	}
 
 	$controller = new REST_Webhook_Controller( 'workflows/v1', 'webhooks' );
+
 	return $controller;
 }
 
@@ -78,6 +82,52 @@ add_action( 'rest_api_init', function () {
 } );
 
 /**
- * Notification destination opt out.
+ * Destination notifications opt out.
  */
+add_action( 'profile_personal_options', function () {
+	// Add the settings section.
+	add_settings_section(
+		'notifications',
+		esc_html__( 'Workflow notifications', 'hm-workflows' ),
+		'__return_false',
+		'hm.workflows.destinations'
+	);
 
+	// Add the notification opt-out fields.
+	foreach ( Destination::get_all() as $id => $destination ) {
+		if ( ! $destination->get_ui() ) {
+			continue;
+		}
+
+		add_settings_field( $id, $destination->get_ui()->get_name(), function ( $args ) {
+			printf( '<label for="%1$s"><input id="%1$s" type="checkbox" name="%1$s" value="1" %2$s /> %3$s</label>',
+				esc_attr( $args['id'] ),
+				checked( true, $args['value'], false ),
+				esc_html( $args['label'] )
+			);
+		}, 'hm.workflows.destinations', 'notifications', [
+			'id'    => "hm-workflows-destinations-disable-{$id}",
+			'label' => sprintf(
+				__( 'Disable %s notifications', 'hm-workflows' ),
+				$destination->get_ui()->get_name()
+			),
+			'value' => get_user_meta( get_current_user_id(), "hm.workflows.destinations.disable.{$id}", true )
+		] );
+	}
+}, 9 );
+
+// Output the fields on a later priority so other fields csn be added.
+add_action( 'profile_personal_options', function () {
+	do_settings_sections( 'hm.workflows.destinations' );
+}, 11 );
+
+// Save notification opt out fields.
+add_action( 'profile_update', function ( $user_id ) {
+	foreach ( Destination::get_all() as $id => $destination ) {
+		update_user_meta(
+			$user_id,
+			"hm.workflows.destinations.disable.{$id}",
+			filter_input( INPUT_POST, "hm-workflows-destinations-disable-{$id}", FILTER_SANITIZE_NUMBER_INT )
+		);
+	}
+} );

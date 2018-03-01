@@ -278,9 +278,9 @@ class Event {
 	/**
 	 * Gets the Event UI object.
 	 *
-	 * @return UI
+	 * @return UI|null
 	 */
-	public function get_ui(): UI {
+	public function get_ui() {
 		return $this->ui;
 	}
 }

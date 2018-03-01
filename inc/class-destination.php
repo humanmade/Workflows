@@ -71,6 +71,15 @@ class Destination {
 	}
 
 	/**
+	 * Get all registered Destinations.
+	 *
+	 * @return Destination[]
+	 */
+	public static function get_all() {
+		return self::$instances;
+	}
+
+	/**
 	 * Destination constructor.
 	 *
 	 * @param string   $id      Destination ID.
@@ -139,7 +148,11 @@ class Destination {
 		return $this;
 	}
 
-
+	/**
+	 * Get the UI for the destination.
+	 *
+	 * @return UI|null
+	 */
 	public function get_ui() {
 		return $this->ui;
 	}
