@@ -31,9 +31,9 @@ class Event {
 	protected static $instances = [];
 
 	/**
-	 * Collection of registered event listeners.
+	 * The registered event listener.
 	 *
-	 * @var mixed
+	 * @var string|array|callable
 	 */
 	protected $listener;
 
@@ -101,7 +101,7 @@ class Event {
 	 *
 	 * @return Event
 	 */
-	public function add_listener( $action ) {
+	public function set_listener( $action ) {
 		// Sanitize and set defaults for an array type action.
 		if ( is_array( $action ) ) {
 			if ( ! isset( $action['action'] ) || ! is_string( $action['action'] ) ) {
@@ -190,9 +190,13 @@ class Event {
 	 *
 	 * @return Event
 	 */
-	public function add_ui( UI $ui ): Event {
+	public function add_ui( $ui ): Event {
 		if ( is_string( $ui ) ) {
-			$this->ui = UI::register( $this->id );
+			$this->ui = UI::register( $ui );
+		}
+
+		if ( ! $this->ui instanceof UI ) {
+			return $this;
 		}
 
 		$this->ui->set_key( 'event_' . $this->id );
@@ -221,11 +225,15 @@ class Event {
 	}
 
 	/**
-	 * Gets the Event listeners.
+	 * Gets the Event listener.
 	 *
 	 * @return mixed
 	 */
-	public function get_listener(): array {
+	public function get_listener() {
+		if ( ! $this->listener ) {
+			$this->set_listener( $this->id );
+		}
+
 		return $this->listener;
 	}
 

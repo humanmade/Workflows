@@ -18,11 +18,11 @@ namespace HM\Workflows;
  */
 class Workflow {
 	/**
-	 * Workflow name.
+	 * Workflow ID.
 	 *
 	 * @var string
 	 */
-	protected $name;
+	protected $id;
 
 	/**
 	 * Workflow instances.
@@ -62,27 +62,43 @@ class Workflow {
 	/**
 	 * Registers a new Workflow object.
 	 *
-	 * @param string $id   Workflow ID.
-	 * @param string $name Human readable name.
+	 * @param string $id Identifier for the Workflow.
 	 *
 	 * @return Workflow
 	 */
-	public static function register( string $id, string $name = '' ): Workflow {
-		$wf                = new self( $id, $name );
-		self::$instances[] = $wf;
+	public static function register( string $id = '' ): Workflow {
+		$wf                     = new self( $id );
+		self::$instances[ $id ] = $wf;
 
 		return $wf;
 	}
 
 	/**
+	 * Retrieve an existing Workflow object.
+	 *
+	 * @param string $id
+	 * @return Workflow|null
+	 */
+	public static function get( string $id ) {
+		return self::$instances[ $id ] ?? null;
+	}
+
+	/**
+	 * Remove an existing Workflow object.
+	 *
+	 * @param string $id
+	 */
+	public static function remove( string $id ) {
+		unset( self::$instances[ $id ] );
+	}
+
+	/**
 	 * Workflow constructor.
 	 *
-	 * @param string $id   The workflow ID.
-	 * @param string $name Human readable name.
+	 * @param string $id Identifier for the workflow.
 	 */
-	protected function __construct( string $id, string $name = '' ) {
-		$this->id   = $id;
-		$this->name = $name;
+	protected function __construct( string $id = '' ) {
+		$this->id = $id;
 	}
 
 	/**
@@ -93,6 +109,7 @@ class Workflow {
 	 * @return $this
 	 */
 	public function when( $event ): Workflow {
+		// Get existing or create the Event object.
 		if ( is_string( $event ) ) {
 			$this->event = Event::get( $event );
 			if ( ! $this->event ) {
@@ -101,13 +118,18 @@ class Workflow {
 		} elseif ( is_array( $event ) && isset( $event['action'] ) ) {
 			$this->event = Event::get( $event['action'] );
 			if ( ! $this->event ) {
-				$this->event = Event::register( $event['action'] )->add_listener( $event );
+				$this->event = Event::register( $event['action'] )->set_listener( $event );
 			}
 		} elseif ( is_callable( $event ) ) {
-			$this->event = Event::register( "event-{$this->id}" )->add_listener( $event );
+			$this->event = Event::register( $this->id )->set_listener( $event );
 		}
 
 		$listener = $this->event->get_listener();
+		$ui_data  = [];
+
+		if ( $this->event->get_ui() ) {
+			$ui_data = $this->event->get_ui()->get_data();
+		}
 
 		// Call the listener.
 		if ( is_string( $listener ) ) {
@@ -115,12 +137,22 @@ class Workflow {
 				$this->run( func_get_args() );
 			} );
 		} elseif ( is_array( $listener ) ) {
-			add_action( $listener['action'], function () {
+			add_action( $listener['action'], function () use ( $listener, $ui_data ) {
 				$args = func_get_args();
-				$this->run( $args );
+				if ( isset( $listener['callback'] ) && is_callable( $listener['callback'] ) ) {
+					$result = call_user_func_array(
+						$listener['callback'],
+						array_merge( $args, [ 'data' => $ui_data ] )
+					);
+					if ( ! is_null( $result ) ) {
+						$this->run( $result );
+					}
+				} else {
+					$this->run( $args );
+				}
 			}, $listener['priority'], $listener['accepted_args'] );
 		} elseif ( is_callable( $listener ) ) {
-			$result = call_user_func( $listener );
+			$result = call_user_func( $listener, $ui_data );
 			if ( ! is_null( $result ) ) {
 				$this->run( $result );
 			}
@@ -195,7 +227,11 @@ class Workflow {
 	 * @return $this
 	 */
 	public function where( $destination ): Workflow {
-		if ( is_string( $destination ) || is_a( $destination, Destination::class ) ) {
+		if ( is_string( $destination ) ) {
+			$destination = Destination::get( $destination );
+		}
+
+		if ( is_a( $destination, Destination::class ) ) {
 			$this->destinations[] = $destination;
 		} elseif ( is_callable( $destination ) ) {
 			$this->destinations[] = Destination::register(
@@ -256,6 +292,11 @@ class Workflow {
 				} );
 
 				$recipients = array_merge( $recipients, $results );
+			} elseif ( is_numeric( $recipient ) ) {
+				$user = get_user_by( 'id', intval( $recipient ) );
+				if ( is_a( $user, 'WP_User' ) ) {
+					$recipients[] = $user;
+				}
 			}
 		}
 
@@ -274,7 +315,6 @@ class Workflow {
 			$message = wp_parse_args( $message, [
 				'subject' => '',
 				'text'    => '',
-				'actions' => [],
 			] );
 
 			// Guard.
@@ -312,7 +352,7 @@ class Workflow {
 				// Take the string value, or set to the webhook URL if it's a callback.
 				$url = $action['callback_or_url'];
 				if ( is_callable( $action['callback_or_url'] ) ) {
-					$url = get_webhook_controller()->get_webhook_url( $this->event->get_id(), $action['id'], $payload );
+					$url = get_webhook_controller()->get_webhook_url( $this->event->get_id(), $id, $payload );
 				}
 
 				// Must be a URL for the action to valid.
@@ -327,7 +367,12 @@ class Workflow {
 				];
 			}
 
-			$messages['messages'][] = $parsed_message;
+			$messages[] = $parsed_message;
+		}
+
+		// Bail if there's nothing to send. Some destinations may not require recipients.
+		if ( empty( $messages ) ) {
+			return;
 		}
 
 		// Send those notifications!

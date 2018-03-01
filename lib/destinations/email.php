@@ -7,41 +7,70 @@
 
 namespace HM\Workflows;
 
-Destination::register( 'email', __NAMESPACE__ . '\email_handler' );
+Destination::register( 'email', __NAMESPACE__ . '\email_handler' )
+	->add_ui( __( 'Email', 'hm-workflows' ) )
+	->get_ui()
+		->add_field( 'use_bcc', __( 'Use BCC?' ), 'checkbox' );
 
 /**
  * Custom handler for the email Event.
  *
- * @param \WP_User[] $recipients Array of WP_Users.
- * @param array[]   $data       Messages and actions.
- * @return bool
+ * @param array $recipients Array of WP_Users or email addresses.
+ * @param array $messages   Messages and actions.
+ * @param array $data       Optional settings passed in from UI data.
  */
-function email_handler( array $recipients, array $data ) {
-	if ( empty( $recipients ) || empty( $data ) ) {
-		return false;
+function email_handler( array $recipients, array $messages, array $data = [] ) {
+
+	$users = array_filter( $recipients, function ( $recipient ) {
+		return is_a( $recipient, 'WP_User' );
+	} );
+
+	$emails = array_filter( $recipients, function ( $recipient ) {
+		return is_string( $recipient ) && is_email( $recipient );
+	} );
+
+	$emails = array_merge( wp_list_pluck( $users, 'user_email' ), $emails );
+	$emails = array_unique( $emails );
+
+	// Check UI settings.
+	if ( isset( $data['use_bcc'] ) ) {
+		$to            = [];
+		$email_headers = array_map( function ( $email ) {
+			return 'BCC: ' . $email;
+		}, $emails );
+	} else {
+		$to            = $emails;
+		$email_headers = [];
 	}
 
-	$body = implode( ' ', $data['messages'] );
+	/**
+	 * Filters the email headers for the email Workflows destination.
+	 * All recipients are visible in the to address field by default.
+	 *
+	 * @param array $email_headers
+	 * @param array $recipients
+	 * @param array $messages
+	 * @param array $data
+	 */
+	$headers = apply_filters( 'hm.workflows.destination.email.headers', $email_headers, $recipients, $messages, $data );
 
-	if ( ! empty( $data['actions'] ) ) {
-		$body .= '<ul>';
-		foreach ( $data['actions'] as $action ) {
-			$body .= '<li><a href="' . esc_url( $action['url'] ) . '">' . esc_html( $action['text'] ) . '</a></li>';
+	foreach ( $messages as $message ) {
+		if ( ! empty( $message['actions'] ) ) {
+			$message['text'] .= "\n\n----------------------------------------------\n\n";
+			foreach ( $message['actions'] as $action ) {
+				$message['text'] .= sprintf( "%s\n<%s>\n\n",
+					esc_html( $action['text'] ),
+					esc_url_raw( $action['url'] )
+				);
+			}
 		}
-		$body .= '</ul>';
+
+		// Send the email.
+		wp_mail(
+			$to,
+			$message['subject'],
+			$message['text'],
+			$headers
+		);
 	}
-
-	$headers   = array_map( function ( $email ) {
-		return 'BCC: ' . $email;
-	}, array_column( $recipients, 'user_email' ) );
-	$headers[] = 'Content-Type: text/html; charset=UTF-8';
-	$result    = wp_mail(
-		[],
-		/* translators: the current site URL. */
-		sprintf( __( 'Notification for %s from HM Workflows', 'hm-workflow' ), esc_url( home_url() ) ),
-		$body,
-		$headers
-	);
-
-	return $result;
 }

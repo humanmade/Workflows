@@ -61,6 +61,16 @@ class Destination {
 	}
 
 	/**
+	 * Get a registered Destination by ID.
+	 *
+	 * @param string $id
+	 * @return Destination|null
+	 */
+	public static function get( string $id ) {
+		return self::$instances[ $id ] ?? null;
+	}
+
+	/**
 	 * Destination constructor.
 	 *
 	 * @param string   $id      Destination ID.
@@ -69,6 +79,18 @@ class Destination {
 	protected function __construct( string $id, callable $handler ) {
 		$this->handler = $handler;
 		$this->id      = $id;
+	}
+
+	/**
+	 * Override or set the destination handler.
+	 *
+	 * @param callable $handler
+	 * @return $this
+	 */
+	public function set_handler( callable $handler ): Destination {
+		$this->handler = $handler;
+
+		return $this;
 	}
 
 	/**
@@ -87,20 +109,38 @@ class Destination {
 			return true;
 		} );
 
-		// @todo Pass UI data
-		( $this->handler )( $recipients, $messages );
+		$ui_data = [];
+
+		if ( $this->get_ui() ) {
+			$ui_data = $this->get_ui()->get_data();
+		}
+
+		( $this->handler )( $recipients, $messages, $ui_data );
 	}
 
 	/**
 	 * Add the UI object.
 	 *
-	 * @param UI $ui Destination UI.
+	 * @param UI|string $ui Destination UI.
 	 *
-	 * @return Destination
+	 * @return $this
 	 */
-	public function add_ui( UI $ui ): self {
+	public function add_ui( $ui ): Destination {
+		if ( is_string( $ui ) ) {
+			$this->ui = UI::register( $ui );
+		}
+
+		if ( ! $ui instanceof UI ) {
+			return $this;
+		}
+
 		$this->ui = $ui;
 
 		return $this;
+	}
+
+
+	public function get_ui() {
+		return $this->ui;
 	}
 }

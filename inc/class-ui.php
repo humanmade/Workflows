@@ -32,6 +32,13 @@ class UI {
 	protected $fields = [];
 
 	/**
+	 * Field data.
+	 *
+	 * @var array $data The UI data array.
+	 */
+	protected $data = [];
+
+	/**
 	 * A description of the UI, this should be text to help the user understand the interface.
 	 *
 	 * @var string $description A description of the UI.
@@ -60,8 +67,9 @@ class UI {
 	 * @return UI
 	 */
 	public static function register( string $name ): UI {
-		$ui                       = new self( $name );
-		self::$instances[ $name ] = $ui;
+		$ui                     = new self( $name );
+		$id                     = sanitize_key( $name );
+		self::$instances[ $id ] = $ui;
 
 		return $ui;
 	}
@@ -118,19 +126,21 @@ class UI {
 			'label'  => $label,
 			'type'   => $type,
 			'params' => $params,
-			'value'  => $this->get_field_data( $name ),
 		];
 
 		return $this;
 	}
 
 	/**
-	 * This method should save the data using the key value, this might be implemented in options or post meta.
+	 * Sets the data for this UI instance.
 	 *
 	 * @param array $data An array of the field values with the field names as the keys.
+	 * @return UI
 	 */
-	public function save_data( array $data ) {
-		// @todo: handle this
+	public function set_data( array $data ): UI {
+		$this->data = $data;
+
+		return $this;
 	}
 
 	/**
@@ -139,7 +149,7 @@ class UI {
 	 * @return array
 	 */
 	public function get_data(): array {
-		// @todo: handle this
+		return $this->data;
 	}
 
 	/**
@@ -162,6 +172,7 @@ class UI {
 			'description' => $this->description,
 			'key'         => $this->key,
 			'fields'      => $this->fields,
+			'data'        => $this->data,
 		];
 	}
 }

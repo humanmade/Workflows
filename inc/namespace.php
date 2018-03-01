@@ -76,3 +76,8 @@ add_action( 'rest_api_init', function () {
 	$rest_controller = get_webhook_controller();
 	$rest_controller->register_routes();
 } );
+
+/**
+ * Notification destination opt out.
+ */
+

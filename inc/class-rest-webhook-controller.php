@@ -35,38 +35,18 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			'callback' => [ $this, 'handle_endpoint_response' ],
 			'args'     => [
 				'payload'   => [
-					'validate_callback' => 'is_string',
+					'type'              => 'string',
+					'description'       => __( 'A base64 encoded JSON payload.', 'hm-workflows' ),
 					'sanitize_callback' => 'sanitize_text_field',
 				],
 				'signature' => [
-					'validate_callback' => 'is_string',
+					'type'              => 'string',
+					'required'          => true,
+					'description'       => __( 'The request signature hash.', 'hm-workflows' ),
 					'sanitize_callback' => 'sanitize_text_field',
 				],
 			],
 		] );
-	}
-
-	/**
-	 * Specify endpoint schema.
-	 *
-	 * @return array
-	 */
-	public function get_item_schema() {
-		return [
-			[
-				'$schema'     => 'http://json-schema.org/draft-04/schema#',
-				'title'       => 'payload',
-				'type'        => 'string',
-				'description' => __( 'A base64 encoded JSON payload.', 'hm-workflows' ),
-			],
-			[
-				'$schema'     => 'http://json-schema.org/draft-04/schema#',
-				'title'       => 'signature',
-				'type'        => 'string',
-				'required'    => true,
-				'description' => __( 'The request signature hash.', 'hm-workflows' ),
-			],
-		];
 	}
 
 	/**
@@ -78,7 +58,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	public function handle_endpoint_response( WP_REST_Request $request ) {
 		$event     = $request->get_param( 'event' );
 		$action    = $request->get_param( 'action' );
-		$payload   = $request->get_param( 'payload' ) ?? [];
+		$payload   = $request->get_param( 'payload' ) ?? '';
 		$signature = $request->get_param( 'signature' );
 
 		if ( empty( $event ) || empty( $action ) || empty( $signature ) ) {
@@ -90,6 +70,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			'evt' => $event,
 			'act' => $action,
 		] );
+		$payload = $this->base64_url_decode( $payload );
 
 		if ( ! $this->verify_webhook( $headers, $payload, $signature ) ) {
 			return $this->handle_response( $request, 'The security check has failed, the data received did not match what was expected.', 'error' );
@@ -111,22 +92,19 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			return $this->handle_response( $request, 'Message action callback should be a callable.', 'error' );
 		}
 
-		// Parse the payload.
-		$args = json_decode( base64_decode( $payload ) );
-
 		// Get the sanitisation schema.
 		$schema = wp_parse_args(
 			$message_action['schema'],
-			array_fill_keys( array_keys( $args ), 'sanitize_text_field' )
+			array_fill_keys( array_keys( $payload ), 'sanitize_text_field' )
 		);
 
 		// Sanitise args.
-		foreach ( $args as $key => $value ) {
-			$args[ $key ] = call_user_func( $schema[ $key ], $value );
+		foreach ( $payload as $key => $value ) {
+			$payload[ $key ] = call_user_func( $schema[ $key ], $value );
 		}
 
 		// Pass to callback handler.
-		$result = call_user_func_array( $message_action['callback_or_url'], $args );
+		$result = call_user_func_array( $message_action['callback_or_url'], $payload );
 
 		// Redirect to URL or return as a message.
 		if ( is_string( $result ) ) {
@@ -149,8 +127,8 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 * @todo is there a better / more RESTful approach to making this distinction?
 	 *
 	 * @param WP_REST_Request $request
-	 * @param string $response
-	 * @param string $type One of 'success' or 'error'
+	 * @param string          $response
+	 * @param string          $type One of 'success' or 'error'
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -188,7 +166,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	public function get_webhook_headers( array $additional = [] ) {
 		return array_merge( [
 			'typ' => 'jwt',
-			'alg' => PASSWORD_DEFAULT,
+			'alg' => 'hmac-sha1',
 		], $additional );
 	}
 
@@ -196,18 +174,22 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 * Generate a webhook URL for an event, action and a payload of data to pass
 	 * to the callback.
 	 *
+	 * @todo Add option to make URL a one time use link
+	 *
 	 * @param string $event
 	 * @param string $action
 	 * @param array  $payload
 	 * @return string
 	 */
 	public function get_webhook_url( string $event, string $action, array $payload = [] ) {
+		$signature = $this->sign( $this->get_webhook_headers( [
+			'evt' => $event,
+			'act' => $action,
+		] ), $payload );
+
 		return add_query_arg( [
-			'payload'   => base64_encode( json_encode( $payload ) ),
-			'signature' => $this->sign( $this->get_webhook_headers( [
-				'evt' => $event,
-				'act' => $action,
-			] ), $payload ),
+			'payload'   => $this->base64_url_encode( $payload ),
+			'signature' => $signature,
 		], rest_url( "{$this->namespace}/{$this->rest_base}/$event/$action" ) );
 	}
 
@@ -215,16 +197,12 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 * Verify the webhook hasn't been tampered with or spoofed.
 	 *
 	 * @param array  $headers   The headers array used for signing the URL.
-	 * @param string $payload   The encoded payload from $_GET.
+	 * @param array  $payload   The decoded payload from $_GET.
 	 * @param string $signature The webhook signature from $_GET.
 	 * @return bool
 	 */
-	public function verify_webhook( array $headers, string $payload, string $signature ) {
-		return password_verify(
-			base64_encode( json_encode( $headers ) ) . '.' .
-			$payload,
-			$signature
-		);
+	public function verify_webhook( array $headers, array $payload, string $signature ) {
+		return $this->sign( $headers, $payload ) === $signature;
 	}
 
 	/**
@@ -236,10 +214,21 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 * @return bool|string
 	 */
 	protected function sign( array $headers, array $payload ) {
-		return password_hash(
-			base64_encode( json_encode( $headers ) ) . '.' .
-			base64_encode( json_encode( $payload ) ),
-			PASSWORD_DEFAULT
+		return hash_hmac(
+			'sha1',
+			$this->base64_url_encode( $headers ) . '.' .
+			$this->base64_url_encode( $payload ),
+			defined( 'HM_WORKFLOWS_WEBHOOK_SECRET' )
+				? HM_WORKFLOWS_WEBHOOK_SECRET
+				: NONCE_SALT
 		);
+	}
+
+	protected function base64_url_encode( $input ) {
+		return strtr( base64_encode( json_encode( $input ) ), '+/=', '._-' );
+	}
+
+	protected function base64_url_decode( $input ) {
+		return json_decode( base64_decode( strtr( $input, '._-', '+/=' ) ), ARRAY_A );
 	}
 }
