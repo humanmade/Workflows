@@ -18,11 +18,11 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 	/**
 	 * API constructor.
 	 *
-	 * @param string $namespace Endpoint namespace.
-	 * @param string $rest_base Endpoint base.
+	 * @param string $post_type Endpoint base.
 	 */
-	public function __construct( $namespace, $rest_base ) {
-		parent::__construct( 'workflows/v1', $rest_base );
+	public function __construct( $post_type ) {
+		parent::__construct( $post_type );
+		$this->namespace = 'workflows/v1';
 	}
 
 	/**
@@ -32,6 +32,7 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 		parent::register_routes();
 
 		// Add custom fields.
+
 	}
 
 }

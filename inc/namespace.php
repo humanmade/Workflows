@@ -15,6 +15,7 @@ require_once __DIR__ . '/class-destination.php';
 require_once __DIR__ . '/class-event.php';
 require_once __DIR__ . '/class-workflow.php';
 require_once __DIR__ . '/class-rest-webhook-controller.php';
+require_once __DIR__ . '/class-rest-workflows-controller.php';
 
 /**
  * Register post type

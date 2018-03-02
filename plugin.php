@@ -18,6 +18,7 @@
 namespace HM\Workflows;
 
 require_once __DIR__ . '/inc/namespace.php';
+require_once __DIR__ . '/admin/admin.php';
 
 // Load built ins early so they can be modified consistently.
 add_action( 'plugins_loaded', function () {

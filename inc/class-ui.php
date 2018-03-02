@@ -67,9 +67,8 @@ class UI {
 	 * @return UI
 	 */
 	public static function register( string $name ): UI {
-		$ui                     = new self( $name );
-		$id                     = sanitize_key( $name );
-		self::$instances[ $id ] = $ui;
+		$ui                = new self( $name );
+		self::$instances[] = $ui;
 
 		return $ui;
 	}
@@ -84,7 +83,7 @@ class UI {
 	}
 
 	/**
-	 * This method should set the value of $this->key
+	 * Set a key to use for fetching associated data.
 	 *
 	 * @param string $key An identifier for the UI to store & fetch data against.
 	 *

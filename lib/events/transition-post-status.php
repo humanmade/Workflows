@@ -64,7 +64,8 @@ Event::register( 'draft_to_pending' )
 			return [ 'post_id' => get_post( $post )->ID ];
 		},
 		[ 'post_id' => 'intval' ]
-	);
+	)
+	->add_ui( __( 'Content review request' ) );
 
 Event::register( 'publish_post' )
 	->add_message_tags( get_messages_tags() )
@@ -78,7 +79,8 @@ Event::register( 'publish_post' )
 			return [ 'post_id' => get_post( $post )->ID ];
 		},
 		[ 'post_id' => 'intval' ]
-	);
+	)
+	->add_ui( __( 'Post published', 'hm-workflows' ) );
 
 Event::register( 'publish_page' )
 	->add_message_tags( get_messages_tags() )
@@ -92,4 +94,5 @@ Event::register( 'publish_page' )
 			return [ 'post_id' => get_post( $post )->ID ];
 		},
 		[ 'post_id' => 'intval' ]
-	);
+	)
+	->add_ui( __( 'Page published' ) );

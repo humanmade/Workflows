@@ -45,6 +45,10 @@ Event::get( 'publish_page' )
  * @param string $post_type
  */
 function assignee_metabox( $post_type ) {
+	if ( ! in_array( $post_type, get_post_types( [ 'public' => true ] ), true ) ) {
+		return;
+	}
+
 	add_meta_box(
 		'hm.workflows.assignee',
 		__( 'Assignees', 'hm-workflows' ),
@@ -54,8 +58,8 @@ function assignee_metabox( $post_type ) {
 				esc_html__( 'Assignees are responsible for this content and can be notified of changes or specific events via Workflows.', 'hm-workflows' )
 			);
 			wp_dropdown_users( [
-				'multi' => true,
-				'name'  => 'hm.workflows.assignee',
+				'multi'    => true,
+				'name'     => 'hm.workflows.assignee',
 				'selected' => get_post_meta( $post->ID, 'hm.workflows.assignee', true ),
 			] );
 		},

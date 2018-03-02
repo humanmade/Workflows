@@ -177,10 +177,9 @@ class Workflow {
 		];
 
 		if ( ! empty( $actions ) ) {
-			foreach ( $actions as $action ) {
+			foreach ( $actions as $id => $action ) {
 				// Make sure we throw a type check error if it's misconfigured.
 				$action = wp_parse_args( $action, [
-					'id'              => null,
 					'text'            => null,
 					'callback_or_url' => null,
 					'args'            => [],
@@ -189,7 +188,7 @@ class Workflow {
 				] );
 
 				$this->event->add_message_action(
-					$action['id'],
+					$id,
 					$action['text'],
 					$action['callback_or_url'],
 					$action['args'],
@@ -263,8 +262,6 @@ class Workflow {
 				$user = get_user_by( 'email', $recipient );
 				if ( is_a( $user, 'WP_User' ) ) {
 					$recipients[] = $user;
-				} else {
-					$recipients[] = $recipient;
 				}
 			} elseif ( is_string( $recipient ) ) {
 				// Try to get user by login, users by role or a registered callback.
@@ -279,7 +276,7 @@ class Workflow {
 				} elseif ( $this->event->get_recipient_handler( $recipient ) ) {
 					$results = call_user_func_array( $this->event->get_recipient_handler( $recipient ), $args );
 					$results = array_filter( (array) $results, function ( $result ) {
-						return is_email( $result ) || is_a( $result, 'WP_User' );
+						return is_a( $result, 'WP_User' );
 					} );
 
 					$recipients = array_merge( $recipients, $results );
@@ -288,7 +285,7 @@ class Workflow {
 				// If a callback was passed directly add the results.
 				$results = call_user_func_array( $recipient, $args );
 				$results = array_filter( (array) $results, function ( $result ) {
-					return is_email( $result ) || is_a( $result, 'WP_User' );
+					return is_a( $result, 'WP_User' );
 				} );
 
 				$recipients = array_merge( $recipients, $results );

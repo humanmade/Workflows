@@ -86,6 +86,27 @@ class Event {
 	}
 
 	/**
+	 * Gets an Event from the collection by ID.
+	 *
+	 * @param string $id Event ID.
+	 *
+	 * @return Event|null
+	 */
+	public static function get( string $id ) {
+		return self::$instances[ $id ] ?? null;
+	}
+
+
+	/**
+	 * Gets all Events from the collection..
+	 *
+	 * @return Event[]
+	 */
+	public static function get_all() {
+		return self::$instances;
+	}
+
+	/**
 	 * Event constructor.
 	 *
 	 * @param string $id Event ID.
@@ -205,17 +226,6 @@ class Event {
 	}
 
 	/**
-	 * Gets an Event from the collection by ID.
-	 *
-	 * @param string $id Event ID.
-	 *
-	 * @return Event|null
-	 */
-	public static function get( string $id ) {
-		return self::$instances[ $id ] ?? null;
-	}
-
-	/**
 	 * Gets the Event ID.
 	 *
 	 * @return string
@@ -255,6 +265,15 @@ class Event {
 	 */
 	public function get_recipient_handler( string $id ): callable {
 		return $this->recipients_handlers[ $id ]['callback'];
+	}
+
+	/**
+	 * Gets the recipient handler functions.
+	 *
+	 * @return array
+	 */
+	public function get_recipient_handlers(): array {
+		return $this->recipients_handlers;
 	}
 
 	/**
