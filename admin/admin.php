@@ -83,13 +83,22 @@ function enqueue_ui_assets() {
 			'Destinations' => array_values( $destinations ),
 			'Recipients'   => [
 				[
-					'label' => __( 'Users with the role', 'hm-workflows' ),
-					'items' => array_combine( array_keys( get_editable_roles() ), wp_list_pluck( get_editable_roles(), 'name' ) )
+					'id'    => 'role',
+					'name' => __( 'Users with the role', 'hm-workflows' ),
+					'items' => array_values( array_map( function ( $role, $key ) {
+						return [
+							'label' => $role['name'],
+							'value' => $key,
+						];
+					}, get_editable_roles(), array_keys( get_editable_roles() ) ) ),
+					'multi' => true,
 				],
 				[
-					'label' => __( 'Individual users', 'hm-workflows' ),
+					'id'    => 'user',
+					'name' => __( 'Individual users', 'hm-workflows' ),
 					'items' => [],
 					'endpoint' => rest_url( 'wp/v2/users' ),
+					'multi' => true,
 				],
 			]
 		] )
