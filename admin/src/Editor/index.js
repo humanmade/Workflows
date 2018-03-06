@@ -3,11 +3,11 @@ import {
 	Editor,
 	EditorState,
 	ContentState,
-	Modifier,
 	CompositeDecorator
 } from 'draft-js';
 import 'draft-js/dist/Draft.css';
 import styled, { css } from 'styled-components';
+import { insertEntity } from './functions';
 
 const StyledEditor = styled.div`
 	.editor-tags {
@@ -60,28 +60,45 @@ class WorkflowEditor extends React.Component {
 			}
 		}
 
-		// Add tags entity decorator.
-		if ( props.tags ) {
-			const tagDecorator = new CompositeDecorator( [
-				{
-					strategy: ( contentBlock, callback, contentState ) => {
-						contentBlock.findEntityRanges(
-							(character) => {
-								const entityKey = character.getEntity();
-								if (entityKey === null) {
-									return false;
-								}
-								return contentState.getEntity(entityKey).getType() === 'TAG';
-							},
-							callback
-						);
-					},
-					component: StyledTag,
-				}
-			] );
+		// Decorators collection.
+		this.decorators = [];
 
-			// Add tag decorator.
-			this.state.editorState = EditorState.set( this.state.editorState, { decorator: tagDecorator } );
+		// Add tags entity decorator.
+		this.decorators.push(
+			{
+				strategy: ( contentBlock, callback, contentState ) => {
+					contentBlock.findEntityRanges(
+						(character) => {
+							const entityKey = character.getEntity();
+							if (entityKey === null) {
+								return false;
+							}
+							return contentState.getEntity(entityKey).getType() === 'TAG';
+						},
+						callback
+					);
+				},
+				component: StyledTag,
+			}
+		);
+
+		// Add tag decorator.
+		this.state.editorState = EditorState.set( this.state.editorState, {
+			decorator: new CompositeDecorator( this.decorators ),
+		} );
+	}
+
+	componentWillReceiveProps( nextProps ) {
+		// Update the editor if the default content prop changes.
+		if ( nextProps.content !== this.props.content ) {
+			this.setState( {
+				editorState: EditorState.moveSelectionToEnd(
+					EditorState.createWithContent(
+						ContentState.createFromText( nextProps.content ),
+						new CompositeDecorator( this.decorators )
+					)
+				)
+			} );
 		}
 	}
 
@@ -91,56 +108,8 @@ class WorkflowEditor extends React.Component {
 				{ this.props.tags.map( tag => {
 					return <button key={tag} type="button" className="button" onClick={event => {
 						event.preventDefault();
-
-						const editorState = this.state.editorState;
-						const contentState = editorState.getCurrentContent();
-						const selection = editorState.getSelection();
-
-						// If there's a character immediately before the insert add a space between that and the tag.
-						const characterBefore = contentState.getPlainText()[ selection.getStartOffset() - 1 ];
-						const contentStateWithSpaceBefore = !!characterBefore && characterBefore.match( /\S+/ )
-							? Modifier.insertText(
-									contentState,
-									selection,
-									' '
-								)
-							: contentState;
-
-						const editorStateWithSpace = EditorState.push( editorState, contentStateWithSpaceBefore, 'insert-text' );
-
-						const contentWithEntity = contentStateWithSpaceBefore.createEntity( 'TAG', 'IMMUTABLE', {
-							tag
-						} );
-
-						const tagEntity = contentWithEntity.getLastCreatedEntityKey();
-
-						// Add the tag.
-						const contentStateWithTag = Modifier.replaceText(
-							contentWithEntity,
-							editorStateWithSpace.getSelection(),
-							`%${ tag }%`,
-							editorState.getCurrentInlineStyle(),
-							tagEntity
-						);
-
-						const editorStateWithTag = EditorState.push( editorStateWithSpace, contentStateWithTag, 'apply-entity' );
-
-						// Add a space after the tag.
-						const contentStateWithSpaceAfter = Modifier.insertText(
-							contentStateWithTag,
-							editorStateWithTag.getSelection(),
-							' '
-						);
-
-						const editorStateWithSpaceAfter = EditorState.push(
-							editorStateWithTag,
-							contentStateWithSpaceAfter,
-							'insert-text'
-						);
-
-						// Update content.
 						this.setState( {
-							editorState: editorStateWithSpaceAfter,
+							editorState: insertEntity( this.state.editorState, [ 'TAG', 'IMMUTABLE', { tag } ], `%${ tag }%` ),
 						}, () => {
 							setTimeout( this.focus, 0 );
 						} );
@@ -150,8 +119,6 @@ class WorkflowEditor extends React.Component {
 	}
 
 	render() {
-		// Output insert tags.
-
 		return <StyledEditor
 			type={this.props.type || 'textarea'}
 			className={this.props.className}

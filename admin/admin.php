@@ -84,7 +84,7 @@ function enqueue_ui_assets() {
 			'Recipients'   => [
 				[
 					'id'    => 'role',
-					'name' => __( 'Users with the role', 'hm-workflows' ),
+					'name' => __( 'Users with the roles...', 'hm-workflows' ),
 					'items' => array_values( array_map( function ( $role, $key ) {
 						return [
 							'label' => $role['name'],
@@ -95,9 +95,12 @@ function enqueue_ui_assets() {
 				],
 				[
 					'id'    => 'user',
-					'name' => __( 'Individual users', 'hm-workflows' ),
-					'items' => [],
-					'endpoint' => rest_url( 'wp/v2/users' ),
+					'name' => __( 'Specific users...', 'hm-workflows' ),
+					'endpoint' => [
+						'url' => rest_url( 'wp/v2/users' ),
+						'labelKey' => 'name',
+						'valueKey' => 'id'
+					],
 					'multi' => true,
 				],
 			]

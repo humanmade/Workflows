@@ -10,7 +10,10 @@ namespace HM\Workflows;
 Destination::register( 'email', __NAMESPACE__ . '\email_handler' )
 	->add_ui( __( 'Email', 'hm-workflows' ) )
 	->get_ui()
-		->add_field( 'use_bcc', __( 'Use BCC?' ), 'checkbox' );
+		->add_field( 'group_email', __( 'Send group email?' ), 'checkbox', [
+			'description' => __( 'CC all recipients with the message. This can be useful if you prefer to collaborate via email.', 'hm-workflows' ),
+		] );
+
 
 /**
  * Custom handler for the email Event.
@@ -32,17 +35,6 @@ function email_handler( array $recipients, array $messages, array $data = [] ) {
 	$emails = array_merge( wp_list_pluck( $users, 'user_email' ), $emails );
 	$emails = array_unique( $emails );
 
-	// Check UI settings.
-	if ( isset( $data['use_bcc'] ) ) {
-		$to            = [];
-		$email_headers = array_map( function ( $email ) {
-			return 'BCC: ' . $email;
-		}, $emails );
-	} else {
-		$to            = $emails;
-		$email_headers = [];
-	}
-
 	/**
 	 * Filters the email headers for the email Workflows destination.
 	 * All recipients are visible in the to address field by default.
@@ -52,7 +44,7 @@ function email_handler( array $recipients, array $messages, array $data = [] ) {
 	 * @param array $messages
 	 * @param array $data
 	 */
-	$headers = apply_filters( 'hm.workflows.destination.email.headers', $email_headers, $recipients, $messages, $data );
+	$headers = apply_filters( 'hm.workflows.destination.email.headers', [], $recipients, $messages, $data );
 
 	foreach ( $messages as $message ) {
 		if ( ! empty( $message['actions'] ) ) {
@@ -65,12 +57,23 @@ function email_handler( array $recipients, array $messages, array $data = [] ) {
 			}
 		}
 
-		// Send the email.
-		wp_mail(
-			$to,
-			$message['subject'],
-			$message['text'],
-			$headers
-		);
+		// Send the emails.
+		if ( isset( $data['group_email'] ) ) {
+			wp_mail(
+				$emails,
+				$message['subject'],
+				$message['text'],
+				$headers
+			);
+		} else {
+			foreach ( $emails as $email ) {
+				wp_mail(
+					$email,
+					$message['subject'],
+					$message['text'],
+					$headers
+				);
+			}
+		}
 	}
 }
