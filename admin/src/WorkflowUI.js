@@ -190,7 +190,7 @@ const StyledFieldset = styled.fieldset`
 const Fieldset = props => <CSSTransition
 	appear={true}
 	timeout={1000}
-	in={true}
+	in={props.in}
 	classNames="hm-workflows-fields"
 >
 	<StyledFieldset {...props}>
@@ -216,6 +216,7 @@ class WorkflowUI extends Component {
 			enabled:        false,
 			saving:         false,
 			event:          '',
+			eventObject: null,
 			subject:        '',
 			defaultSubject: '',
 			message:        '',
@@ -289,24 +290,53 @@ class WorkflowUI extends Component {
 
 			<QuestionBox step={1} in={true}>
 				<Question>When should the workflow run?</Question>
-				<Select
-					options={HM.Workflows.Events.map( event => ({
-						value:  event.id,
-						label:  event.ui.name,
-						object: event
-					}) )}
-					name="when"
-					value={this.state.event}
-					onChange={option => this.setState( {
-						event:          option.value,
-						defaultSubject: option.value
-							                ? HM.Workflows.Events.find( event => event.id === option.value ).ui.name
-															: ''
-					}, () => {
-						this.refs.subject.focus();
+				<Fieldset in={true}>
+					<Select
+						options={HM.Workflows.Events.map( event => ({
+							value:  event.id,
+							label:  event.ui.name,
+							object: event
+						}) )}
+						name="when"
+						value={this.state.event}
+						onChange={option => this.setState( {
+							event:          option.value,
+							eventObject:    option.object || null,
+							defaultSubject: option.value
+								                ? HM.Workflows.Events.find( event => event.id === option.value ).ui.name
+																: ''
+						}, () => {
+							this.refs.subject.focus();
+						} )}
+						resetValue=""
+					/>
+				</Fieldset>
+				<Fieldset in={!!(this.state.eventObject && this.state.eventObject.ui.fields)}>
+					{this.state.eventObject.ui.fields.map( field => {
+						const Input = HM.Workflows.Fields[ field.type || 'text' ];
+
+						if ( ! Input ) {
+							return null;
+						}
+
+						return <Field key={field.name} type={field.type || 'text'}>
+							<Input
+								{...field}
+								value={destination.ui.data[ field.name ]}
+								description={field.params && field.params.description}
+								onChange={value => this.setState( {
+									eventObject: Object.assign( {}, this.state.eventObject, {
+										ui: Object.assign( {}, this.state.eventObject.ui, {
+											data: Object.assign( {}, this.state.eventObject.ui.data, {
+												[field.name]: value
+											} )
+										} )
+									} )
+								} ) }
+							/>
+						</Field>
 					} )}
-					resetValue=""
-				/>
+				</Fieldset>
 			</QuestionBox>
 
 			<QuestionBox step={2} in={!!this.state.event}>
@@ -356,7 +386,7 @@ class WorkflowUI extends Component {
 				<Question>Who should be notified?</Question>
 				{this.state.recipients.map( recipient => {
 					return <Form key={recipient.id} hasFields={recipient.items || recipient.endpoint}>
-						<Fieldset>
+						<Fieldset in={true}>
 							<Select
 								value={recipient.id}
 								options={[ { value: recipient.id, label: recipient.name } ]}
@@ -372,7 +402,7 @@ class WorkflowUI extends Component {
 								onCloseResetsInput={false}
 							/>
 						</Fieldset>
-						{recipient.items && <Fieldset>
+						<Fieldset in={!!(recipient.items)}>
 							<Select
 								options={recipient.items}
 								multi={recipient.multi}
@@ -388,8 +418,8 @@ class WorkflowUI extends Component {
 									} )
 								} )}
 							/>
-						</Fieldset>}
-						{recipient.endpoint && <Fieldset>
+						</Fieldset>
+						<Fieldset in={!!(recipient.endpoint)}>
 							<AsyncSelect
 								options={recipient.items}
 								multi={recipient.multi}
@@ -419,7 +449,7 @@ class WorkflowUI extends Component {
 									} )
 								} )}
 							/>
-						</Fieldset>}
+						</Fieldset>
 					</Form>
 				} )}
 				{availableRecipients.length
@@ -437,7 +467,7 @@ class WorkflowUI extends Component {
 				<Question>Where should they be notified?</Question>
 				{this.state.destinations.map( destination => {
 					return <Form key={destination.id} hasFields={destination.ui.fields}>
-						<Fieldset>
+						<Fieldset in={true}>
 							<Select
 								value={destination.id}
 								options={[ { value: destination.id, label: destination.ui.name } ]}
@@ -453,7 +483,7 @@ class WorkflowUI extends Component {
 								onCloseResetsInput={false}
 							/>
 						</Fieldset>
-						{destination.ui.fields && <Fieldset>
+						<Fieldset in={!!(destination.ui.fields)}>
 							{destination.ui.fields.map( field => {
 								const Input = HM.Workflows.Fields[ field.type || 'text' ];
 
@@ -481,7 +511,7 @@ class WorkflowUI extends Component {
 									/>
 								</Field>
 							} )}
-						</Fieldset>}
+						</Fieldset>
 					</Form>
 				} )}
 				{availableDestinations.length
