@@ -1,4 +1,4 @@
-/*global HM*/
+/*global HM, jQuery*/
 import React, { Component } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import Portal from './Portal';
@@ -8,7 +8,26 @@ import 'react-select/dist/react-select.css';
 import Select, { Async as AsyncSelect } from 'react-select';
 import Editor from './Editor';
 import styled, { css } from 'styled-components';
-import './Fields';
+import UIForm from './Form';
+import Errors from './Errors';
+
+const Loading = styled.div`
+	.spinner {
+		display: block;
+		float: none;
+		margin: 30px auto;
+	}
+`
+
+const SubmitBox = styled.div`
+	.hm-workflow-options__enable {
+		margin-bottom: 20px;
+		.react-toggle {
+			vertical-align: middle;
+			margin-right: 8px;
+		}
+	}
+`
 
 const StyledQuestionBox = styled.div`
 	margin-top: 10px;
@@ -124,7 +143,7 @@ const QuestionBox = props => <CSSTransition
 	unmountOnExit={true}
 	in={props.in}
 >
-	<StyledQuestionBox {...props}>
+	<StyledQuestionBox>
 		{props.step && props.step > 1 && <span className="hm-workflows-arrow"/>}
 		<div className="hm-question-body">
 			{props.children}
@@ -191,9 +210,11 @@ const Fieldset = props => <CSSTransition
 	appear={true}
 	timeout={1000}
 	in={props.in}
+	mountOnEnter={true}
+	unmountOnExit={true}
 	classNames="hm-workflows-fields"
 >
-	<StyledFieldset {...props}>
+	<StyledFieldset>
 		{props.children}
 	</StyledFieldset>
 </CSSTransition>;
@@ -213,10 +234,11 @@ class WorkflowUI extends Component {
 		super();
 
 		this.state = {
+			loading:        false,
 			enabled:        false,
 			saving:         false,
-			event:          '',
-			eventObject: null,
+			errors:         [],
+			event:          null,
 			subject:        '',
 			defaultSubject: '',
 			message:        '',
@@ -228,65 +250,180 @@ class WorkflowUI extends Component {
 
 	componentWillMount() {
 		// Fetch post data and set initial state.
-		// fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
-		// 	credentials: 'same-origin',
-		// 	headers:     {
-		// 		'X-WP-Nonce': HM.Workflows.Nonce,
-		// 	}
-		// } );
+		if ( ! this.props.postId ) {
+			return;
+		}
+
+		this.setState( { loading: true } );
+
+		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
+			credentials: 'same-origin',
+			headers:     {
+				'X-WP-Nonce': HM.Workflows.Nonce,
+			}
+		} )
+			.then( response => response.json() )
+			.then( data => {
+				let event = data.event && HM.Workflows.Events.find( event => event.id === data.event.id );
+
+				// Set up event object.
+				if ( event ) {
+					event = Object.assign( {}, event, {
+						ui: Object.assign( {}, event.ui, {
+							data: Object.assign( {}, event.ui.data, data.event.data ),
+						} ),
+					} );
+				}
+
+				const recipients = HM.Workflows.Recipients.concat( (event && event.recipients) || [] );
+
+				this.setState( {
+					loading:        false,
+					enabled:        data.status === 'publish',
+					event:          event,
+					subject:        data.subject,
+					defaultSubject: data.subject,
+					message:        data.message,
+					defaultMessage: data.message,
+					recipients:     data.recipients.map( recipient => {
+						const recipientObject = recipients.find( rec => rec.id === recipient.id );
+						return Object.assign( {}, recipientObject, {
+							value: recipientObject.multi ? recipient.value : recipient.value[0]
+						} );
+					} ),
+					destinations:   data.destinations.map( destination => {
+						const destObject = HM.Workflows.Destinations.find( dest => dest.id === destination.id );
+						return Object.assign( {}, destObject, {
+							ui: Object.assign( {}, destObject.ui, {
+								data: Object.assign( {}, destObject.ui.data, destination.data )
+							} )
+						} );
+					} ),
+				} );
+			} );
 	}
 
 	saveWorkflow() {
 
+		// Do checks.
+		if ( ! this.state.event ) {
+			// Show error.
+			this.addError( 'no-event', 'You must select an event to trigger the workflow' );
+			return;
+		}
+
 		this.setState( { saving: true } );
 
-		// fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
-		// 	credentials: 'same-origin',
-		//  method: 'POST',
-		// 	headers:     {
-		// 		'X-WP-Nonce': HM.Workflows.Nonce,
-		// 	}
-		// } );
+		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
+			credentials: 'same-origin',
+			method: this.props.postId ? 'POST' : 'PATCH',
+			headers:     {
+				'X-WP-Nonce': HM.Workflows.Nonce,
+				'content-type': 'application/json',
+			},
+			body: JSON.stringify( {
+				status: this.state.enabled ? 'publish' : 'draft',
+				title: document.getElementById( 'title' ).value,
+				event: {
+					id: this.state.event.id,
+					data: this.state.event.ui.data
+				},
+				subject: this.state.subject,
+				message: this.state.message,
+				recipients: this.state.recipients.map( recipient => ({
+					id: recipient.id,
+					value: recipient.multi ? recipient.value : [ recipient.value ]
+				}) ),
+				destinations: this.state.destinations.map( destination => ({
+					id: destination.id,
+					data: destination.ui.data,
+				}) )
+			} ),
+		} )
+			.then( response => response.json() )
+			.then( data => {
+				this.setState( {
+					saving: false,
+				} );
 
+				// Redirect if creating a new Workflow.
+				if ( window.location.pathname.match('post-new.php') && data.id ) {
+					window.onbeforeunload = null;
+					window.jQuery && jQuery(window).off('beforeunload');
+					document.getElementById('post').submit();
+				}
+			} );
+
+	}
+
+	addError( code, message ) {
+		this.setState( {
+			errors: this.state.errors.concat( [
+				{ code, message }
+			] )
+		} );
+	}
+
+	updateErrors( condition, code ) {
+		if ( condition ) {
+			return this.state.errors.filter( error => error.code !== code );
+		}
+		return this.state.errors;
 	}
 
 	render() {
 		const availableDestinations = HM.Workflows.Destinations
 			.filter( destination => this.state.destinations.map( dest => dest.id ).indexOf( destination.id ) < 0 );
-		const eventObject = HM.Workflows.Events
-			.find( event => event.id === this.state.event )
 		const availableRecipients = HM.Workflows.Recipients
-			.concat( ( eventObject && eventObject.recipients ) || [] )
+			.concat( (this.state.event && this.state.event.recipients) || [] )
 			.filter( recipient => this.state.recipients.map( rec => rec.id ).indexOf( recipient.id ) < 0 );
+
+		// If we have data show a loading indicator before we get to the UI.
+		if ( this.state.loading ) {
+			return <Loading>
+				<Portal target="hm-workflow-options">
+					<SubmitBox>
+						<Loading>
+							<span className="spinner is-active" />
+						</Loading>
+					</SubmitBox>
+				</Portal>
+				<span className="spinner is-active" />
+			</Loading>;
+		}
 
 		return <div className="hm-workflow-ui-wrap">
 
 			<Portal target="hm-workflow-options">
-				<div className="hm-workflow-options__enabled">
-					<label htmlFor="hm-workflow-enabled">
-						<Toggle
-							id="hm-workflow-enabled"
-							name="workflow-enabled"
-							value="1"
-							defaultChecked={this.props.enabled}
-							checked={this.state.checked}
-							onChange={() => this.setState( { enabled: ! this.state.enabled } )}
-							icons={false}
-						/>
-						Enabled
-					</label>
-				</div>
-				<div className="hm-workflow-options__actions">
-					<button
-						type="button"
-						className={`button button-primary ${this.state.saving && 'disabled'}`}
-						onClick={() => this.saveWorkflow()}
-					>
-						{this.state.saving ? 'Saving' : 'Save'}
-					</button>
-					<span className={`spinner ${this.state.saving && 'is-acgive'}`}/>
-				</div>
+				<SubmitBox>
+					<div className="hm-workflow-options__enable">
+						<label htmlFor="hm-workflow-enabled">
+							<Toggle
+								id="hm-workflow-enabled"
+								name="workflow-enabled"
+								value="1"
+								checked={this.state.enabled}
+								onChange={() => this.setState( { enabled: ! this.state.enabled } )}
+								icons={false}
+							/>
+							Enable
+						</label>
+					</div>
+					<div className="hm-workflow-options__actions">
+						<button
+							type="button"
+							className="button button-primary"
+							disabled={this.state.saving}
+							onClick={() => this.saveWorkflow()}
+						>
+							{this.state.saving ? 'Saving' : 'Save'}
+						</button>
+						<span className={`spinner ${this.state.saving && 'is-active'}`}/>
+					</div>
+				</SubmitBox>
 			</Portal>
+
+			<Errors errors={this.state.errors} />
 
 			<QuestionBox step={1} in={true}>
 				<Question>When should the workflow run?</Question>
@@ -297,45 +434,32 @@ class WorkflowUI extends Component {
 							label:  event.ui.name,
 							object: event
 						}) )}
-						name="when"
-						value={this.state.event}
+						name="event"
+						value={(this.state.event && this.state.event.id) || ''}
 						onChange={option => this.setState( {
-							event:          option.value,
-							eventObject:    option.object || null,
-							defaultSubject: option.value
-								                ? HM.Workflows.Events.find( event => event.id === option.value ).ui.name
-																: ''
+							event:  option.object || null,
+							errors: this.updateErrors( option.object, 'no-event' ),
 						}, () => {
 							this.refs.subject.focus();
 						} )}
 						resetValue=""
 					/>
 				</Fieldset>
-				<Fieldset in={!!(this.state.eventObject && this.state.eventObject.ui.fields)}>
-					{this.state.eventObject.ui.fields.map( field => {
-						const Input = HM.Workflows.Fields[ field.type || 'text' ];
-
-						if ( ! Input ) {
-							return null;
-						}
-
-						return <Field key={field.name} type={field.type || 'text'}>
-							<Input
-								{...field}
-								value={destination.ui.data[ field.name ]}
-								description={field.params && field.params.description}
-								onChange={value => this.setState( {
-									eventObject: Object.assign( {}, this.state.eventObject, {
-										ui: Object.assign( {}, this.state.eventObject.ui, {
-											data: Object.assign( {}, this.state.eventObject.ui.data, {
-												[field.name]: value
-											} )
-										} )
+				<Fieldset in={!!(this.state.event && this.state.event.ui.fields)}>
+					{this.state.event && this.state.event.ui.fields && <UIForm
+						name="event"
+						fields={this.state.event.ui.fields}
+						data={this.state.event.ui.data}
+						onChange={( value, field ) => this.setState( {
+							event: Object.assign( {}, this.state.event, {
+								ui: Object.assign( {}, this.state.event.ui, {
+									data: Object.assign( {}, this.state.event.ui.data, {
+										[ field.name ]: value
 									} )
-								} ) }
-							/>
-						</Field>
-					} )}
+								} )
+							} )
+						} )}
+					/>}
 				</Fieldset>
 			</QuestionBox>
 
@@ -352,7 +476,7 @@ class WorkflowUI extends Component {
 						placeholder="Briefly state what has happened or the action to take..."
 						content={this.state.defaultSubject}
 						onChange={content => this.setState( { subject: content } )}
-						tags={eventObject && eventObject.tags}
+						tags={this.state.event && this.state.event.tags}
 					/>
 				</Field>
 
@@ -365,15 +489,15 @@ class WorkflowUI extends Component {
 						ref="message"
 						content={''}
 						onChange={content => this.setState( { message: content } )}
-						tags={eventObject && eventObject.tags}
+						tags={this.state.event && this.state.event.tags}
 					/>
 				</Field>
 
-				{eventObject && eventObject.actions.length
+				{this.state.event && this.state.event.actions.length
 					? <MessageActions>
 						<p>The following actions will be added to the message.</p>
 						<ul>
-							{eventObject.actions.map( action => {
+							{this.state.event.actions.map( action => {
 								return <li key={action.id}><span className="button button-secondary">{action.text}</span></li>;
 							} )}
 						</ul>
@@ -420,7 +544,7 @@ class WorkflowUI extends Component {
 							/>
 						</Fieldset>
 						<Fieldset in={!!(recipient.endpoint)}>
-							<AsyncSelect
+							{recipient.endpoint && <AsyncSelect
 								options={recipient.items}
 								multi={recipient.multi}
 								autoload={true}
@@ -448,22 +572,21 @@ class WorkflowUI extends Component {
 										} );
 									} )
 								} )}
-							/>
+							/>}
 						</Fieldset>
 					</Form>
 				} )}
-				{availableRecipients.length
-					? <Select
+				<Fieldset in={!!availableRecipients.length}>
+					<Select
 						options={availableRecipients.map( recipient => ({ label: recipient.name, object: recipient }) )}
 						name="who[]"
 						placeholder={this.state.recipients.length ? 'Select another...' : 'Select...'}
 						onChange={option => this.setState( { recipients: this.state.recipients.concat( [ option.object ] ) } )}
 					/>
-					: null
-				}
+				</Fieldset>
 			</QuestionBox>
 
-			<QuestionBox step={4} in={!!(this.state.event && this.state.subject && this.state.recipients)}>
+			<QuestionBox step={4} in={!!(this.state.event && this.state.subject && this.state.recipients.length)}>
 				<Question>Where should they be notified?</Question>
 				{this.state.destinations.map( destination => {
 					return <Form key={destination.id} hasFields={destination.ui.fields}>
@@ -483,39 +606,28 @@ class WorkflowUI extends Component {
 								onCloseResetsInput={false}
 							/>
 						</Fieldset>
-						<Fieldset in={!!(destination.ui.fields)}>
-							{destination.ui.fields.map( field => {
-								const Input = HM.Workflows.Fields[ field.type || 'text' ];
+						<Fieldset in={! ! (destination.ui && destination.ui.fields)}>
+							{destination.ui.fields && <UIForm
+								fields={destination.ui.fields}
+								data={destination.ui.data}
+								onChange={( value, field ) => this.setState( {
+									destinations: this.state.destinations.map( dest => {
+										if ( dest.id !== destination.id ) {
+											return dest;
+										}
 
-								if ( ! Input ) {
-									return null;
-								}
+										const data = Object.assign( {}, dest.ui.data, { [ field.name ]: value } );
+										const ui = Object.assign( {}, dest.ui, { data } );
 
-								return <Field key={field.name} type={field.type || 'text'}>
-									<Input
-										{...field}
-										value={destination.ui.data[ field.name ]}
-										description={field.params && field.params.description}
-										onChange={value => this.setState( {
-											destinations: this.state.destinations.map( dest => {
-												if ( dest.id !== destination.id ) {
-													return dest;
-												}
-
-												const data = Object.assign( {}, dest.ui.data, { [ field.name ]: value } );
-												const ui = Object.assign( {}, dest.ui, { data } );
-
-												return Object.assign( {}, dest, { ui } );
-											} )
-										} )}
-									/>
-								</Field>
-							} )}
+										return Object.assign( {}, dest, { ui } );
+									} )
+								} )}
+							/>}
 						</Fieldset>
 					</Form>
 				} )}
-				{availableDestinations.length
-					? <Select
+				<Fieldset in={!!availableDestinations.length}>
+					<Select
 						options={availableDestinations.map( destination => ({
 							value:  destination.id,
 							label:  destination.ui.name,
@@ -527,8 +639,7 @@ class WorkflowUI extends Component {
 							destinations: this.state.destinations.concat( [ option.object ] )
 						} )}
 					/>
-					: null
-				}
+				</Fieldset>
 			</QuestionBox>
 
 		</div>;

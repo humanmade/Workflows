@@ -10,10 +10,6 @@ class Portal extends Component {
 			this.domEl = document.createElement( 'div' );
 			document.body.appendChild( this.domEl );
 		}
-
-		if ( this.domEl ) {
-			this.domEl.innerHTML = '';
-		}
 	}
 
 	componentWillMount() {
@@ -25,7 +21,6 @@ class Portal extends Component {
 	}
 
 	componentWillUnmount() {
-		document.body.removeChild( this.domEl );
 		this.props.onUnload && this.props.onUnload();
 	}
 

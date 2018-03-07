@@ -61,28 +61,22 @@ class WorkflowEditor extends React.Component {
 		}
 
 		// Decorators collection.
-		this.decorators = [];
-
-		// Add tags entity decorator.
-		this.decorators.push(
+		this.decorators = [
 			{
-				strategy: ( contentBlock, callback, contentState ) => {
-					contentBlock.findEntityRanges(
-						(character) => {
-							const entityKey = character.getEntity();
-							if (entityKey === null) {
-								return false;
-							}
-							return contentState.getEntity(entityKey).getType() === 'TAG';
-						},
-						callback
-					);
+				strategy: ( contentBlock, callback ) => {
+					const text = contentBlock.getText();
+					const regex = /%([a-z]+)%/g;
+
+					let matchArr;
+					while ((matchArr = regex.exec(text)) !== null) {
+						callback( matchArr.index, matchArr.index + matchArr[0].length );
+					}
 				},
 				component: StyledTag,
 			}
-		);
+		];
 
-		// Add tag decorator.
+		// Add decorators.
 		this.state.editorState = EditorState.set( this.state.editorState, {
 			decorator: new CompositeDecorator( this.decorators ),
 		} );

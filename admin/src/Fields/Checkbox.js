@@ -18,7 +18,7 @@ class Checkbox extends Field {
 			name={this.props.name}
 			onChange={this.onChange}
 			checked={!!this.props.value}
-			{...props}
+			{...props.params}
 		/>;
 	}
 

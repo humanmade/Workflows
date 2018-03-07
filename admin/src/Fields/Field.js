@@ -20,12 +20,12 @@ class Field extends React.Component {
 			name={this.props.name}
 			onChange={this.onChange}
 			value={this.props.value}
-			{...props}
+			{...props.params}
 		/>;
 	}
 
 	description() {
-		return this.props.description && <div className="description">{this.props.description}</div>;
+		return this.props.params.description && <div key="description" className="description">{this.props.params.description}</div>;
 	}
 
 	onChange( event ) {

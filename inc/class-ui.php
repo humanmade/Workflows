@@ -124,7 +124,7 @@ class UI {
 			'name'   => $name,
 			'label'  => $label,
 			'type'   => $type,
-			'params' => $params,
+			'params' => (object) $params,
 		];
 
 		return $this;
@@ -189,7 +189,7 @@ class UI {
 			'description' => $this->description,
 			'key'         => $this->key,
 			'fields'      => $this->fields,
-			'data'        => $this->data,
+			'data'        => (object) $this->data,
 		];
 	}
 }
