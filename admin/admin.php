@@ -9,7 +9,6 @@ namespace HM\Workflows;
 
 require_once 'react-loader.php';
 
-add_action( 'admin_menu', __NAMESPACE__ . '\\add_menu_item' );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_ui_assets', 20 );
 add_action( 'add_meta_boxes_hm_workflow', __NAMESPACE__ . '\\meta_boxes' );
 add_action( 'edit_form_after_title', __NAMESPACE__ . '\\main_ui' );

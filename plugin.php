@@ -28,3 +28,8 @@ add_action( 'plugins_loaded', function () {
 	require_once __DIR__ . '/lib/recipients/post-author.php';
 	require_once __DIR__ . '/lib/workflows/transition-post-status.php';
 }, 9 );
+
+// Run a consistent hook to load all the stored Workflows.
+add_action( 'plugins_loaded', function () {
+	do_action( 'hm.workflows.init' );
+}, 20 );

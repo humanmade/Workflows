@@ -10,6 +10,8 @@
 
 namespace HM\Workflows;
 
+use WP_Query;
+
 require_once __DIR__ . '/class-ui.php';
 require_once __DIR__ . '/class-destination.php';
 require_once __DIR__ . '/class-event.php';
@@ -112,7 +114,7 @@ add_action( 'profile_personal_options', function () {
 				__( 'Disable %s notifications', 'hm-workflows' ),
 				$destination->get_ui()->get_name()
 			),
-			'value' => get_user_meta( get_current_user_id(), "hm.workflows.destinations.disable.{$id}", true )
+			'value' => get_user_meta( get_current_user_id(), "hm.workflows.destinations.disable.{$id}", true ),
 		] );
 	}
 }, 9 );
@@ -132,3 +134,49 @@ add_action( 'profile_update', function ( $user_id ) {
 		);
 	}
 } );
+
+/**
+ * Load stored Workflows.
+ */
+add_action( 'hm.workflows.init', function () {
+
+	$workflows = new WP_Query( [
+		'post_type'      => 'hm_workflow',
+		'posts_per_page' => 300,
+		'post_status'    => 'publish',
+		'fields'         => 'ids',
+	] );
+
+	foreach ( $workflows->posts as $workflow_id ) {
+		$event        = get_post_meta( $workflow_id, 'event', true );
+		$subject      = get_post_meta( $workflow_id, 'subject', true );
+		$message      = get_post_meta( $workflow_id, 'message', true ) ?: '';
+		$recipients   = get_post_meta( $workflow_id, 'recipients', true ) ?: [];
+		$destinations = get_post_meta( $workflow_id, 'destinations', true );
+
+		if ( empty( $event ) || empty( $subject ) || empty( $destinations ) ) {
+			continue;
+		}
+
+		// Set Event UI data.
+		$event_object = Event::get( $event['id'] );
+		$event_object->get_ui()->set_data( $event['data'] );
+
+		// Map destinations to object and set UI data.
+		$destinations = array_map( function ( $destination ) {
+			$destination_object = Destination::get( $destination['id'] );
+			$destination_object->get_ui()->set_data( $destination['data'] );
+
+			return $destination_object;
+		}, $destinations );
+
+		$workflow = Workflow::register( $workflow_id )
+			->when( $event_object )
+			->what( $subject, $message )
+			->who( $recipients );
+
+		foreach ( $destinations as $destination ) {
+			$workflow->where( $destination );
+		}
+	}
+}, 11 );

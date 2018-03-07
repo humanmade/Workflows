@@ -104,7 +104,7 @@ class Workflow {
 	/**
 	 * Attach the event to the workflow.
 	 *
-	 * @param Event|string $event Event ID or object.
+	 * @param Event|array|string $event Event ID or object.
 	 *
 	 * @return $this
 	 */
@@ -122,6 +122,14 @@ class Workflow {
 			}
 		} elseif ( is_callable( $event ) ) {
 			$this->event = Event::register( $this->id )->set_listener( $event );
+		} elseif ( is_a( $event, __NAMESPACE__ . '\Event' ) ) {
+			$this->event = $event;
+		}
+
+		// Check we have a valid Event.
+		if ( ! $this->event ) {
+			trigger_error( 'Could not get event object for workflow ' . $this->id, E_USER_WARNING );
+			return $this;
 		}
 
 		$listener = $this->event->get_listener();
