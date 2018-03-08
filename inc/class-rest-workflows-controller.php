@@ -72,10 +72,10 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 
 		register_rest_field( 'hm_workflow', 'message', [
 			'get_callback' => function ( $post ) {
-				return sanitize_text_field( get_post_meta( $post['id'], 'message', true ) );
+				return sanitize_textarea_field( get_post_meta( $post['id'], 'message', true ) );
 			},
 			'update_callback' => function ( $value, $post ) {
-				update_post_meta( $post->ID, 'message', sanitize_text_field( $value ) );
+				update_post_meta( $post->ID, 'message', sanitize_textarea_field( $value ) );
 			},
 			'schema' => [
 				'type' => 'string',
@@ -102,6 +102,9 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 						],
 						'value' => [
 							'type' => 'array',
+							'items' => [
+								'type' => 'string',
+							]
 						]
 					]
 				]

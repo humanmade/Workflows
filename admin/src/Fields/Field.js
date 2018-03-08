@@ -20,6 +20,7 @@ class Field extends React.Component {
 			name={this.props.name}
 			onChange={this.onChange}
 			value={this.props.value}
+			className="widefat"
 			{...props.params}
 		/>;
 	}

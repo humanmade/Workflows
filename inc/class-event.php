@@ -220,8 +220,6 @@ class Event {
 			return $this;
 		}
 
-		$this->ui->set_key( 'event_' . $this->id );
-
 		return $this;
 	}
 

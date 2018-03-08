@@ -448,8 +448,7 @@ class WorkflowUI extends Component {
 				<Fieldset in={!!(this.state.event && this.state.event.ui.fields)}>
 					{this.state.event && this.state.event.ui.fields && <UIForm
 						name="event"
-						fields={this.state.event.ui.fields}
-						data={this.state.event.ui.data}
+						{...this.state.event.ui}
 						onChange={( value, field ) => this.setState( {
 							event: Object.assign( {}, this.state.event, {
 								ui: Object.assign( {}, this.state.event.ui, {
@@ -487,7 +486,7 @@ class WorkflowUI extends Component {
 						name="message"
 						placeholder="Add an optional detailed message here..."
 						ref="message"
-						content={''}
+						content={this.state.defaultMessage}
 						onChange={content => this.setState( { message: content } )}
 						tags={this.state.event && this.state.event.tags}
 					/>
@@ -608,8 +607,7 @@ class WorkflowUI extends Component {
 						</Fieldset>
 						<Fieldset in={! ! (destination.ui && destination.ui.fields)}>
 							{destination.ui.fields && <UIForm
-								fields={destination.ui.fields}
-								data={destination.ui.data}
+								{...destination.ui}
 								onChange={( value, field ) => this.setState( {
 									destinations: this.state.destinations.map( dest => {
 										if ( dest.id !== destination.id ) {

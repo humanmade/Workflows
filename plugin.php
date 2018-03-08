@@ -23,10 +23,10 @@ require_once __DIR__ . '/admin/admin.php';
 // Load built ins early so they can be modified consistently.
 add_action( 'plugins_loaded', function () {
 	require_once __DIR__ . '/lib/destinations/email.php';
+	require_once __DIR__ . '/lib/destinations/slack.php';
 	require_once __DIR__ . '/lib/events/transition-post-status.php';
 	require_once __DIR__ . '/lib/recipients/post-assignee.php';
 	require_once __DIR__ . '/lib/recipients/post-author.php';
-	require_once __DIR__ . '/lib/workflows/transition-post-status.php';
 }, 9 );
 
 // Run a consistent hook to load all the stored Workflows.

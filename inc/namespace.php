@@ -162,6 +162,15 @@ add_action( 'hm.workflows.init', function () {
 		$event_object = Event::get( $event['id'] );
 		$event_object->get_ui()->set_data( $event['data'] );
 
+		// Map recipients to values or ID.
+		$recipients = array_map( function ( $recipient ) {
+			$recipient['value'] = array_filter( $recipient['value'] );
+
+			return ! empty( $recipient['value'] )
+				? $recipient['value']
+				: $recipient['id'];
+		}, $recipients );
+
 		// Map destinations to object and set UI data.
 		$destinations = array_map( function ( $destination ) {
 			$destination_object = Destination::get( $destination['id'] );
@@ -172,8 +181,11 @@ add_action( 'hm.workflows.init', function () {
 
 		$workflow = Workflow::register( $workflow_id )
 			->when( $event_object )
-			->what( $subject, $message )
-			->who( $recipients );
+			->what( $subject, $message );
+
+		foreach ( $recipients as $recipient ) {
+			$workflow->who( $recipient );
+		}
 
 		foreach ( $destinations as $destination ) {
 			$workflow->where( $destination );

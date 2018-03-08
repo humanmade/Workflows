@@ -8,6 +8,8 @@ import Textarea from './Textarea';
 HM.Workflows.Fields = Object.assign( {
 	base:     Field,
 	text:     Field,
+	number:   Field,
+	url:      Field,
 	checkbox: Checkbox,
 	select:   Select,
 	textarea: Textarea,

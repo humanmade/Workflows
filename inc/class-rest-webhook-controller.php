@@ -78,7 +78,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 
 		// Check Event object exists.
 		if ( ! Event::get( $event ) ) {
-			return $this->handle_response( $request, 'Could find an event matching the ID ' . $event, 'error' );
+			return $this->handle_response( $request, 'Could not find an event matching the ID ' . $event, 'error' );
 		}
 
 		// Get the message action.
@@ -90,6 +90,14 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 
 		if ( ! is_callable( $message_action['callback_or_url'] ) ) {
 			return $this->handle_response( $request, 'Message action callback should be a callable.', 'error' );
+		}
+
+		// Set up auth if cookie present, else do auth redirect.
+		$authed_user = wp_validate_auth_cookie();
+		if ( $authed_user ) {
+			wp_set_current_user( $authed_user );
+		} else {
+			auth_redirect();
 		}
 
 		// Get the sanitisation schema.
@@ -106,6 +114,24 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 		// Pass to callback handler.
 		$result = call_user_func_array( $message_action['callback_or_url'], $payload );
 
+		/**
+		 * Fires when a webhook is called successfully.
+		 *
+		 * @param string $event   The event name that triggered the hook.
+		 * @param string $action  The action name that triggered the hook.
+		 * @param mixed  $result  The callback return value.
+		 * @param array  $payload The payload sent with the hook.
+		 */
+		do_action( 'hm.workflows.webhook', $event, $action, $result, $payload );
+
+		/**
+		 * Fires for the specific webhook event and action.
+		 *
+		 * @param mixed  $result  The callback return value.
+		 * @param array  $payload The payload sent with the hook.
+		 */
+		do_action( "hm.workflows.webhook.{$event}.{$action}", $result, $payload );
+
 		// Redirect to URL or return as a message.
 		if ( is_string( $result ) ) {
 			if ( filter_var( $result, FILTER_VALIDATE_URL ) ) {
@@ -114,6 +140,10 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			} else {
 				return $this->handle_response( $request, $result );
 			}
+		}
+
+		if ( is_null( $result ) ) {
+			return $this->handle_response( $request, 'There was a problem with the request, this can happen if you are logged out of the site.', 'error' );
 		}
 
 		// Generic action success message.
@@ -135,7 +165,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	public function handle_response( WP_REST_Request $request, string $response = '', $type = 'success' ) {
 		// Wrap error responses in WP_Error.
 		if ( $type === 'error' ) {
-			$response = new WP_Error( $response );
+			$response = new WP_Error( 'hm.workflows.webhook.error', $response );
 		}
 
 		$title = $type === 'success'

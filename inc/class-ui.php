@@ -46,13 +46,6 @@ class UI {
 	protected $description;
 
 	/**
-	 * An identifier for the UI to store & fetch data against.
-	 *
-	 * @var string $key The key of the UI.
-	 */
-	protected $key;
-
-	/**
 	 * Stores the collection of UI objects.
 	 *
 	 * @var array $instances The collection of UI objects.
@@ -80,19 +73,6 @@ class UI {
 	 */
 	protected function __construct( string $name ) {
 		$this->name = $name;
-	}
-
-	/**
-	 * Set a key to use for fetching associated data.
-	 *
-	 * @param string $key An identifier for the UI to store & fetch data against.
-	 *
-	 * @return $this
-	 */
-	public function set_key( string $key ): UI {
-		$this->key = sanitize_key( $key );
-
-		return $this;
 	}
 
 	/**
@@ -187,7 +167,6 @@ class UI {
 		return [
 			'name'        => $this->name,
 			'description' => $this->description,
-			'key'         => $this->key,
 			'fields'      => $this->fields,
 			'data'        => (object) $this->data,
 		];

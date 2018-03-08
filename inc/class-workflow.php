@@ -46,11 +46,15 @@ class Workflow {
 	protected $recipients = [];
 
 	/**
-	 * The messages.
+	 * The message array, contains keys 'subject', 'text' and 'actions'.
 	 *
 	 * @var array
 	 */
-	protected $messages = [];
+	protected $message = [
+		'subject' => '',
+		'text'    => '',
+		'actions' => [],
+	];
 
 	/**
 	 * Workflow destinations.
@@ -113,7 +117,7 @@ class Workflow {
 		if ( is_string( $event ) ) {
 			$this->event = Event::get( $event );
 			if ( ! $this->event ) {
-				$this->event = Event::register( $event );
+				$this->event = Event::register( $event )->set_listener( $event );
 			}
 		} elseif ( is_array( $event ) && isset( $event['action'] ) ) {
 			$this->event = Event::get( $event['action'] );
@@ -129,6 +133,7 @@ class Workflow {
 		// Check we have a valid Event.
 		if ( ! $this->event ) {
 			trigger_error( 'Could not get event object for workflow ' . $this->id, E_USER_WARNING );
+
 			return $this;
 		}
 
@@ -141,8 +146,8 @@ class Workflow {
 
 		// Call the listener.
 		if ( is_string( $listener ) ) {
-			add_action( $listener, function () {
-				$this->run( func_get_args() );
+			add_action( $listener, function () use ( $ui_data ) {
+				$this->run( array_merge( func_get_args(), [ 'data' => $ui_data ] ) );
 			} );
 		} elseif ( is_array( $listener ) ) {
 			add_action( $listener['action'], function () use ( $listener, $ui_data ) {
@@ -156,7 +161,7 @@ class Workflow {
 						$this->run( $result );
 					}
 				} else {
-					$this->run( $args );
+					$this->run( array_merge( $args, [ 'data' => $ui_data ] ) );
 				}
 			}, $listener['priority'], $listener['accepted_args'] );
 		} elseif ( is_callable( $listener ) ) {
@@ -179,32 +184,19 @@ class Workflow {
 	 * @return $this
 	 */
 	public function what( $subject, $text = '', array $actions = [] ): Workflow {
-		$this->messages[] = [
+		$this->message = [
 			'subject' => $subject,
 			'text'    => $text,
-		];
-
-		if ( ! empty( $actions ) ) {
-			foreach ( $actions as $id => $action ) {
-				// Make sure we throw a type check error if it's misconfigured.
-				$action = wp_parse_args( $action, [
+			'actions' => array_map( function ( $action ) {
+				return wp_parse_args( $action, [
 					'text'            => null,
 					'callback_or_url' => null,
 					'args'            => [],
 					'schema'          => [],
 					'data'            => [],
 				] );
-
-				$this->event->add_message_action(
-					$id,
-					$action['text'],
-					$action['callback_or_url'],
-					$action['args'],
-					$action['schema'],
-					$action['data']
-				);
-			}
-		}
+			}, $actions ),
+		];
 
 		return $this;
 	}
@@ -259,9 +251,6 @@ class Workflow {
 	 */
 	protected function run( array $args = [] ) {
 
-		// @todo Get event UI data and pass through to callbacks?
-		// @todo Get destination UI data and pass through to callbacks?
-
 		// Process recipients.
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
@@ -273,21 +262,28 @@ class Workflow {
 				}
 			} elseif ( is_string( $recipient ) ) {
 				// Try to get user by login, users by role or a registered callback.
-				$user = get_user_by( 'login', $recipient );
-				if ( is_a( $user, 'WP_User' ) ) {
-					$recipients[] = $user;
-				} elseif ( get_role( $recipient ) ) {
+				if ( get_role( $recipient ) ) {
 					$users = get_users( [ 'role' => $recipient ] );
 					if ( ! empty( $users ) ) {
 						$recipients = array_merge( $recipients, $users );
 					}
 				} elseif ( $this->event->get_recipient_handler( $recipient ) ) {
 					$results = call_user_func_array( $this->event->get_recipient_handler( $recipient ), $args );
+
+					if ( ! is_array( $results ) ) {
+						$results = [ $results ];
+					}
+
 					$results = array_filter( (array) $results, function ( $result ) {
 						return is_a( $result, 'WP_User' );
 					} );
 
 					$recipients = array_merge( $recipients, $results );
+				} else {
+					$user = get_user_by( 'login', $recipient );
+					if ( is_a( $user, 'WP_User' ) ) {
+						$recipients[] = $user;
+					}
 				}
 			} elseif ( is_callable( $recipient ) ) {
 				// If a callback was passed directly add the results.
@@ -305,9 +301,8 @@ class Workflow {
 			}
 		}
 
-		// Process messages.
-		$messages = [];
-		$tags     = [];
+		// Process message.
+		$tags = [];
 		foreach ( $this->event->get_message_tags() as $key => $val ) {
 			if ( is_callable( $val ) ) {
 				$tags[ '%' . $key . '%' ] = call_user_func_array( $val, $args );
@@ -316,73 +311,90 @@ class Workflow {
 			}
 		}
 
-		foreach ( $this->messages as $message ) {
-			$message = wp_parse_args( $message, [
-				'subject' => '',
-				'text'    => '',
-			] );
+		$message = wp_parse_args( $this->message, [
+			'subject' => '',
+			'text'    => '',
+			'actions' => [],
+		] );
 
-			// Guard.
-			if ( empty( $message['subject'] ) ) {
+		// Guard.
+		if ( empty( $message['subject'] ) ) {
+			return;
+		}
+
+		if ( is_callable( $message['subject'] ) ) {
+			$subject = call_user_func_array( $message['subject'], $args );
+		} else {
+			$subject = $message['subject'];
+		}
+
+		if ( is_callable( $message['text'] ) ) {
+			$text = call_user_func_array( $message['text'], $args );
+		} else {
+			$text = $message['text'];
+		}
+
+		$parsed_message            = [];
+		$parsed_message['subject'] = str_replace( array_keys( $tags ), array_values( $tags ), $subject );
+		$parsed_message['text']    = str_replace( array_keys( $tags ), array_values( $tags ), $text );
+		$parsed_message['actions'] = [];
+
+		// Add actions from the message if any.
+		foreach ( $message['actions'] as $id => $action ) {
+			$this->event->add_message_action(
+				$id,
+				$action['text'],
+				$action['callback_or_url'],
+				$action['args'],
+				$action['schema'],
+				$action['data']
+			);
+		}
+
+		// Parse actions.
+		foreach ( $this->event->get_message_actions() as $id => $action ) {
+
+			// Get the webhook payload.
+			$payload = [];
+			if ( is_callable( $action['args'] ) ) {
+				$payload = call_user_func_array( $action['args'], $args );
+			} elseif ( is_array( $action['args'] ) ) {
+				$payload = $action['args'];
+			}
+
+			// Add workflow ID to payload.
+			$payload['workflow'] = $this->id;
+
+			/**
+			 * Filter the webhook payload for a message action.
+			 *
+			 * @param array  $payload The data sent with the action.
+			 * @param string $id      The action ID.
+			 * @param array  $action  The action data.
+			 */
+			$payload = apply_filters( 'hm.workflows.webhook.payload', $payload, $id, $action );
+
+			// Take the string value, or set to the webhook URL if it's a callback.
+			$url = $action['callback_or_url'];
+			if ( is_callable( $action['callback_or_url'] ) ) {
+				$url = get_webhook_controller()->get_webhook_url( $this->event->get_id(), $id, $payload );
+			}
+
+			// Must be a URL for the action to valid.
+			if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
 				continue;
 			}
 
-			if ( is_callable( $message['subject'] ) ) {
-				$subject = call_user_func_array( $message['subject'], $args );
-			} else {
-				$subject = $message['subject'];
-			}
-
-			if ( is_callable( $message['text'] ) ) {
-				$text = call_user_func_array( $message['text'], $args );
-			} else {
-				$text = $message['text'];
-			}
-
-			$parsed_message            = [];
-			$parsed_message['subject'] = str_replace( array_keys( $tags ), array_values( $tags ), $subject );
-			$parsed_message['text']    = str_replace( array_keys( $tags ), array_values( $tags ), $text );
-			$parsed_message['actions'] = [];
-
-			// Add actions.
-			foreach ( $this->event->get_message_actions() as $id => $action ) {
-
-				// Get the webhook payload.
-				if ( is_callable( $action['args'] ) ) {
-					$payload = call_user_func_array( $action['args'], $args );
-				} else {
-					$payload = [];
-				}
-
-				// Take the string value, or set to the webhook URL if it's a callback.
-				$url = $action['callback_or_url'];
-				if ( is_callable( $action['callback_or_url'] ) ) {
-					$url = get_webhook_controller()->get_webhook_url( $this->event->get_id(), $id, $payload );
-				}
-
-				// Must be a URL for the action to valid.
-				if ( ! filter_var( $url, FILTER_VALIDATE_URL ) ) {
-					continue;
-				}
-
-				$parsed_message['actions'][ $id ] = [
-					'text' => $action['text'],
-					'url'  => $url,
-					'data' => $action['data'],
-				];
-			}
-
-			$messages[] = $parsed_message;
-		}
-
-		// Bail if there's nothing to send. Some destinations may not require recipients.
-		if ( empty( $messages ) ) {
-			return;
+			$parsed_message['actions'][ $id ] = [
+				'text' => $action['text'],
+				'url'  => $url,
+				'data' => $action['data'],
+			];
 		}
 
 		// Send those notifications!
 		foreach ( $this->destinations as $destination ) {
-			$destination->call_handler( $recipients, $messages );
+			$destination->call_handler( $recipients, $parsed_message );
 		}
 	}
 }

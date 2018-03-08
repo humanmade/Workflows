@@ -106,9 +106,9 @@ class Destination {
 	 * Run the destination handler.
 	 *
 	 * @param array $recipients The recipients.
-	 * @param array $messages   The messages to display.
+	 * @param array $message   The message to display.
 	 */
-	public function call_handler( array $recipients, array $messages ) {
+	public function call_handler( array $recipients, array $message ) {
 		// Filter out recipients with the notification disabled.
 		$recipients = array_filter( $recipients, function ( $recipient ) {
 			if ( is_a( $recipient, 'WP_User' ) ) {
@@ -124,7 +124,7 @@ class Destination {
 			$ui_data = $this->get_ui()->get_data();
 		}
 
-		( $this->handler )( $recipients, $messages, $ui_data );
+		( $this->handler )( $recipients, $message, $ui_data );
 	}
 
 	/**
