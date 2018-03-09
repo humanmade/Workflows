@@ -287,9 +287,10 @@ class WorkflowUI extends Component {
 					defaultMessage: data.message,
 					recipients:     data.recipients.map( recipient => {
 						const recipientObject = recipients.find( rec => rec.id === recipient.id );
-						return Object.assign( {}, recipientObject, {
-							value: recipientObject.multi ? recipient.value : recipient.value[0]
-						} );
+						const recipientValue  = recipient.value
+							? { value: recipientObject.multi ? recipient.value : recipient.value[0] }
+							: {};
+						return Object.assign( {}, recipientObject, recipientValue );
 					} ),
 					destinations:   data.destinations.map( destination => {
 						const destObject = HM.Workflows.Destinations.find( dest => dest.id === destination.id );
@@ -330,10 +331,13 @@ class WorkflowUI extends Component {
 				},
 				subject: this.state.subject,
 				message: this.state.message,
-				recipients: this.state.recipients.map( recipient => ({
-					id: recipient.id,
-					value: recipient.multi ? recipient.value : [ recipient.value ]
-				}) ),
+				recipients: this.state.recipients.map( recipient => {
+					const recipientObject = { id: recipient.id };
+					const recipientValue  = recipient.value
+						? { value: recipient.multi ? recipient.value : [ recipient.value ] }
+						: {};
+					return Object.assign( {}, recipientObject, recipientValue );
+				} ),
 				destinations: this.state.destinations.map( destination => ({
 					id: destination.id,
 					data: destination.ui.data,
@@ -381,7 +385,7 @@ class WorkflowUI extends Component {
 		// If we have data show a loading indicator before we get to the UI.
 		if ( this.state.loading ) {
 			return <Loading>
-				<Portal target="hm-workflow-options">
+				<Portal target="#hm-workflow-options">
 					<SubmitBox>
 						<Loading>
 							<span className="spinner is-active" />
@@ -394,7 +398,7 @@ class WorkflowUI extends Component {
 
 		return <div className="hm-workflow-ui-wrap">
 
-			<Portal target="hm-workflow-options">
+			<Portal target="#hm-workflow-options">
 				<SubmitBox>
 					<div className="hm-workflow-options__enable">
 						<label htmlFor="hm-workflow-enabled">

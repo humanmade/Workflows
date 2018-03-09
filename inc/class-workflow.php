@@ -103,6 +103,8 @@ class Workflow {
 	 */
 	protected function __construct( string $id = '' ) {
 		$this->id = $id;
+
+		add_action( "hm.workflows.run.{$this->id}", [ $this, 'run' ] );
 	}
 
 	/**
@@ -147,7 +149,7 @@ class Workflow {
 		// Call the listener.
 		if ( is_string( $listener ) ) {
 			add_action( $listener, function () use ( $ui_data ) {
-				$this->run( array_merge( func_get_args(), [ 'data' => $ui_data ] ) );
+				$this->schedule( array_merge( func_get_args(), [ 'data' => $ui_data ] ) );
 			} );
 		} elseif ( is_array( $listener ) ) {
 			add_action( $listener['action'], function () use ( $listener, $ui_data ) {
@@ -158,16 +160,16 @@ class Workflow {
 						array_merge( $args, [ 'data' => $ui_data ] )
 					);
 					if ( ! is_null( $result ) ) {
-						$this->run( $result );
+						$this->schedule( $result );
 					}
 				} else {
-					$this->run( array_merge( $args, [ 'data' => $ui_data ] ) );
+					$this->schedule( array_merge( $args, [ 'data' => $ui_data ] ) );
 				}
 			}, $listener['priority'], $listener['accepted_args'] );
 		} elseif ( is_callable( $listener ) ) {
 			$result = call_user_func( $listener, $ui_data );
 			if ( ! is_null( $result ) ) {
-				$this->run( $result );
+				$this->schedule( $result );
 			}
 		}
 
@@ -243,13 +245,24 @@ class Workflow {
 	}
 
 	/**
-	 * Run the workflow.
+	 * Schedule the workflow.
 	 *
-	 * @todo Run this as a background task.
+	 * @param array $args
+	 */
+	protected function schedule( array $args = [] ) {
+		if ( wp_next_scheduled( "hm.workflows.run.{$this->id}", [ $args ] ) ) {
+			return;
+		}
+
+		wp_schedule_single_event( time(), "hm.workflows.run.{$this->id}", [ $args ] );
+	}
+
+	/**
+	 * Run the workflow.
 	 *
 	 * @param array $args The return value from the callback or arguments from the action.
 	 */
-	protected function run( array $args = [] ) {
+	public function run( array $args = [] ) {
 
 		// Process recipients.
 		$recipients = [];
@@ -267,6 +280,10 @@ class Workflow {
 					if ( ! empty( $users ) ) {
 						$recipients = array_merge( $recipients, $users );
 					}
+				} elseif ( $recipient === 'all' ) {
+					$recipients = array_merge( $recipients, get_users( [
+						'paged' => -1,
+					] ) );
 				} elseif ( $this->event->get_recipient_handler( $recipient ) ) {
 					$results = call_user_func_array( $this->event->get_recipient_handler( $recipient ), $args );
 

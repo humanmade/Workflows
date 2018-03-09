@@ -22,6 +22,8 @@ const withFetch = ( url, options = {}, name = null ) => {
 					data:     {},
 					error:    false,
 				};
+
+				this.doFetch = this.doFetch.bind( this );
 			}
 
 			componentWillMount() {
@@ -85,7 +87,7 @@ const withFetch = ( url, options = {}, name = null ) => {
 					state = { [name]: state };
 				}
 
-				return <Component {...state} {...this.props} />;
+				return <Component key="withFetch" {...state} {...this.props} />;
 			}
 		}
 

@@ -5,11 +5,15 @@ class Portal extends Component {
 
 	setDomElement( props ) {
 		if ( props.target ) {
-			this.domEl = document.getElementById( props.target );
+			this.domEl = document.querySelector( props.target );
 		} else {
 			this.domEl = document.createElement( 'div' );
 			document.body.appendChild( this.domEl );
 		}
+
+		// if ( this.domEl ) {
+		// 	this.domEl.innerHTML = '';
+		// }
 	}
 
 	componentWillMount() {
@@ -21,6 +25,10 @@ class Portal extends Component {
 	}
 
 	componentWillUnmount() {
+		if ( ! this.props.target ) {
+			document.body.removeChild( this.domEl );
+		}
+
 		this.props.onUnload && this.props.onUnload();
 	}
 

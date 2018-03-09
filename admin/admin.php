@@ -29,10 +29,6 @@ function main_ui() {
  * Load the UI scripts.
  */
 function enqueue_ui_assets() {
-	if ( ! get_current_screen()->post_type === 'hm_workflow' ) {
-		return;
-	}
-
 	enqueue_assets( __DIR__, [
 		'handle'  => 'hm-workflows',
 		'scripts' => [ 'wp-api' ],
@@ -78,12 +74,13 @@ function enqueue_ui_assets() {
 		wp_json_encode( [
 			'Nonce'        => wp_create_nonce( 'wp_rest' ),
 			'Namespace'    => rest_url( 'workflows/v1' ),
+			'User'         => get_current_user_id(),
 			'Events'       => array_values( $events ),
 			'Destinations' => array_values( $destinations ),
 			'Recipients'   => [
 				[
 					'id'    => 'role',
-					'name' => __( 'Users with the roles...', 'hm-workflows' ),
+					'name'  => __( 'Users with the roles...', 'hm-workflows' ),
 					'items' => array_values( array_map( function ( $role, $key ) {
 						return [
 							'label' => $role['name'],
@@ -93,16 +90,20 @@ function enqueue_ui_assets() {
 					'multi' => true,
 				],
 				[
-					'id'    => 'user',
-					'name' => __( 'Specific users...', 'hm-workflows' ),
+					'id'       => 'user',
+					'name'     => __( 'Specific users...', 'hm-workflows' ),
 					'endpoint' => [
-						'url' => rest_url( 'wp/v2/users' ),
+						'url'      => rest_url( 'wp/v2/users' ),
 						'labelKey' => 'name',
-						'valueKey' => 'id'
+						'valueKey' => 'id',
 					],
-					'multi' => true,
+					'multi'    => true,
 				],
-			]
+				[
+					'id'   => 'all',
+					'name' => __( 'All users', 'hm-workflows' ),
+				],
+			],
 		] )
 	), 'before' );
 }

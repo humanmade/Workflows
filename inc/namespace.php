@@ -164,7 +164,9 @@ add_action( 'hm.workflows.init', function () {
 
 		// Map recipients to values or ID.
 		$recipients = array_map( function ( $recipient ) {
-			$recipient['value'] = array_filter( $recipient['value'] );
+			if ( isset( $recipient['value'] ) && is_array( $recipient['value'] ) ) {
+				$recipient['value'] = array_filter( $recipient['value'] );
+			}
 
 			return ! empty( $recipient['value'] )
 				? $recipient['value']

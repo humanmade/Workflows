@@ -118,6 +118,8 @@ class Destination {
 			return true;
 		} );
 
+		$recipients = array_unique( $recipients, SORT_REGULAR );
+
 		$ui_data = [];
 
 		if ( $this->get_ui() ) {
