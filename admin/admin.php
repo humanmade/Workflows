@@ -104,6 +104,27 @@ function enqueue_ui_assets() {
 					'name' => __( 'All users', 'hm-workflows' ),
 				],
 			],
+			'L10n'         => [
+				'There was an error loading the plugin UI.'                => __( 'There was an error loading the plugin UI.', 'hm-workflows' ),
+				'Enable'                                                   => __( 'Enable', 'hm-workflows' ),
+				'Saving'                                                   => __( 'Saving', 'hm-workflows' ),
+				'Save'                                                     => __( 'Save', 'hm-workflows' ),
+				'When should the workflow run?'                            => __( 'When should the workflow run?', 'hm-workflows' ),
+				'What message should be sent?'                             => __( 'What message should be sent?', 'hm-workflows' ),
+				'Subject'                                                  => __( 'Subject', 'hm-workflows' ),
+				'Briefly state what has happened or the action to take...' => __( 'Briefly state what has happened or the action to take...', 'hm-workflows' ),
+				'Message'                                                  => __( 'Message', 'hm-workflows' ),
+				'Add an optional detailed message here...'                 => __( 'Add an optional detailed message here...', 'hm-workflows' ),
+				'The following actions will be added to the message.'      => __( 'The following actions will be added to the message.', 'hm-workflows' ),
+				'Who should be notified?'                                  => __( 'Who should be notified?', 'hm-workflows' ),
+				'Select another...'                                        => __( 'Select another...', 'hm-workflows' ),
+				'Select...'                                                => __( 'Select...', 'hm-workflows' ),
+				'Where should they be notified?'                           => __( 'Where should they be notified?', 'hm-workflows' ),
+				'You have no new notifications.'                           => __( 'You have no new notifications.', 'hm-workflows' ),
+				'Read less'                                                => __( 'Read less', 'hm-workflows' ),
+				'Read more'                                                => __( 'Read more', 'hm-workflows' ),
+				'Dismiss'                                                  => __( 'Dismiss', 'hm-workflows' ),
+			],
 		] )
 	), 'before' );
 }

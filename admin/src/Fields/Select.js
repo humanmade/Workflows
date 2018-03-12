@@ -41,7 +41,11 @@ class SelectField extends Field {
 				? ( this.props.params.endpoint.valueKey || 'id' )
 				: 'value';
 
-			this.props.onChange( option[valueKey], option );
+			const value = this.props.params.multi
+				? option.map( opt => opt[valueKey] )
+				: option[valueKey]
+
+			this.props.onChange( value, option );
 		}
 	}
 

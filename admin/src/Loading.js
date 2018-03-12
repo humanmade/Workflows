@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import __ from './l10n';
 
 const StyledLoading = styled.div`
 	.spinner {
@@ -18,7 +19,7 @@ const Loading = ({ isLoading, error }) => {
 
 	if ( error ) {
 		return <StyledLoading>
-			<div className="notice notice-error">There was an error loading the plugin UI</div>
+			<div className="notice notice-error">{__( 'There was an error loading the plugin UI.' )}</div>
 		</StyledLoading>;
 	}
 

@@ -10,6 +10,7 @@ import Editor from './Editor';
 import styled, { css } from 'styled-components';
 import UIForm from './Form';
 import Errors from './Errors';
+import __ from './l10n';
 
 const Loading = styled.div`
 	.spinner {
@@ -410,7 +411,7 @@ class WorkflowUI extends Component {
 								onChange={() => this.setState( { enabled: ! this.state.enabled } )}
 								icons={false}
 							/>
-							Enable
+							{ __( 'Enable' ) }
 						</label>
 					</div>
 					<div className="hm-workflow-options__actions">
@@ -420,7 +421,7 @@ class WorkflowUI extends Component {
 							disabled={this.state.saving}
 							onClick={() => this.saveWorkflow()}
 						>
-							{this.state.saving ? 'Saving' : 'Save'}
+							{this.state.saving ? __( 'Saving' ) : __( 'Save' )}
 						</button>
 						<span className={`spinner ${this.state.saving && 'is-active'}`}/>
 					</div>
@@ -430,53 +431,55 @@ class WorkflowUI extends Component {
 			<Errors errors={this.state.errors} />
 
 			<QuestionBox step={1} in={true}>
-				<Question>When should the workflow run?</Question>
-				<Fieldset in={true}>
-					<Select
-						options={HM.Workflows.Events.map( event => ({
-							value:  event.id,
-							label:  event.ui.name,
-							object: event
-						}) )}
-						name="event"
-						value={(this.state.event && this.state.event.id) || ''}
-						onChange={option => this.setState( {
-							event:  option.object || null,
-							errors: this.updateErrors( option.object, 'no-event' ),
-						}, () => {
-							this.refs.subject.focus();
-						} )}
-						resetValue=""
-					/>
-				</Fieldset>
-				<Fieldset in={!!(this.state.event && this.state.event.ui.fields)}>
-					{this.state.event && this.state.event.ui.fields && <UIForm
-						name="event"
-						{...this.state.event.ui}
-						onChange={( value, field ) => this.setState( {
-							event: Object.assign( {}, this.state.event, {
-								ui: Object.assign( {}, this.state.event.ui, {
-									data: Object.assign( {}, this.state.event.ui.data, {
-										[ field.name ]: value
+				<Question>{ __( 'When should the workflow run?' ) }</Question>
+				<Form hasFields={!!(this.state.event && this.state.event.ui.fields)}>
+					<Fieldset in={true}>
+						<Select
+							options={HM.Workflows.Events.map( event => ({
+								value:  event.id,
+								label:  event.ui.name,
+								object: event
+							}) )}
+							name="event"
+							value={(this.state.event && this.state.event.id) || ''}
+							onChange={option => this.setState( {
+								event:  option.object || null,
+								errors: this.updateErrors( option.object, 'no-event' ),
+							}, () => {
+								this.refs.subject.focus();
+							} )}
+							resetValue=""
+						/>
+					</Fieldset>
+					<Fieldset in={!!(this.state.event && this.state.event.ui.fields.length)}>
+						<UIForm
+							name="event"
+							{...this.state.event.ui}
+							onChange={( value, field ) => this.setState( {
+								event: Object.assign( {}, this.state.event, {
+									ui: Object.assign( {}, this.state.event.ui, {
+										data: Object.assign( {}, this.state.event.ui.data, {
+											[ field.name ]: value
+										} )
 									} )
 								} )
-							} )
-						} )}
-					/>}
-				</Fieldset>
+							} )}
+						/>
+					</Fieldset>
+				</Form>
 			</QuestionBox>
 
 			<QuestionBox step={2} in={!!this.state.event}>
-				<Question>What message should be sent?</Question>
+				<Question>{ __( 'What message should be sent?' ) }</Question>
 
 				<Field>
-					<label htmlFor="subject">Subject</label>
+					<label htmlFor="subject">{ __( 'Subject' ) }</label>
 					<Editor
 						id="subject"
 						type="text"
 						name="subject"
 						ref="subject"
-						placeholder="Briefly state what has happened or the action to take..."
+						placeholder={ __( 'Briefly state what has happened or the action to take...' ) }
 						content={this.state.defaultSubject}
 						onChange={content => this.setState( { subject: content } )}
 						tags={this.state.event && this.state.event.tags}
@@ -484,11 +487,11 @@ class WorkflowUI extends Component {
 				</Field>
 
 				<Field>
-					<label htmlFor="message">Message</label>
+					<label htmlFor="message">{ __( 'Message' ) }</label>
 					<Editor
 						id="message"
 						name="message"
-						placeholder="Add an optional detailed message here..."
+						placeholder={ __( 'Add an optional detailed message here...' ) }
 						ref="message"
 						content={this.state.defaultMessage}
 						onChange={content => this.setState( { message: content } )}
@@ -498,7 +501,7 @@ class WorkflowUI extends Component {
 
 				{this.state.event && this.state.event.actions.length
 					? <MessageActions>
-						<p>The following actions will be added to the message.</p>
+						<p>{ __( 'The following actions will be added to the message.' ) }</p>
 						<ul>
 							{this.state.event.actions.map( action => {
 								return <li key={action.id}><span className="button button-secondary">{action.text}</span></li>;
@@ -510,7 +513,7 @@ class WorkflowUI extends Component {
 			</QuestionBox>
 
 			<QuestionBox step={3} in={!!(this.state.event && this.state.subject)}>
-				<Question>Who should be notified?</Question>
+				<Question>{ __( 'Who should be notified?' ) }</Question>
 				{this.state.recipients.map( recipient => {
 					return <Form key={recipient.id} hasFields={recipient.items || recipient.endpoint}>
 						<Fieldset in={true}>
@@ -529,7 +532,7 @@ class WorkflowUI extends Component {
 								onCloseResetsInput={false}
 							/>
 						</Fieldset>
-						<Fieldset in={!!(recipient.items)}>
+						<Fieldset in={!!(recipient.items && recipient.items.length)}>
 							<Select
 								options={recipient.items}
 								multi={recipient.multi}
@@ -583,16 +586,16 @@ class WorkflowUI extends Component {
 					<Select
 						options={availableRecipients.map( recipient => ({ label: recipient.name, object: recipient }) )}
 						name="who[]"
-						placeholder={this.state.recipients.length ? 'Select another...' : 'Select...'}
+						placeholder={this.state.recipients.length ? __( 'Select another...' ) : __( 'Select...' )}
 						onChange={option => this.setState( { recipients: this.state.recipients.concat( [ option.object ] ) } )}
 					/>
 				</Fieldset>
 			</QuestionBox>
 
 			<QuestionBox step={4} in={!!(this.state.event && this.state.subject && this.state.recipients.length)}>
-				<Question>Where should they be notified?</Question>
+				<Question>{ __( 'Where should they be notified?' ) }</Question>
 				{this.state.destinations.map( destination => {
-					return <Form key={destination.id} hasFields={destination.ui.fields}>
+					return <Form key={destination.id} hasFields={destination.ui.fields.length}>
 						<Fieldset in={true}>
 							<Select
 								value={destination.id}
@@ -609,8 +612,8 @@ class WorkflowUI extends Component {
 								onCloseResetsInput={false}
 							/>
 						</Fieldset>
-						<Fieldset in={! ! (destination.ui && destination.ui.fields)}>
-							{destination.ui.fields && <UIForm
+						<Fieldset in={!!(destination.ui && destination.ui.fields.length)}>
+							<UIForm
 								{...destination.ui}
 								onChange={( value, field ) => this.setState( {
 									destinations: this.state.destinations.map( dest => {
@@ -624,7 +627,7 @@ class WorkflowUI extends Component {
 										return Object.assign( {}, dest, { ui } );
 									} )
 								} )}
-							/>}
+							/>
 						</Fieldset>
 					</Form>
 				} )}
@@ -636,7 +639,7 @@ class WorkflowUI extends Component {
 							object: destination
 						}) )}
 						name="where[]"
-						placeholder={this.state.destinations.length ? 'Select another...' : 'Select...'}
+						placeholder={this.state.destinations.length ? __( 'Select another...' ) : __( 'Select...' )}
 						onChange={option => this.setState( {
 							destinations: this.state.destinations.concat( [ option.object ] )
 						} )}

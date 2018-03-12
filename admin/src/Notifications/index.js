@@ -2,7 +2,9 @@
 import React from 'react';
 import withFetch from '../withFetch';
 import Portal from '../Portal';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { injectGlobal } from 'styled-components';
+import __ from '../l10n';
 
 injectGlobal`
 	#wpwrap #wpadminbar {
@@ -31,6 +33,22 @@ injectGlobal`
 				font-weight: bold;
 				margin: 0 0 5px;
 			}
+		}
+		
+		.hm-workflows-notification-enter,
+		.hm-workflows-notification-exit.hm-workflows-notification-exit-active {
+			opacity: 0.01;
+			left: 100%;
+			position: relative;
+			transition: left .3s ease-out, opacity .3s ease-out;
+		}
+		
+		.hm-workflows-notification-exit,
+		.hm-workflows-notification-enter.hm-workflows-notification-enter-active {
+			opacity: 1;
+			left: 0;
+			position: relative;
+			transition: left .3s ease-in, opacity .3s ease-in;
 		}
 		
 		.hm-workflows-notification-actions {
@@ -77,7 +95,7 @@ class Notifications extends React.Component {
 		if ( this.props.loading ) {
 			if ( this.props.adminBar ) {
 				return <li>
-					<div className="hm-workflows-notification">You have no new notifications.</div>
+					<div className="hm-workflows-notification">{ __( 'You have no new notifications.' ) }</div>
 				</li>;
 			}
 			return null;
@@ -86,65 +104,73 @@ class Notifications extends React.Component {
 		const items = [];
 		const data = this.props.data instanceof Array ? this.props.data : [];
 
-		data.forEach( notification => {
-			items.push( <li key={notification.id} className={this.props.adminBar ? '' : 'notice notice-dismissable'}>
-				<div className="hm-workflows-notification">
-					<h4>{notification.subject}</h4>
-					{notification.text && <div className="hm-workflows-notification-message">
-						{this.state.expanded.indexOf( notification.id ) >= 0
-							? [
-								<p key="message">{notification.text}</p>,
-								<p key="close" className="hm-workflows-notification-actions">
-									<a
-										href="#hm-notification-message-close"
-										onClick={e => {
-											e.preventDefault();
-											this.setState( {
-												expanded: this.state.expanded.filter( id => id !== notification.id )
-											} )
-										}}
-									>
-										Read less
-									</a>
-								</p>
-							]
-							: <p className="hm-workflows-notification-actions">
+		items.push( <TransitionGroup key="items">
+			{data.map( notification => {
+				return <CSSTransition
+					key={notification.id}
+					timeout={300}
+					classNames="hm-workflows-notification"
+				>
+					<li className={this.props.adminBar ? '' : 'notice notice-dismissable'}>
+						<div className="hm-workflows-notification">
+							<h4>{notification.subject}</h4>
+							{notification.text && <div className="hm-workflows-notification-message">
+								{this.state.expanded.indexOf( notification.id ) >= 0
+									? [
+										<p key="message">{notification.text}</p>,
+										<p key="close" className="hm-workflows-notification-actions">
+											<a
+												href="#hm-notification-message-close"
+												onClick={e => {
+													e.preventDefault();
+													this.setState( {
+														expanded: this.state.expanded.filter( id => id !== notification.id )
+													} )
+												}}
+											>
+												{ __( 'Read less' ) }
+											</a>
+										</p>
+									]
+									: <p className="hm-workflows-notification-actions">
+										<a
+											href="#hm-notification-message-open"
+											onClick={e => {
+												e.preventDefault();
+												this.setState( {
+													expanded: this.state.expanded.concat( [ notification.id ] )
+												} );
+											}}
+										>
+											{ __( 'Read more' ) }
+										</a>
+									</p>
+								}
+							</div>}
+							<div className="hm-workflows-notification-actions">
+								{notification.actions.map( action => {
+									return <a key={action.id} href={action.url}>{action.text}</a>;
+								} )}
 								<a
-									href="#hm-notification-message-open"
+									className="notice-dismiss"
+									href="#hm-notification-delete"
 									onClick={e => {
 										e.preventDefault();
-										this.setState( {
-											expanded: this.state.expanded.concat( [ notification.id ] )
-										} );
+										this.delete( notification.id );
 									}}
 								>
-									Read more
+									{ __( 'Dismiss' ) }
 								</a>
-							</p>
-						}
-					</div>}
-					<div className="hm-workflows-notification-actions">
-						{notification.actions.map( action => {
-							return <a key={action.id} href={action.url}>{action.text}</a>;
-						} )}
-						<a
-							className="notice-dismiss"
-							href="#hm-notification-delete"
-							onClick={e => {
-								e.preventDefault();
-								this.delete( notification.id );
-							}}
-						>
-							Dismiss
-						</a>
-					</div>
-				</div>
-			</li> );
-		} );
+							</div>
+						</div>
+					</li>
+				</CSSTransition>
+			} )}
+		</TransitionGroup> )
 
 		if ( this.props.adminBar && ! data.length ) {
 			items.push( <li key="empty">
-				<div className="hm-workflows-notification">You have no new notifications.</div>
+				<div className="hm-workflows-notification">{ __( 'You have no new notifications.' ) }</div>
 			</li> );
 		}
 

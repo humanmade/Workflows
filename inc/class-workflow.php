@@ -149,7 +149,7 @@ class Workflow {
 		// Call the listener.
 		if ( is_string( $listener ) ) {
 			add_action( $listener, function () use ( $ui_data ) {
-				$this->schedule( array_merge( func_get_args(), [ 'data' => $ui_data ] ) );
+				$this->schedule( array_merge( func_get_args(), [ 'ui_data' => $ui_data ] ) );
 			} );
 		} elseif ( is_array( $listener ) ) {
 			add_action( $listener['action'], function () use ( $listener, $ui_data ) {
@@ -157,18 +157,24 @@ class Workflow {
 				if ( isset( $listener['callback'] ) && is_callable( $listener['callback'] ) ) {
 					$result = call_user_func_array(
 						$listener['callback'],
-						array_merge( $args, [ 'data' => $ui_data ] )
+						array_merge( $args, [ 'ui_data' => $ui_data ] )
 					);
 					if ( ! is_null( $result ) ) {
+						If ( ! is_array( $result ) ) {
+							$result = [ $result ];
+						}
 						$this->schedule( $result );
 					}
 				} else {
-					$this->schedule( array_merge( $args, [ 'data' => $ui_data ] ) );
+					$this->schedule( array_merge( $args, [ 'ui_data' => $ui_data ] ) );
 				}
 			}, $listener['priority'], $listener['accepted_args'] );
 		} elseif ( is_callable( $listener ) ) {
 			$result = call_user_func( $listener, $ui_data );
 			if ( ! is_null( $result ) ) {
+				If ( ! is_array( $result ) ) {
+					$result = [ $result ];
+				}
 				$this->schedule( $result );
 			}
 		}
