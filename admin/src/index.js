@@ -1,3 +1,5 @@
+// eslint-disable-next-line
+/*global HM, __webpack_public_path__*/
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Loadable from 'react-loadable';
@@ -5,6 +7,12 @@ import Loading from './Loading';
 import Notifications from './Notifications';
 import registerServiceWorker from './registerServiceWorker';
 import { injectGlobal } from 'styled-components';
+
+// Fix build chunk URLs.
+if ( process.env.NODE_ENV === 'production' ) {
+	// eslint-disable-next-line
+	__webpack_public_path__ = HM.Workflows.BuildURL.replace( /\/?$/, '/' );
+}
 
 /**
  * Async loading Workflow UI.

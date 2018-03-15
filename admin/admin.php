@@ -29,9 +29,10 @@ function main_ui() {
  * Load the UI scripts.
  */
 function enqueue_ui_assets() {
+	add_filter( 'reactwpscripts.is_development', '__return_false', 11 );
+
 	enqueue_assets( __DIR__, [
 		'handle'  => 'hm-workflows',
-		'scripts' => [ 'wp-api' ],
 	] );
 
 	// Get event UI configs.
@@ -72,6 +73,7 @@ function enqueue_ui_assets() {
 
 	wp_add_inline_script( 'hm-workflows', sprintf( 'var HM = HM || {}; HM.Workflows = %s;',
 		wp_json_encode( [
+			'BuildURL'     => infer_base_url( __DIR__ . '/build' ),
 			'Nonce'        => wp_create_nonce( 'wp_rest' ),
 			'Namespace'    => rest_url( 'workflows/v1' ),
 			'User'         => get_current_user_id(),
