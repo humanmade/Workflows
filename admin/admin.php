@@ -29,8 +29,6 @@ function main_ui() {
  * Load the UI scripts.
  */
 function enqueue_ui_assets() {
-	add_filter( 'reactwpscripts.is_development', '__return_false', 11 );
-
 	enqueue_assets( __DIR__, [
 		'handle'  => 'hm-workflows',
 	] );
