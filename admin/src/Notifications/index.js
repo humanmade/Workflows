@@ -7,7 +7,7 @@ import { injectGlobal } from 'styled-components';
 import __ from '../l10n';
 
 injectGlobal`
-	#wpwrap #wpadminbar {
+	#wpadminbar #wp-toolbar {
 		.hm-workflows-notifications-badge {
 			border-radius: 100px;
 			background: orange;
@@ -32,6 +32,7 @@ injectGlobal`
 			h4 {
 				font-weight: bold;
 				margin: 0 0 5px;
+				color: inherit !important;
 			}
 		}
 		
@@ -60,9 +61,33 @@ injectGlobal`
 				
 				&:before {
 					margin-right: 0px;
-					display: inline-block;
 					vertical-align: bottom;
 				}
+			}
+			
+			.notice-dismiss:before {
+				background: none;
+				color: #72777c;
+				content: "\\f153";
+				display: inline-block;
+				font: normal 16px/20px dashicons;
+				speak: none;
+				height: 20px;
+				text-align: center;
+				width: 20px;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+			
+			.notice-dismiss:hover:before,
+			.notice-dismiss:active:before,
+			.notice-dismiss:focus:before {
+				color: #c00;
+			}
+			
+			.notice-dismiss:focus {
+				outline: none;
+				box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, .8);
 			}
 		}
 	}
@@ -95,7 +120,7 @@ class Notifications extends React.Component {
 		if ( this.props.loading ) {
 			if ( this.props.adminBar ) {
 				return <li>
-					<div className="hm-workflows-notification">{ __( 'You have no new notifications.' ) }</div>
+					<div className="hm-workflows-notification">{__( 'You have no new notifications.' )}</div>
 				</li>;
 			}
 			return null;
@@ -128,7 +153,7 @@ class Notifications extends React.Component {
 													} )
 												}}
 											>
-												{ __( 'Read less' ) }
+												{__( 'Read less' )}
 											</a>
 										</p>
 									]
@@ -142,7 +167,7 @@ class Notifications extends React.Component {
 												} );
 											}}
 										>
-											{ __( 'Read more' ) }
+											{__( 'Read more' )}
 										</a>
 									</p>
 								}
@@ -159,7 +184,7 @@ class Notifications extends React.Component {
 										this.delete( notification.id );
 									}}
 								>
-									{ __( 'Dismiss' ) }
+									{__( 'Dismiss' )}
 								</a>
 							</div>
 						</div>
@@ -170,7 +195,7 @@ class Notifications extends React.Component {
 
 		if ( this.props.adminBar && ! data.length ) {
 			items.push( <li key="empty">
-				<div className="hm-workflows-notification">{ __( 'You have no new notifications.' ) }</div>
+				<div className="hm-workflows-notification">{__( 'You have no new notifications.' )}</div>
 			</li> );
 		}
 

@@ -10,6 +10,7 @@ namespace HM\Workflows;
 require_once 'react-loader.php';
 
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_ui_assets', 20 );
+add_action( 'wp_footer', __NAMESPACE__ . '\\enqueue_ui_assets', 3000 );
 add_action( 'add_meta_boxes_hm_workflow', __NAMESPACE__ . '\\meta_boxes' );
 add_action( 'edit_form_after_title', __NAMESPACE__ . '\\main_ui' );
 
@@ -29,8 +30,16 @@ function main_ui() {
  * Load the UI scripts.
  */
 function enqueue_ui_assets() {
+	if ( ! is_user_logged_in() ) {
+		return;
+	}
+
+	if ( ! is_admin() && ! is_admin_bar_showing() ) {
+		return;
+	}
+
 	enqueue_assets( __DIR__, [
-		'handle'  => 'hm-workflows',
+		'handle' => 'hm-workflows',
 	] );
 
 	// Get event UI configs.
@@ -69,12 +78,36 @@ function enqueue_ui_assets() {
 		];
 	}, $destinations, array_keys( $destinations ) );
 
-	wp_add_inline_script( 'hm-workflows', sprintf( 'var HM = HM || {}; HM.Workflows = %s;',
-		wp_json_encode( [
-			'BuildURL'     => infer_base_url( __DIR__ . '/build' ),
-			'Nonce'        => wp_create_nonce( 'wp_rest' ),
-			'Namespace'    => rest_url( 'workflows/v1' ),
-			'User'         => get_current_user_id(),
+	$ui_data = [
+		'BuildURL'  => infer_base_url( __DIR__ . '/build' ),
+		'Nonce'     => wp_create_nonce( 'wp_rest' ),
+		'Namespace' => rest_url( 'workflows/v1' ),
+		'User'      => get_current_user_id(),
+		'L10n'      => [
+			'There was an error loading the plugin UI.'                => __( 'There was an error loading the plugin UI.', 'hm-workflows' ),
+			'Enable'                                                   => __( 'Enable', 'hm-workflows' ),
+			'Saving'                                                   => __( 'Saving', 'hm-workflows' ),
+			'Save'                                                     => __( 'Save', 'hm-workflows' ),
+			'When should the workflow run?'                            => __( 'When should the workflow run?', 'hm-workflows' ),
+			'What message should be sent?'                             => __( 'What message should be sent?', 'hm-workflows' ),
+			'Subject'                                                  => __( 'Subject', 'hm-workflows' ),
+			'Briefly state what has happened or the action to take...' => __( 'Briefly state what has happened or the action to take...', 'hm-workflows' ),
+			'Message'                                                  => __( 'Message', 'hm-workflows' ),
+			'Add an optional detailed message here...'                 => __( 'Add an optional detailed message here...', 'hm-workflows' ),
+			'The following actions will be added to the message.'      => __( 'The following actions will be added to the message.', 'hm-workflows' ),
+			'Who should be notified?'                                  => __( 'Who should be notified?', 'hm-workflows' ),
+			'Select another...'                                        => __( 'Select another...', 'hm-workflows' ),
+			'Select...'                                                => __( 'Select...', 'hm-workflows' ),
+			'Where should they be notified?'                           => __( 'Where should they be notified?', 'hm-workflows' ),
+			'You have no new notifications.'                           => __( 'You have no new notifications.', 'hm-workflows' ),
+			'Read less'                                                => __( 'Read less', 'hm-workflows' ),
+			'Read more'                                                => __( 'Read more', 'hm-workflows' ),
+			'Dismiss'                                                  => __( 'Dismiss', 'hm-workflows' ),
+		],
+	];
+
+	if ( is_admin() && function_exists( 'get_editable_roles' ) ) {
+		$ui_data = array_merge( $ui_data, [
 			'Events'       => array_values( $events ),
 			'Destinations' => array_values( $destinations ),
 			'Recipients'   => [
@@ -104,27 +137,16 @@ function enqueue_ui_assets() {
 					'name' => __( 'All users', 'hm-workflows' ),
 				],
 			],
-			'L10n'         => [
-				'There was an error loading the plugin UI.'                => __( 'There was an error loading the plugin UI.', 'hm-workflows' ),
-				'Enable'                                                   => __( 'Enable', 'hm-workflows' ),
-				'Saving'                                                   => __( 'Saving', 'hm-workflows' ),
-				'Save'                                                     => __( 'Save', 'hm-workflows' ),
-				'When should the workflow run?'                            => __( 'When should the workflow run?', 'hm-workflows' ),
-				'What message should be sent?'                             => __( 'What message should be sent?', 'hm-workflows' ),
-				'Subject'                                                  => __( 'Subject', 'hm-workflows' ),
-				'Briefly state what has happened or the action to take...' => __( 'Briefly state what has happened or the action to take...', 'hm-workflows' ),
-				'Message'                                                  => __( 'Message', 'hm-workflows' ),
-				'Add an optional detailed message here...'                 => __( 'Add an optional detailed message here...', 'hm-workflows' ),
-				'The following actions will be added to the message.'      => __( 'The following actions will be added to the message.', 'hm-workflows' ),
-				'Who should be notified?'                                  => __( 'Who should be notified?', 'hm-workflows' ),
-				'Select another...'                                        => __( 'Select another...', 'hm-workflows' ),
-				'Select...'                                                => __( 'Select...', 'hm-workflows' ),
-				'Where should they be notified?'                           => __( 'Where should they be notified?', 'hm-workflows' ),
-				'You have no new notifications.'                           => __( 'You have no new notifications.', 'hm-workflows' ),
-				'Read less'                                                => __( 'Read less', 'hm-workflows' ),
-				'Read more'                                                => __( 'Read more', 'hm-workflows' ),
-				'Dismiss'                                                  => __( 'Dismiss', 'hm-workflows' ),
-			],
-		] )
-	), 'before' );
+		] );
+	}
+
+	wp_add_inline_script(
+		'hm-workflows',
+		sprintf( 'var HM = HM || {}; HM.Workflows = %s;', wp_json_encode( $ui_data ) ),
+		'before'
+	);
+
+	if ( current_action() === 'wp_footer' ) {
+		wp_print_footer_scripts();
+	}
 }
