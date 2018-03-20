@@ -432,7 +432,7 @@ class WorkflowUI extends Component {
 
 			<QuestionBox step={1} in={true}>
 				<Question>{ __( 'When should the workflow run?' ) }</Question>
-				<Form hasFields={!!(this.state.event && this.state.event.ui.fields)}>
+				<Form hasFields={!!(this.state.event && this.state.event.ui.fields.length)}>
 					<Fieldset in={true}>
 						<Select
 							options={HM.Workflows.Events.map( event => ({
@@ -452,7 +452,7 @@ class WorkflowUI extends Component {
 						/>
 					</Fieldset>
 					<Fieldset in={!!(this.state.event && this.state.event.ui.fields.length)}>
-						<UIForm
+						{ this.state.event && <UIForm
 							name="event"
 							{...this.state.event.ui}
 							onChange={( value, field ) => this.setState( {
@@ -464,7 +464,7 @@ class WorkflowUI extends Component {
 									} )
 								} )
 							} )}
-						/>
+						/> }
 					</Fieldset>
 				</Form>
 			</QuestionBox>
