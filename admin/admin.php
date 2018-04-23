@@ -7,6 +7,8 @@
 
 namespace HM\Workflows;
 
+use WP_Post;
+
 require_once 'react-loader.php';
 
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_ui_assets', 20 );
@@ -22,7 +24,11 @@ function meta_boxes() {
 	}, 'hm_workflow', 'side', 'high' );
 }
 
-function main_ui() {
+function main_ui( WP_Post $post ) {
+	if ( $post->post_type !== 'hm_workflow' ) {
+		return;
+	}
+
 	echo '<div id="hm-workflow-ui"></div>';
 }
 

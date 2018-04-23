@@ -64,12 +64,11 @@ function assignee_metabox( $post_type ) {
 			] );
 		},
 		$post_type,
-		'side',
-		'default'
+		'side'
 	);
 }
 
-add_action( 'add_meta_boxes', __NAMESPACE__ . '\assignee_metabox', 10 );
+add_action( 'add_meta_boxes', __NAMESPACE__ . '\assignee_metabox', 20 );
 
 /**
  * Save the assignee meta data.

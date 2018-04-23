@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.1.4
+
+- Bug: Main UI was showing on all post edit screens
+
 v0.1.3
 
 - Bug: notifications not showing in admin bar on front end
