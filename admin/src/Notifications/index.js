@@ -217,7 +217,7 @@ const notificationsWithFetch = withFetch(
 	`${HM.Workflows.Namespace}/notifications/${HM.Workflows.User}`,
 	{
 		expires:     30 * 1000,
-		credentials: 'same-origin',
+		credentials: 'include',
 		headers:     {
 			'X-WP-Nonce':   HM.Workflows.Nonce,
 			'Content-type': 'application/json'

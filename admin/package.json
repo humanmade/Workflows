@@ -1,5 +1,7 @@
 {
   "name": "hm-workflows-admin",
+  "repository": "https://github.com/humanmade/Workflows",
+  "homepage": "https://github.com/humanmade/Workflows",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -24,7 +26,11 @@
   "scripts": {
     "start": "react-app-rewired start --scripts-version react-wp-scripts",
     "build": "NODE_ENV=production react-app-rewired build",
+    "postbuild": "replace-in-file /\\\"\\/humanmade\\/Workflows\\//ig 'self.registration.scope + \"' build/service-worker.js --isRegex",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "replace-in-file": "^3.4.0"
   }
 }

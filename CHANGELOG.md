@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.1.5
+
+- Bug: Fix service worker asset path
+- Enhancement: Protect against race conditions in user meta API
+
 v0.1.4
 
 - Bug: Main UI was showing on all post edit screens

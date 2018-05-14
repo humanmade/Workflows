@@ -223,16 +223,17 @@ function create( WP_REST_Request $request ) {
 	] );
 
 	// Store a placeholder to get a meta ID.
-	$meta_id = add_user_meta( $user->ID, 'hm.workflows.notification', 'empty' );
+	$placeholder = 'hm.workflows.notification.' . microtime();
+	$meta_id     = add_user_meta( $user->ID, 'hm.workflows.notification', $placeholder );
 
 	// Add the meta ID.
 	$notification['id'] = intval( $meta_id );
 
 	// And update using value from above.
-	$result = update_user_meta( $user->ID, 'hm.workflows.notification', wp_json_encode( $notification ), 'empty' );
+	$result = update_user_meta( $user->ID, 'hm.workflows.notification', wp_json_encode( $notification ), $placeholder );
 
 	if ( ! $result ) {
-		delete_user_meta( $user->ID, 'hm.workflows.notification', 'empty' );
+		delete_user_meta( $user->ID, 'hm.workflows.notification', $placeholder );
 
 		return new WP_Error( 'hm.workflows.notifications.create', __( 'Could not add notification to data store.', 'hm-workflows' ) );
 	}
