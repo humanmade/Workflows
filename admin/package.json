@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "react-app-rewired start --scripts-version react-wp-scripts",
-    "build": "NODE_ENV=production react-app-rewired build",
+    "build": "NODE_ENV=production SC_ATTR=hm-workflows react-app-rewired build",
     "postbuild": "replace-in-file /\\\"\\/humanmade\\/Workflows\\//ig 'self.registration.scope + \"' build/service-worker.js --isRegex",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
