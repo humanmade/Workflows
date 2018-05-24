@@ -6,12 +6,6 @@ import Loadable from 'react-loadable';
 import Loading from './Loading';
 import registerServiceWorker from './registerServiceWorker';
 
-// Fix build chunk URLs.
-if ( process.env.NODE_ENV === 'production' ) {
-	// eslint-disable-next-line
-	__webpack_public_path__ = HM.Workflows.BuildURL.replace( /\/?$/, '/' );
-}
-
 /**
  * Async loading Workflow UI.
  */

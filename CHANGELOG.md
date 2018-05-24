@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.1.8
+
+- Enhancement: Use dynamic public path webpack plugin
+
 v0.1.7
 
 - Further compat with Yoast, can't use multiple instances of styled-components

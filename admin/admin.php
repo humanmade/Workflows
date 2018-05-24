@@ -85,7 +85,7 @@ function enqueue_ui_assets() {
 	}, $destinations, array_keys( $destinations ) );
 
 	$ui_data = [
-		'BuildURL'  => infer_base_url( __DIR__ . '/build' ),
+		'BuildURL'  => infer_base_url( __DIR__ . '/build/' ),
 		'Nonce'     => wp_create_nonce( 'wp_rest' ),
 		'Namespace' => rest_url( 'workflows/v1' ),
 		'User'      => get_current_user_id(),

@@ -30,6 +30,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "replace-in-file": "^3.4.0"
+    "replace-in-file": "^3.4.0",
+    "dynamic-public-path-webpack-plugin": "^1.0.4"
   }
 }
