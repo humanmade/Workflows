@@ -23,8 +23,8 @@ if [[ -d "$BUILD_DIR" ]]; then
 fi
 
 COMMIT=$(git rev-parse HEAD)
-if [[ -f "VERSION" ]]; then
-    VERSION=`cat VERSION`
+VERSION=$(jq -cr .version package.json)
+if [[ $VERSION != "null" ]]; then
     DEPLOY_BRANCH="${VERSION}--branch"
     DEPLOY_AS_RELEASE="${DEPLOY_AS_RELEASE:-yes}"
 else
@@ -86,7 +86,6 @@ git commit -m "$MESSAGE"
 if [ $DEPLOY_AS_RELEASE = "yes" ]; then
     git tag -f "$VERSION"
     git push -f origin "$VERSION"
-else
-    git push origin "$DEPLOY_BRANCH"
 fi
 
+git push origin "$DEPLOY_BRANCH"

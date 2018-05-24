@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.1.6
+
+- Compat with Yoast SEO, upgrade styled-components
+
 v0.1.5
 
 - Bug: Fix service worker asset path

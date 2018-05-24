@@ -1,6 +1,6 @@
 {
   "name": "hm-workflows",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "repository": "https://github.com/humanmade/Workflows",
   "scripts": {
     "start": "cd admin && npm run start",
