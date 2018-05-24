@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.1.7
+
+- Further compat with Yoast, can't use multiple instances of styled-components
+
 v0.1.6
 
 - Compat with Yoast SEO, upgrade styled-components

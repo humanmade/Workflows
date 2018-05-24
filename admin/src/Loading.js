@@ -1,26 +1,23 @@
 import React from 'react';
-import styled from 'styled-components';
 import __ from './l10n';
 
-const StyledLoading = styled.div`
-	.spinner {
-		display: block;
-		float: none;
-		margin: 30px auto;
-	}
-`
+const spinnerStyles = {
+	display: "block",
+	float: "none",
+	margin: "30px auto",
+};
 
 const Loading = ({ isLoading, error }) => {
 	if ( isLoading ) {
-		return <StyledLoading>
-			<span className="spinner is-active" />
-		</StyledLoading>;
+		return <span className="spinner is-active" style={spinnerStyles} />;
 	}
 
 	if ( error ) {
-		return <StyledLoading>
-			<div className="notice notice-error"><p>{__( 'There was an error loading the plugin UI.' )}</p></div>
-		</StyledLoading>;
+		return (
+			<div className="notice notice-error">
+			       <p>{__( 'There was an error loading the plugin UI.' )}</p>
+		       </div>
+		);
 	}
 
 	return null;

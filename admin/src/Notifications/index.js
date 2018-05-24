@@ -3,95 +3,9 @@ import React from 'react';
 import withFetch from '../withFetch';
 import Portal from '../Portal';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { injectGlobal } from 'styled-components';
 import __ from '../l10n';
 
-injectGlobal`
-	#wpadminbar #wp-toolbar {
-		.hm-workflows-notifications-badge {
-			border-radius: 100px;
-			background: orange;
-			color: #fff;
-			display: inline-block;
-			margin-left: 5px;
-			padding: 0 4px;
-			min-width: 22px;
-			height: 22px;
-			vertical-align: baseline;
-			line-height: 22px;
-			text-align: center;
-			box-sizing: border-box;
-		}
-		
-		.hm-workflows-notification {
-			padding: 5px 10px;
-			* {
-				line-height: 1.4;
-			}
-	
-			h4 {
-				font-weight: bold;
-				margin: 0 0 5px;
-				color: inherit !important;
-			}
-		}
-		
-		.hm-workflows-notification-enter,
-		.hm-workflows-notification-exit.hm-workflows-notification-exit-active {
-			opacity: 0.01;
-			left: 100%;
-			position: relative;
-			transition: left .3s ease-out, opacity .3s ease-out;
-		}
-		
-		.hm-workflows-notification-exit,
-		.hm-workflows-notification-enter.hm-workflows-notification-enter-active {
-			opacity: 1;
-			left: 0;
-			position: relative;
-			transition: left .3s ease-in, opacity .3s ease-in;
-		}
-		
-		.hm-workflows-notification-actions {
-			a {
-				display: inline-block;
-				margin-right: 10px;
-				padding: 0;
-				height: auto;
-				
-				&:before {
-					margin-right: 0px;
-					vertical-align: bottom;
-				}
-			}
-			
-			.notice-dismiss:before {
-				background: none;
-				color: #72777c;
-				content: "\\f153";
-				display: inline-block;
-				font: normal 16px/20px dashicons;
-				speak: none;
-				height: 20px;
-				text-align: center;
-				width: 20px;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-			}
-			
-			.notice-dismiss:hover:before,
-			.notice-dismiss:active:before,
-			.notice-dismiss:focus:before {
-				color: #c00;
-			}
-			
-			.notice-dismiss:focus {
-				outline: none;
-				box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, .8);
-			}
-		}
-	}
-`
+import './index.css';
 
 class Notifications extends React.Component {
 
