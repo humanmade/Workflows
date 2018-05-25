@@ -249,12 +249,13 @@ class WorkflowUI extends Component {
 		};
 	}
 
-	componentWillMount() {
-		// Fetch post data and set initial state.
-		if ( ! this.props.postId ) {
+	componentDidMount() {
+		// Don't fetch on new post or no post ID found.
+		if ( ! this.props.postId || window.location.pathname.match(/post-new\.php/) ) {
 			return;
 		}
 
+		// Fetch post data and set initial state.
 		this.setState( { loading: true } );
 
 		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {

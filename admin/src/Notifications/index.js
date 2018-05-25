@@ -31,17 +31,37 @@ class Notifications extends React.Component {
 	}
 
 	render() {
-		if ( this.props.loading ) {
-			if ( this.props.adminBar ) {
-				return <li>
-					<div className="hm-workflows-notification">{__( 'You have no new notifications.' )}</div>
-				</li>;
+		const items = [];
+		const data  = this.props.data instanceof Array ? this.props.data : [];
+
+		// Add badge.
+		if ( this.props.adminBar ) {
+			const badgeClasses = [
+				'hm-workflows-notifications-badge',
+				'wp-ui-notification'
+			];
+
+			if ( data.length > 0 ) {
+				badgeClasses.push( 'hm-workflows-notifications-badge--has-items' );
 			}
-			return null;
+
+			items.push( <Portal key="badge" target="#wp-admin-bar-hm-workflows-user-notifications-bar > .ab-item">
+				{' '}
+				<span className={badgeClasses.join(' ')}>
+					{data.length}
+				</span>
+			</Portal> );
 		}
 
-		const items = [];
-		const data = this.props.data instanceof Array ? this.props.data : [];
+		if ( this.props.adminBar && ! data.length ) {
+			items.push( <li key="empty">
+				<div className="hm-workflows-notification">{__( 'You have no new notifications.' )}</div>
+			</li> );
+		}
+
+		if ( this.props.loading ) {
+			return items;
+		}
 
 		items.push( <TransitionGroup key="items">
 			{data.map( notification => {
@@ -105,23 +125,7 @@ class Notifications extends React.Component {
 					</li>
 				</CSSTransition>
 			} )}
-		</TransitionGroup> )
-
-		if ( this.props.adminBar && ! data.length ) {
-			items.push( <li key="empty">
-				<div className="hm-workflows-notification">{__( 'You have no new notifications.' )}</div>
-			</li> );
-		}
-
-		// Add badge.
-		if ( this.props.adminBar && data.length ) {
-			items.push( <Portal key="badge" target="#wp-admin-bar-hm-workflows-user-notifications-bar > .ab-item">
-				{' '}
-				<span className="hm-workflows-notifications-badge">
-					{data.length}
-				</span>
-			</Portal> );
-		}
+		</TransitionGroup> );
 
 		return items;
 	}

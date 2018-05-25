@@ -354,7 +354,7 @@ function dashboard_handler( array $recipients, array $message ) {
 /**
  * Add placeholder markup for React portals.
  */
-add_action( 'add_admin_bar_menus', __NAMESPACE__ . '\admin_bar_notices', 5 );
+add_action( 'add_admin_bar_menus', __NAMESPACE__ . '\admin_bar_notices', 1 );
 add_action( 'user_admin_notices', __NAMESPACE__ . '\user_notices' );
 
 function admin_bar_notices() {
@@ -362,7 +362,7 @@ function admin_bar_notices() {
 
 	$wp_admin_bar->add_menu( [
 		'id'    => 'hm-workflows-user-notifications-bar',
-		'title' => esc_html__( 'Notifications', 'hm-workflows' ),
+		'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . esc_html__( 'Notifications', 'hm-workflows' ) . '</span>',
 		'meta'  => [
 			'class' => 'ab-top-secondary',
 		],

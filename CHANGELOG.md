@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.1.10
+
+- Enhancement: Move the Workflows menu item down with other tools/plugins
+- Enhancement: Neater UI and styling for the admin bar notifications.
+- Bug: Fix dev server for modified webpack entry value
+- Bug: Fix exiting create new screen before save creating an empty draft post
+
 v0.1.9
 
 - Fix SC_ATTR env output, namespace webpack jsonpFunction

@@ -1,3 +1,8 @@
+#wpadminbar #wp-admin-bar-hm-workflows-user-notifications-bar .ab-icon:before {
+  content: "\f503";
+  top:     2px;
+}
+
 #wpadminbar #wp-admin-bar-hm-workflows-user-notifications-bar .ab-sub-wrapper {
   right:     0;
   min-width: 400px;
@@ -5,21 +10,24 @@
 
 #wpadminbar #wp-toolbar .hm-workflows-notifications-badge {
   border-radius:  100px;
-  background:     orange;
-  color:          #fff;
+  background:     #504c4c;
   display:        inline-block;
-  margin-left:    5px;
   padding:        0 4px;
-  min-width:      22px;
-  height:         22px;
-  vertical-align: baseline;
-  line-height:    22px;
+  min-width:      17px;
+  height:         17px;
+  font-size:      9px;
+  vertical-align: text-bottom;
+  line-height:    17px;
   text-align:     center;
   box-sizing:     border-box;
 }
 
+#wpadminbar #wp-toolbar .hm-workflows-notifications-badge--has-items {
+  background: #d54e21;
+}
+
 #wpadminbar #wp-toolbar .hm-workflows-notification {
-  padding: 5px 10px;
+  padding: 0 10px;
 }
 
 #wpadminbar #wp-toolbar .hm-workflows-notification * {
@@ -28,7 +36,7 @@
 
 #wpadminbar #wp-toolbar .hm-workflows-notification h4 {
   font-weight: bold;
-  margin:      0 0 5px;
+  margin:      5px 0;
   color:       inherit !important;
 }
 
@@ -46,6 +54,10 @@
   left:       0;
   position:   relative;
   transition: left .3s ease-in, opacity .3s ease-in;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions {
+  margin-bottom: 5px;
 }
 
 #wpadminbar #wp-toolbar .hm-workflows-notification-actions a {

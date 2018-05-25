@@ -52,7 +52,7 @@ add_action( 'init', function () {
 		'capability_type'       => 'workflow',
 		'has_archive'           => false,
 		'hierarchical'          => false,
-		'menu_position'         => null,
+		'menu_position'         => 121,
 		'menu_icon'             => 'dashicons-randomize',
 		'rewrite'               => false,
 		'supports'              => [ 'title' ],
@@ -62,7 +62,24 @@ add_action( 'init', function () {
 	];
 
 	register_post_type( 'hm_workflow', $args );
+
+	remove_post_type_support( 'hm_workflow', 'revisions' );
 }, 1 );
+
+/**
+ * Temporary fix for autosave creating empty drafts before explicit save.
+ */
+add_filter( 'wp_insert_post_data', function ( $data ) {
+	if ( $data['post_type'] !== 'hm_workflow' ) {
+		return $data;
+	}
+
+	if ( isset( $_POST['data'], $_POST['data']['wp_autosave'] ) ) {
+		$data['post_status'] = 'auto-draft';
+	}
+
+	return $data;
+}, 10 );
 
 /**
  * REST API endpoints.

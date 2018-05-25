@@ -10,10 +10,12 @@ module.exports = function ( config, env ) {
 		rewireSVG,
 	);
 
-	config.plugins.push( new DynamicPublicPathPlugin( {
-		externalGlobal: 'window.HM.Workflows.BuildURL', //Your global variable name.
-		chunkName: 'hm-workflows',
-	} ) );
+	if ( env === 'production' ) {
+		config.plugins.push( new DynamicPublicPathPlugin( {
+			externalGlobal: 'window.HM.Workflows.BuildURL', //Your global variable name.
+			chunkName: 'hm-workflows',
+		} ) );
+	}
 
 	config.entry = { 'hm-workflows': config.entry };
 
