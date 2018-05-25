@@ -17,5 +17,10 @@ module.exports = function ( config, env ) {
 
 	config.entry = { 'hm-workflows': config.entry };
 
+	config.output.jsonpFunction = 'hmWorkflowsJSONP';
+
+	// Isolate styled components.
+	process.env.SC_ATTR = 'hm-workflows';
+
 	return rewires( config, env );
 }

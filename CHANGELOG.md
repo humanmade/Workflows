@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.1.9
+
+- Fix SC_ATTR env output, namespace webpack jsonpFunction
+
 v0.1.8
 
 - Enhancement: Use dynamic public path webpack plugin
