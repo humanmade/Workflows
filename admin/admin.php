@@ -88,6 +88,9 @@ function enqueue_ui_assets() {
 		'BuildURL'  => infer_base_url( __DIR__ . '/build/' ),
 		'Nonce'     => wp_create_nonce( 'wp_rest' ),
 		'Namespace' => rest_url( 'workflows/v1' ),
+		'Endpoints' => [
+			'WP' => rest_url( 'wp/v2' ),
+		],
 		'User'      => get_current_user_id(),
 		'L10n'      => [
 			'There was an error loading the plugin UI.'                => __( 'There was an error loading the plugin UI.', 'hm-workflows' ),

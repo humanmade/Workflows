@@ -34,4 +34,12 @@ if ( ! adminBarNotifications ) {
 	bodyNotifications && ReactDOM.render( <AsyncNotifications />, bodyNotifications );
 }
 
+const AsyncComments = Loadable( {
+	loader: () => import('./Comments'),
+	loading: Loading
+} );
+
+const editorialComments = document.getElementById( 'hm-workflows-comments' );
+editorialComments && ReactDOM.render( <AsyncComments postId={ editorialComments.dataset.postId } />, editorialComments );
+
 registerServiceWorker();

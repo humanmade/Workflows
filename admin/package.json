@@ -13,7 +13,7 @@
     "react-dom": "^16.4.0",
     "react-loadable": "^5.4.0",
     "react-scripts": "^1.1.4",
-    "react-select": "^2.0.0",
+    "react-select": "^1.3.0",
     "react-toggle": "^4.0.2",
     "react-transition-group": "^2.4.0",
     "react-wp-scripts": "github:humanmade/react-wp-scripts",
