@@ -118,7 +118,7 @@ class Event {
 	/**
 	 * Adds a listener.
 	 *
-	 * @param string|array|callable $action The action to perform.
+	 * @param string|array|callable $action The action to listen on.
 	 *
 	 * @return Event
 	 */

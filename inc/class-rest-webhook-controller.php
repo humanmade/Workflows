@@ -92,8 +92,8 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			return $this->handle_response( $request, 'Message action callback should be a callable.', 'error' );
 		}
 
-		// Set up auth if cookie present, else do auth redirect.
-		$authed_user = wp_validate_auth_cookie();
+		// Log user in if cookie present, else do auth redirect.
+		$authed_user = wp_validate_auth_cookie( '', 'logged_in' );
 		if ( $authed_user ) {
 			wp_set_current_user( $authed_user );
 		} else {

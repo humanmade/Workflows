@@ -44,7 +44,15 @@ const withFetch = ( url, options = {}, name = null ) => {
 
 			doFetch( overrides = {} ) {
 				this.setState( { fetching: true } );
-				fetch( url, Object.assign( {}, options, overrides ) )
+
+				const fetchOptions = Object.assign( {}, options, overrides );
+				let fetchURL = url;
+
+				if ( options.expires && ! fetchOptions.method ) {
+					fetchURL += ( fetchURL.indexOf( '?' ) >= 0 ? `&ts=` : '?ts=' ) + Date.now();
+				}
+
+				fetch( fetchURL, fetchOptions )
 					.then( response => response.json() )
 					.then( data => this.updateStore( data ) )
 					.catch( error => this.updateStore( {}, error ) );

@@ -65,7 +65,7 @@ class WorkflowEditor extends React.Component {
 			{
 				strategy: ( contentBlock, callback ) => {
 					const text = contentBlock.getText();
-					const regex = /%([a-z]+)%/g;
+					const regex = /%([a-z.]+)%/g;
 
 					let matchArr;
 					while ((matchArr = regex.exec(text)) !== null) {

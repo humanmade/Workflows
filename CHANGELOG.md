@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.2.0
+
+- Enhancement: Added editorial comments on top of post assignees
+- Enhancement: Add post list table filter for assigned posts
+- Bug: Fix webhook authentication check
+- Bug: Add cache busting to notifications API lookups
+
 v0.1.10
 
 - Enhancement: Move the Workflows menu item down with other tools/plugins

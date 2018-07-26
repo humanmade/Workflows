@@ -135,6 +135,10 @@ Event::register( 'transition_post_status' )
 				return null;
 			}
 
+			if ( $new_status === $old_status ) {
+				return null;
+			}
+
 			return [ $post, $old_status, $new_status ];
 		},
 		'accepted_args' => 3,

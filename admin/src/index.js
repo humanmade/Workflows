@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-/*global HM, __webpack_public_path__*/
+/*global HM*/
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Loadable from 'react-loadable';

@@ -160,7 +160,7 @@ class Workflow {
 						array_merge( $args, [ 'ui_data' => $ui_data ] )
 					);
 					if ( ! is_null( $result ) ) {
-						If ( ! is_array( $result ) ) {
+						if ( ! is_array( $result ) ) {
 							$result = [ $result ];
 						}
 						$this->schedule( $result );
@@ -172,7 +172,7 @@ class Workflow {
 		} elseif ( is_callable( $listener ) ) {
 			$result = call_user_func( $listener, $ui_data );
 			if ( ! is_null( $result ) ) {
-				If ( ! is_array( $result ) ) {
+				if ( ! is_array( $result ) ) {
 					$result = [ $result ];
 				}
 				$this->schedule( $result );

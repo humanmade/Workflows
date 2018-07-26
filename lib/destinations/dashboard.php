@@ -14,6 +14,8 @@ use WP_REST_Response;
 use WP_User;
 use WP_Error;
 
+const REST_NAMESPACE = 'workflows/v1';
+
 /**
  * Register our notifications REST API.
  */
@@ -59,7 +61,7 @@ add_action( 'rest_api_init', function () {
 		'required' => true,
 	];
 
-	register_rest_route( 'workflows/v1', 'notifications/(?P<user>[\\d]+)', [
+	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)', [
 		'methods'              => WP_REST_Server::READABLE,
 		'callback'             => __NAMESPACE__ . '\get_all',
 		'permissions_callback' => __NAMESPACE__ . '\permissions',
@@ -72,7 +74,7 @@ add_action( 'rest_api_init', function () {
 		],
 	] );
 
-	register_rest_route( 'workflows/v1', 'notifications/(?P<user>[\\d]+)', [
+	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)', [
 		'methods'              => WP_REST_Server::CREATABLE,
 		'callback'             => __NAMESPACE__ . '\create',
 		'permissions_callback' => __NAMESPACE__ . '\permissions',
@@ -80,14 +82,14 @@ add_action( 'rest_api_init', function () {
 		'schema'               => $schema_with_id,
 	] );
 
-	register_rest_route( 'workflows/v1', 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
+	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
 		'methods'              => WP_REST_Server::READABLE,
 		'callback'             => __NAMESPACE__ . '\get_one',
 		'permissions_callback' => __NAMESPACE__ . '\permissions',
 		'schema'               => $schema_with_id,
 	] );
 
-	register_rest_route( 'workflows/v1', 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
+	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
 		'methods'              => WP_REST_Server::EDITABLE,
 		'callback'             => __NAMESPACE__ . '\edit',
 		'permissions_callback' => __NAMESPACE__ . '\permissions',
@@ -95,7 +97,7 @@ add_action( 'rest_api_init', function () {
 		'schema'               => $schema_with_id,
 	] );
 
-	register_rest_route( 'workflows/v1', 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
+	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
 		'methods'              => WP_REST_Server::DELETABLE,
 		'callback'             => __NAMESPACE__ . '\delete',
 		'permissions_callback' => __NAMESPACE__ . '\permissions',
@@ -223,7 +225,7 @@ function create( WP_REST_Request $request ) {
 	] );
 
 	// Store a placeholder to get a meta ID.
-	$placeholder = 'hm.workflows.notification.' . microtime();
+	$placeholder = 'hm.workflows.notification.' . microtime( true );
 	$meta_id     = add_user_meta( $user->ID, 'hm.workflows.notification', $placeholder );
 
 	// Add the meta ID.
@@ -238,6 +240,7 @@ function create( WP_REST_Request $request ) {
 		return new WP_Error( 'hm.workflows.notifications.create', __( 'Could not add notification to data store.', 'hm-workflows' ) );
 	}
 
+	clear_cache( $user->ID );
 	return rest_ensure_response( $notification );
 }
 
@@ -275,6 +278,7 @@ function edit( WP_REST_Request $request ) {
 		return new WP_Error( 'hm.workflows.notifications.edit', __( 'Could not edit notification.', 'hm-workflows' ) );
 	}
 
+	clear_cache( $user->ID );
 	return rest_ensure_response( $new_notification );
 }
 
@@ -307,7 +311,21 @@ function delete( WP_REST_Request $request ) {
 		return new WP_Error( 'hm.workflows.notifications.delete', __( 'Could not delete notification from data store.', 'hm-workflows' ) );
 	}
 
+	clear_cache( $user->ID );
 	rest_ensure_response( $result );
+}
+
+/**
+ * Clear API endpoint from page cache.
+ *
+ * @param int $user_id
+ */
+function clear_cache( $user_id ) {
+	if ( ! function_exists( 'batcache_clear_url' ) ) {
+		return;
+	}
+
+	batcache_clear_url( rest_url( REST_NAMESPACE . '/notifications/' . $user_id ) );
 }
 
 /**

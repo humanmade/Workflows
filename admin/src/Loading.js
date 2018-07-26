@@ -15,8 +15,8 @@ const Loading = ({ isLoading, error }) => {
 	if ( error ) {
 		return (
 			<div className="notice notice-error">
-			       <p>{__( 'There was an error loading the plugin UI.' )}</p>
-		       </div>
+				<p>{ __( 'There was an error loading the plugin UI.' ) }</p>
+			</div>
 		);
 	}
 

@@ -18,6 +18,7 @@ require_once __DIR__ . '/class-event.php';
 require_once __DIR__ . '/class-workflow.php';
 require_once __DIR__ . '/class-rest-webhook-controller.php';
 require_once __DIR__ . '/class-rest-workflows-controller.php';
+require_once __DIR__ . '/class-rest-workflow-comments-controller.php';
 
 /**
  * Register post type
@@ -96,9 +97,23 @@ function get_webhook_controller() {
 	return $controller;
 }
 
+function get_comments_controller() {
+	static $controller;
+
+	if ( $controller ) {
+		return $controller;
+	}
+
+	$controller = new REST_Workflow_Comments_Controller();
+
+	return $controller;
+}
+
 add_action( 'rest_api_init', function () {
-	$rest_controller = get_webhook_controller();
-	$rest_controller->register_routes();
+	$webhook_controller = get_webhook_controller();
+	$webhook_controller->register_routes();
+	$comments_controller = get_comments_controller();
+	$comments_controller->register_routes();
 } );
 
 /**
