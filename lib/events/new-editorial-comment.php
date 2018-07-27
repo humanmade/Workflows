@@ -6,6 +6,7 @@
 namespace HM\Workflows;
 
 use WP_Comment;
+use WP_Comment_Query;
 use WP_Query;
 
 Event::register( 'new_editorial_comment' )
@@ -112,6 +113,43 @@ function editorial_coments_metabox( $post_type, $post ) {
 }
 
 add_action( 'add_meta_boxes', __NAMESPACE__ . '\editorial_coments_metabox', 20, 2 );
+
+/**
+ * Remove rows actions for workflow comments.
+ *
+ * @param array $actions
+ * @param WP_Comment $comment
+ * @return array
+ */
+function comment_row_actions( $actions, $comment ) {
+	if ( $comment->comment_type === 'workflow' ) {
+		return [];
+	}
+
+	return $actions;
+}
+
+add_filter( 'comment_row_actions', __NAMESPACE__ . '\comment_row_actions', 10, 2 );
+
+/**
+ * Filter the default comments query to ignore workflow comments.
+ *
+ * @param WP_Comment_Query $query
+ */
+function comments_query( WP_Comment_Query $query ) {
+	if ( $query->query_vars['type'] === 'workflow' ) {
+		return;
+	}
+
+
+	// Exclude workflow comments everywhere.
+	$not_in   = $query->query_vars['type__not_in'] ?: [];
+	$not_in[] = 'workflow';
+
+	$query->query_vars['type__not_in'] = $not_in;
+}
+
+add_action( 'pre_get_comments', __NAMESPACE__ . '\comments_query' );
 
 /**
  * Register assignees meta.

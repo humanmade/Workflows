@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.2.1
+
+- Bug: Stop workflow comments showing anywhere other than REST API endpoint
+
 v0.2.0
 
 - Enhancement: Added editorial comments on top of post assignees
