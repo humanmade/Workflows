@@ -7,7 +7,7 @@
     "draft-js": "^0.10.5",
     "moment": "^2.22.2",
     "polished": "^1.9.2",
-    "react": "^16.4.0",
+    "react": "^16.4.2",
     "react-app-rewire-styled-components": "^3.0.2",
     "react-app-rewire-svg-react-loader": "github:codebandits/react-app-rewire-svg-react-loader",
     "react-app-rewired": "^1.5.2",
