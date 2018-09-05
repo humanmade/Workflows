@@ -11,7 +11,7 @@
     "react-app-rewire-styled-components": "^3.0.2",
     "react-app-rewire-svg-react-loader": "github:codebandits/react-app-rewire-svg-react-loader",
     "react-app-rewired": "^1.5.2",
-    "react-dom": "^16.4.0",
+    "react-dom": "^16.4.2",
     "react-html-parser": "^2.0.2",
     "react-loadable": "^5.4.0",
     "react-scripts": "^1.1.4",
