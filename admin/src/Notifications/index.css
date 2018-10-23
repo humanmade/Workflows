@@ -1,0 +1,98 @@
+#wpadminbar #wp-admin-bar-hm-workflows-user-notifications-bar .ab-icon:before {
+  content: "\f503";
+  top:     2px;
+}
+
+#wpadminbar #wp-admin-bar-hm-workflows-user-notifications-bar .ab-sub-wrapper {
+  right:     0;
+  min-width: 400px;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notifications-badge {
+  border-radius:  100px;
+  background:     #504c4c;
+  display:        inline-block;
+  padding:        0 4px;
+  min-width:      17px;
+  height:         17px;
+  font-size:      9px;
+  vertical-align: text-bottom;
+  line-height:    17px;
+  text-align:     center;
+  box-sizing:     border-box;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notifications-badge--has-items {
+  background: #d54e21;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification {
+  padding: 0 10px;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification * {
+  line-height: 1.4;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification h4 {
+  font-weight: bold;
+  margin:      5px 0;
+  color:       inherit !important;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-enter,
+#wpadminbar #wp-toolbar .hm-workflows-notification-exit.hm-workflows-notification-exit-active {
+  opacity:    0.01;
+  left:       100%;
+  position:   relative;
+  transition: left .3s ease-out, opacity .3s ease-out;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-exit,
+#wpadminbar #wp-toolbar .hm-workflows-notification-enter.hm-workflows-notification-enter-active {
+  opacity:    1;
+  left:       0;
+  position:   relative;
+  transition: left .3s ease-in, opacity .3s ease-in;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions {
+  margin-bottom: 5px;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions a {
+  display:      inline-block;
+  margin-right: 10px;
+  padding:      0;
+  height:       auto;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions a:before {
+  margin-right:   0;
+  vertical-align: bottom;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions .notice-dismiss:before {
+  background:              none;
+  color:                   #72777c;
+  content:                 "\f153";
+  display:                 inline-block;
+  font:                    normal 16px/20px dashicons;
+  speak:                   none;
+  height:                  20px;
+  text-align:              center;
+  width:                   20px;
+  -webkit-font-smoothing:  antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions .notice-dismiss:hover:before,
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions .notice-dismiss:active:before,
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions .notice-dismiss:focus:before {
+  color: #c00;
+}
+
+#wpadminbar #wp-toolbar .hm-workflows-notification-actions .notice-dismiss:focus {
+  outline:    none;
+  box-shadow: 0 0 0 1px #5b9dd9, 0 0 2px 1px rgba(30, 140, 190, .8);
+}
