@@ -161,7 +161,7 @@ function assignees_api() {
 		'type'          => 'integer',
 		'description'   => __( 'The assignees user IDs for this post.', 'hm-workflows' ),
 		'single'        => false,
-		'auth_callback' => function ( $allowed, $post_id, $user_id ) {
+		'auth_callback' => function ( $allowed, $meta_key, $post_id, $user_id ) {
 			return user_can( $user_id, 'edit_post', $post_id );
 		},
 		'show_in_rest'  => true,

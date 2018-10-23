@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.2.2
+
+- Bug: Fix meta field auth callback to allow saving posts through the REST API.
+  
 v0.2.1
 
 - Bug: Stop workflow comments showing anywhere other than REST API endpoint
