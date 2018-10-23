@@ -55,6 +55,10 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 			return false;
 		}
 
+		if ( ! current_user_can( 'edit_post', $request->get_param( 'post' ) ) ) {
+			return false;
+		}
+
 		if ( ! is_wp_error( $result ) ) {
 			return $result;
 		}
@@ -63,6 +67,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 			'rest_invalid_comment_type',
 			'rest_comment_closed',
 			'rest_comment_draft_post',
+			'rest_comment_invalid_status',
 		];
 
 		if ( in_array( $result->get_error_code(), $allowed_errors, true ) ) {
@@ -81,6 +86,11 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	 * @return WP_Error|WP_REST_Response Response object on success, or error object on failure.
 	 */
 	public function create_item( $request ) {
+		// User must have edit post capability.
+		if ( ! current_user_can( 'edit_post', $request['post'] ) ) {
+			return new WP_Error( 'rest_forbidden', __( 'You do not have permission to create an editorial comment.', 'hm-workflows' ), array( 'status' => 403 ) );
+		}
+
 		if ( ! empty( $request['id'] ) ) {
 			return new WP_Error( 'rest_comment_exists', __( 'Cannot create existing comment.' ), array( 'status' => 400 ) );
 		}
@@ -225,7 +235,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 			return $fields_update;
 		}
 
-		$context = current_user_can( 'moderate_comments' ) ? 'edit' : 'view';
+		$context = current_user_can( 'edit_post', $request->get_param( 'post' ) ) ? 'edit' : 'view';
 
 		$request->set_param( 'context', $context );
 

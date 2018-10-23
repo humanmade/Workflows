@@ -88,16 +88,26 @@ Event::register( 'new_editorial_comment' )
  */
 
 /**
+ * Add the default post type editorial comment support.
+ *
+ * @return void
+ */
+function add_default_editorial_comment_support() {
+	add_post_type_support( 'post', 'editorial-comments' );
+	add_post_type_support( 'page', 'editorial-comments' );
+	add_post_type_support( 'attachment', 'editorial-comments' );
+}
+
+add_action( 'init', __NAMESPACE__ . '\add_default_editorial_comment_support', 9 );
+
+/**
  * Add the metabox.
  *
- * @param string $post_type
+ * @param string  $post_type
+ * @param WP_Post $post
  */
 function editorial_coments_metabox( $post_type, $post ) {
-	if ( ! in_array( $post_type, get_post_types( [ 'public' => true ] ), true ) ) {
-		return;
-	}
-
-	if ( $post->post_status === 'auto-draft' ) {
+	if ( ! post_type_supports( $post_type, 'editorial-comments' ) ) {
 		return;
 	}
 
@@ -197,7 +207,7 @@ function assignees_api() {
 add_action( 'init', __NAMESPACE__ . '\assignees_api' );
 
 /**
- * Add a link in the amdin to filter by assigned posts.
+ * Add a link in the admin to filter by assigned posts.
  */
 function add_assignee_filter_link() {
 
