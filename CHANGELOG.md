@@ -1,11 +1,16 @@
 Changelog
 =========
 
+v0.2.3
+
+- Submitted to packagist.org
+- Bug: Show comments UI for drafts too
+- Enhancement: Use `add_post_type_support( $type, 'editorial-comments' )` to enable feature
+- Bug: Fix cap check for some roles not being able to comment
+
 v0.2.2
 
-- Bug: Show comments UI at all times
-- Enhancement: Add a single filter to control post types to enable comments for
-- Bug: Fix cap check for some roles not being able to comment
+- Bug: Fix meta field auth callback to allow saving posts through the REST API.
 
 v0.2.1
 
