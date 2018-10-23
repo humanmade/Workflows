@@ -97,10 +97,6 @@ function editorial_coments_metabox( $post_type, $post ) {
 		return;
 	}
 
-	if ( $post->post_status === 'auto-draft' ) {
-		return;
-	}
-
 	add_meta_box(
 		'hm.workflows.editorial-comments',
 		__( 'Workflow', 'hm-workflows' ),

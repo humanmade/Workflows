@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.2.2
+
+- Bug: Show comments UI at all times
+- Enhancement: Add a single filter to control post types to enable comments for
+- Bug: Fix cap check for some roles not being able to comment
+
 v0.2.1
 
 - Bug: Stop workflow comments showing anywhere other than REST API endpoint
