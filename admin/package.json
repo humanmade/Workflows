@@ -17,7 +17,7 @@
     "react-scripts": "^1.1.4",
     "react-select": "^1.3.0",
     "react-toggle": "^4.0.2",
-    "react-transition-group": "^2.4.0",
+    "react-transition-group": "^2.5.0",
     "react-wp-scripts": "github:humanmade/react-wp-scripts",
     "recompose": "^0.27.1",
     "shorthash": "0.0.2",
