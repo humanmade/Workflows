@@ -240,7 +240,7 @@ function add_assignee_filter_link() {
 				FROM $wpdb->posts p
 				LEFT JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
 				WHERE p.post_type = %s
-				AND p.post_status NOT IN ( '" . implode( "','", [ 'trash' ] ) . "' )
+				AND p.post_status != 'trash'
 				AND p.post_author = %d
 				AND pm.meta_key = 'assignees'
 				AND pm.meta_value = %s
