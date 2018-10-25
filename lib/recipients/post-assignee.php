@@ -23,24 +23,24 @@ function get_post_assignees( $post ) {
 	}, $assignees );
 }
 
-// Add an assignee recipient handler to built in events.
+// Add a post assignee recipient handler to built in events.
 Event::get( 'draft_to_pending' )
 	->add_recipient_handler(
 		'assignee',
 		__NAMESPACE__ . '\get_post_assignees',
-		__( 'Assignees', 'hm-workflows' )
+		__( 'Post Assignees', 'hm-workflows' )
 	);
 
 Event::get( 'publish_post' )
 	->add_recipient_handler(
 		'assignee',
 		__NAMESPACE__ . '\get_post_assignees',
-		__( 'Assignees', 'hm-workflows' )
+		__( 'Post Assignees', 'hm-workflows' )
 	);
 
 Event::get( 'publish_page' )
 	->add_recipient_handler(
 		'assignee',
 		__NAMESPACE__ . '\get_post_assignees',
-		__( 'Assignees', 'hm-workflows' )
+		__( 'Post Assignees', 'hm-workflows' )
 	);
