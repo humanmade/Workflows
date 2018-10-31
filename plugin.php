@@ -26,6 +26,7 @@ add_action( 'plugins_loaded', function () {
 	require_once __DIR__ . '/lib/destinations/slack.php';
 	require_once __DIR__ . '/lib/destinations/dashboard.php';
 	require_once __DIR__ . '/lib/events/transition-post-status.php';
+	require_once __DIR__ . '/lib/events/new-comment.php';
 	require_once __DIR__ . '/lib/events/new-editorial-comment.php';
 	require_once __DIR__ . '/lib/recipients/post-assignee.php';
 	require_once __DIR__ . '/lib/recipients/post-author.php';

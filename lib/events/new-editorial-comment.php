@@ -240,11 +240,15 @@ function add_assignee_filter_link() {
 				FROM $wpdb->posts p
 				LEFT JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
 				WHERE p.post_type = %s
-				AND p.post_status NOT IN ( '" . implode( "','", [ 'trash' ] ) . "' )
+				AND p.post_status != 'trash'
 				AND p.post_author = %d
 				AND pm.meta_key = 'assignees'
 				AND pm.meta_value = %s
 			", $post_type, get_current_user_id(), get_current_user_id() ) ) );
+
+			if ( ! $assigned_posts_count ) {
+				return $views;
+			}
 
 			$label = esc_html__( 'Assigned to me', 'hm-workflows' );
 
