@@ -273,7 +273,7 @@ class Workflow {
 		// Process recipients.
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
-			if ( is_email( $recipient ) ) {
+			if ( is_string( $recipient ) && is_email( $recipient ) ) {
 				// Get user by email or add plain email.
 				$user = get_user_by( 'email', $recipient );
 				if ( is_a( $user, 'WP_User' ) ) {
