@@ -246,6 +246,10 @@ function add_assignee_filter_link() {
 				AND pm.meta_value = %s
 			", $post_type, get_current_user_id(), get_current_user_id() ) ) );
 
+			if ( ! $assigned_posts_count ) {
+				return $views;
+			}
+
 			$label = esc_html__( 'Assigned to me', 'hm-workflows' );
 
 			$views['assigned'] = sprintf(
