@@ -1,6 +1,12 @@
 Changelog
 =========
 
+v0.3.0
+
+- Enhancement: Register an event for handling new comments, and a recipient handler for the author of the corresponding post.
+- Bug: Don't show an "Assigned to me" link on the post listing screen when nothing is assigned to me.
+- Other minor fixes.
+
 v0.2.3
 
 - Submitted to packagist.org
