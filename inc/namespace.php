@@ -192,6 +192,11 @@ add_action( 'hm.workflows.init', function () {
 
 		// Set Event UI data.
 		$event_object = Event::get( $event['id'] );
+
+		if ( empty( $event_object ) ) {
+			continue;
+		}
+
 		$event_object->get_ui()->set_data( $event['data'] );
 
 		// Map recipients to values or ID.
