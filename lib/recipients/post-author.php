@@ -9,8 +9,6 @@ namespace HM\Workflows;
 
 use WP_Comment;
 
-require_once dirname( __DIR__ ) . '/events/transition-post-status.php';
-
 function get_author( $post ) {
 	return get_user_by( 'id', get_post( $post )->post_author );
 }

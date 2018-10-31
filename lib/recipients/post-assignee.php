@@ -7,9 +7,6 @@
 
 namespace HM\Workflows;
 
-require_once dirname( __DIR__ ) . '/events/transition-post-status.php';
-require_once dirname( __DIR__ ) . '/events/new-editorial-comment.php';
-
 /**
  * Get assigned user IDs for a post.
  *
