@@ -7,6 +7,10 @@ namespace HM\Workflows;
 
 use WP_Comment;
 use WP_Comment_Query;
+use WP_Error;
+use WP_REST_Server;
+use WP_REST_Request;
+use WP_REST_Response;
 use WP_Query;
 
 Event::register( 'new_editorial_comment' )
@@ -202,9 +206,82 @@ function assignees_api() {
 		],
 	] );
 
+	// Assignees endpoint.
+	register_rest_route( 'workflows/v1', 'assignees/(?P<id>[\d]+)', [
+		[
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => function ( WP_REST_Request $request ) {
+				$post_id = $request->get_param( 'id' );
+
+				$assignees = get_post_meta( $post_id, 'assignees' ) ?: [];
+				$assignees = array_map( 'intval', $assignees );
+
+				return rest_ensure_response( $assignees );
+			},
+			'permission_callback' => __NAMESPACE__ . '\assignees_permission',
+		],
+		[
+			'methods' => WP_REST_Server::DELETABLE,
+			'callback' => function ( WP_REST_Request $request ) {
+				$post_id = $request->get_param( 'id' );
+				$result  = delete_post_meta( $post_id, 'assignees' );
+
+				return rest_ensure_response( $result );
+			},
+			'permission_callback' => __NAMESPACE__ . '\assignees_permission',
+		],
+		[
+			'methods' => [
+				WP_REST_Server::CREATABLE,
+				WP_REST_Server::EDITABLE,
+			],
+			'callback' => function ( WP_REST_Request $request ) {
+				$post_id   = $request->get_param( 'id' );
+				$assignees = $request->get_param( 'assignees' );
+
+				delete_post_meta( $post_id, 'assignees' );
+
+				foreach ( $assignees as $user_id ) {
+					$result = add_post_meta( $post_id, 'assignees', $user_id );
+
+					if ( ! $result ) {
+						// translators: %d is replaced with a user ID
+						return rest_ensure_response( new WP_Error( 'assignees_update_failed', sprintf( __( 'Could not add user ID %d as a post assignee.', 'hm-workflows' ), $user_id ) ) );
+					}
+				}
+
+				return rest_ensure_response( $assignees );
+			},
+			'args' => [
+				'assignees' => [
+					'description' => __( 'An array of user IDs to assign to the post.', 'hm-workflows' ),
+					'type' => 'array',
+					'default' => [],
+					'required' => true,
+					'items' => [
+						'type' => 'integer',
+					],
+				],
+			],
+			'permission_callback' => __NAMESPACE__ . '\assignees_permission',
+		],
+		'schema' => [
+			'id' => [
+				'type' => 'integer',
+				'required' => true,
+				'description' => __( 'The post ID to modify assignees on.', 'hm-workflows' ),
+			],
+		],
+	] );
+
 }
 
 add_action( 'init', __NAMESPACE__ . '\assignees_api' );
+
+function assignees_permission( WP_REST_Request $request ) {
+	$post_id = $request->get_param( 'id' );
+	return current_user_can( 'edit_post', $post_id );
+}
 
 /**
  * Add a link in the admin to filter by assigned posts.

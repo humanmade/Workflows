@@ -18,6 +18,7 @@ add_action( 'edit_form_after_title', __NAMESPACE__ . '\\main_ui' );
 
 function meta_boxes() {
 	remove_meta_box( 'submitdiv', 'hm_workflow', 'side' );
+	remove_meta_box( 'slug', 'hm_workflow', 'normal' );
 
 	add_meta_box( 'enable-workflow', __( 'Workflow options', 'hm-workflows' ), function () {
 		echo '<div id="hm-workflow-options"></div>';
