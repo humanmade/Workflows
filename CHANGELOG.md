@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.3.1
+
+- Bug: Fix the editorial comments assignees endpoints.
+- UI: Remove slug div from workflows edit screen
+
 v0.3.0
 
 - Enhancement: Register an event for handling new comments, and a recipient handler for the author of the corresponding post.

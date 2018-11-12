@@ -138,7 +138,7 @@ class Comments extends React.Component {
 	}
 
 	fetchAssignees() {
-		fetch( `${HM.Workflows.Endpoints.WP}/posts/${this.props.postId}`, {
+		fetch( `${HM.Workflows.Namespace}/assignees/${this.props.postId}`, {
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': HM.Workflows.Nonce
@@ -146,11 +146,11 @@ class Comments extends React.Component {
 		} )
 			.then( response => response.json() )
 			.then( data => {
-				if ( ! data.meta || Array.isArray( data.meta ) || ! data.meta.assignees ) {
+				if ( ! data || ! Array.isArray( data ) ) {
 					return;
 				}
 
-				const { assignees } = data.meta;
+				const assignees = data;
 				this.setState( { assignees } );
 			} );
 	}
@@ -233,22 +233,20 @@ class Comments extends React.Component {
 	updateAssignees() {
 		const { newAssignees } = this.state;
 
-		fetch( `${HM.Workflows.Endpoints.WP}/posts/${this.props.postId}?context=edit`, {
-			method: 'PATCH',
+		fetch( `${HM.Workflows.Namespace}/assignees/${this.props.postId}`, {
+			method: 'POST',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': HM.Workflows.Nonce,
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify( {
-				meta: {
-					assignees: this.state.newAssignees,
-				},
+				assignees: this.state.newAssignees,
 			} ),
 		} )
 			.then( response => response.json() )
 			.then( data => {
-				if ( ! data.meta || Array.isArray( data.meta ) || ! data.meta.assignees ) {
+				if ( ! data || ! Array.isArray( data ) ) {
 					return;
 				}
 
