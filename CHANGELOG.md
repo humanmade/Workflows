@@ -4,6 +4,7 @@ Changelog
 v0.3.1
 
 - Bug: Fix the editorial comments assignees endpoints.
+- UI: Remove slug div from workflows edit screen
 
 v0.3.0
 
