@@ -148,6 +148,8 @@ class Event {
 	/**
 	 * Adds the message tags.
 	 *
+	 * @todo Make this singular so the method signature is more self documenting and useful.
+	 *
 	 * @param array $tags Array of key/value pairs.
 	 *
 	 * @return Event
