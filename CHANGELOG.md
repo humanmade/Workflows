@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.3.2
+
+- Bug: Changing event did not update the recipients available properly
+- Enhancement: Cleared npm security warnings
+- Enhancement: Updated to Create React App v2 and React 16
+- Enhancement: Updated to react-select v2
+- Code style: Admin now adheres to HM coding standards
+
 v0.3.1
 
 - Bug: Fix the editorial comments assignees endpoints.

@@ -3,7 +3,7 @@
  * Plugin Name: Workflows
  * Plugin URI: https://github.com/humanmade/Workflows
  * Description: A flexible workflows framework for WordPress
- * Version: 0.3.1
+ * Version: 0.3.2
  * Author: Human Made Limited
  * Author URI: https://humanmade.com
  * Text Domain: hm-workflows
@@ -18,7 +18,7 @@
 namespace HM\Workflows;
 
 require_once __DIR__ . '/inc/namespace.php';
-require_once __DIR__ . '/admin/admin.php';
+require_once __DIR__ . '/admin/inc/namespace.php';
 
 // Load built ins early so they can be modified consistently.
 add_action( 'plugins_loaded', function () {

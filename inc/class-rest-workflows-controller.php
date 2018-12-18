@@ -102,12 +102,9 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 						],
 						'value' => [
 							'type' => 'array',
-							'items' => [
-								'type' => 'string',
-							]
-						]
-					]
-				]
+						],
+					],
+				],
 			],
 		] );
 
@@ -137,9 +134,9 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 						],
 						'data' => [
 							'type' => 'object'
-						]
-					]
-				]
+						],
+					],
+				],
 			],
 		] );
 

@@ -5,8 +5,10 @@
  * @package HM\Workflows
  */
 
-namespace HM\Workflows;
+namespace HM\Workflows\Admin;
 
+use HM\Workflows\Destination;
+use HM\Workflows\Event;
 use WP_Post;
 
 require_once 'react-loader.php';
@@ -45,8 +47,12 @@ function enqueue_ui_assets() {
 		return;
 	}
 
-	enqueue_assets( __DIR__, [
-		'handle' => 'hm-workflows',
+	enqueue_assets( dirname( __DIR__, 1 ), [
+		'handle'  => 'hm-workflows',
+		'scripts' => [
+			'react',
+			'react-dom',
+		],
 	] );
 
 	// Get event UI configs.
@@ -86,7 +92,7 @@ function enqueue_ui_assets() {
 	}, $destinations, array_keys( $destinations ) );
 
 	$ui_data = [
-		'BuildURL'  => infer_base_url( __DIR__ . '/build/' ),
+		'BuildURL'  => infer_base_url( dirname( __DIR__, 1 ) . '/build/' ),
 		'Nonce'     => wp_create_nonce( 'wp_rest' ),
 		'Namespace' => rest_url( 'workflows/v1' ),
 		'Endpoints' => [
@@ -131,15 +137,15 @@ function enqueue_ui_assets() {
 			'Destinations' => array_values( $destinations ),
 			'Recipients'   => [
 				[
-					'id'    => 'role',
-					'name'  => __( 'Users with the roles...', 'hm-workflows' ),
-					'items' => array_values( array_map( function ( $role, $key ) {
+					'id'      => 'role',
+					'name'    => __( 'Users with the roles...', 'hm-workflows' ),
+					'options' => array_values( array_map( function ( $role, $key ) {
 						return [
 							'label' => $role['name'],
 							'value' => $key,
 						];
 					}, get_editable_roles(), array_keys( get_editable_roles() ) ) ),
-					'multi' => true,
+					'isMulti' => true,
 				],
 				[
 					'id'       => 'user',
@@ -149,7 +155,7 @@ function enqueue_ui_assets() {
 						'labelKey' => 'name',
 						'valueKey' => 'id',
 					],
-					'multi'    => true,
+					'isMulti'  => true,
 				],
 				[
 					'id'   => 'all',

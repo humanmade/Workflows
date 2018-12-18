@@ -4,7 +4,6 @@ import { CSSTransition } from 'react-transition-group';
 import Portal from './Portal';
 import 'react-toggle/style.css';
 import Toggle from 'react-toggle';
-import 'react-select/dist/react-select.css';
 import Select, { Async as AsyncSelect } from 'react-select';
 import Editor from './Editor';
 import styled, { css } from 'styled-components';
@@ -33,7 +32,7 @@ const SubmitBox = styled.div`
 const StyledQuestionBox = styled.div`
 	margin-top: 10px;
 	padding: 0 0 10px 0;
-	
+
 	.hm-workflows-arrow {
 		display: block;
 		width: 40%;
@@ -41,7 +40,7 @@ const StyledQuestionBox = styled.div`
 		background: rgba(0,0,0,.25);
 		position: relative;
 		margin: 0 auto 50px;
-	
+
 		&:before {
 			position: absolute;
 			top: 0px;
@@ -51,7 +50,7 @@ const StyledQuestionBox = styled.div`
 			height: 50px;
 			margin-left: 50%;
 		}
-		
+
 		&:after {
 			position: absolute;
 			top: 50px;
@@ -64,7 +63,7 @@ const StyledQuestionBox = styled.div`
 			margin-left: 50%;
 		}
 	}
-	
+
 	&.hm-question-appear,
 	&.hm-question-enter {
 		.hm-workflows-arrow {
@@ -77,14 +76,14 @@ const StyledQuestionBox = styled.div`
 				top: 0;
 			}
 		}
-		
+
 		.hm-question-body {
 			position: relative;
 			opacity: 0.01;
 			top: 100px;
 		}
 	}
-	
+
 	&.hm-question-appear.hm-question-appear-active,
 	&.hm-question-enter.hm-question-enter-active {
 		.hm-workflows-arrow {
@@ -100,34 +99,34 @@ const StyledQuestionBox = styled.div`
 				transition: top .5s ease-out .25s, opacity .5s ease-out;
 			}
 		}
-	
+
 		.hm-question-body {
 			transition: opacity .65s ease-out .25s, top .3s ease-out .25s;
 			opacity: 1;
 			top: 0;
 		}
 	}
-	
+
 	&.hm-question-exit {
 		.hm-question-body {
 			position: relative;
 			opacity: 1;
 			top: 0;
 		}
-		
+
 		.hm-workflows-arrow {
 			width: 40%;
 			opacity: 1;
 		}
 	}
-	
+
 	&.hm-question-exit.hm-question-exit-active {
 		.hm-workflows-arrow {
 			width: 0;
 			opacity: 0;
 			transition: width .3s ease-in, opacity .25s ease-in;
 		}
-	
+
 		.hm-question-body {
 			transition: opacity .3s ease-in, top .3s ease-in;
 			opacity: 0;
@@ -173,7 +172,7 @@ const MessageActions = styled.div`
 
 const Form = styled.div`
 	margin-bottom: 20px;
-	
+
 	${ props => props.hasFields && css`
 		display: flex;
 	` }
@@ -181,26 +180,26 @@ const Form = styled.div`
 
 const StyledFieldset = styled.fieldset`
 	flex: 1;
-	
+
 	& ~ fieldset {
 		margin-left: 10px;
 	}
-	
+
 	&.hm-workflows-fields-enter,
 	&.hm-workflows-fields-appear {
 		opacity: 0.01;
 	}
-	
+
 	&.hm-workflows-fields-enter.hm-workflows-fields-enter-active,
 	&.hm-workflows-fields-appear.hm-workflows-fields-appear-active {
 		opacity: 1;
 		transition: opacity .3s ease-out;
 	}
-	
+
 	&.hm-workflows-fields-exit {
 		opacity: 1;
 	}
-	
+
 	&.hm-workflows-fields-exit.hm-workflows-fields-exit-active {
 		opacity: 0;
 		transition: opacity .3s ease-in;
@@ -223,7 +222,7 @@ const Fieldset = props => <CSSTransition
 const Field = styled.div`
 	margin: 0 auto 1em;
 	padding: 8px 0;
-	
+
 	label {
 		font-weight: bold;
 		display: block;
@@ -246,6 +245,9 @@ class WorkflowUI extends Component {
 			defaultMessage: '',
 			recipients:     [],
 			destinations:   [],
+			// React is good at not redoing work.
+			availableRecipients:   [],
+			availableDestinations: [],
 		};
 	}
 
@@ -277,7 +279,7 @@ class WorkflowUI extends Component {
 					} );
 				}
 
-				const recipients = HM.Workflows.Recipients.concat( (event && event.recipients) || [] );
+				const recipients = HM.Workflows.Recipients.concat( ( event && event.recipients ) || [] );
 
 				this.setState( {
 					loading:        false,
@@ -287,10 +289,10 @@ class WorkflowUI extends Component {
 					defaultSubject: data.subject,
 					message:        data.message,
 					defaultMessage: data.message,
-					recipients:     data.recipients.map( recipient => {
+					recipients:     data.recipients.filter( rec => rec.id ).map( recipient => {
 						const recipientObject = recipients.find( rec => rec.id === recipient.id );
 						const recipientValue  = recipient.value
-							? { value: recipientObject.multi ? recipient.value : recipient.value[0] }
+							? { value: recipientObject.isMulti ? recipient.value : recipient.value[0] }
 							: {};
 						return Object.assign( {}, recipientObject, recipientValue );
 					} ),
@@ -302,8 +304,14 @@ class WorkflowUI extends Component {
 							} )
 						} );
 					} ),
+					availableRecipients: HM.Workflows.Recipients
+						.concat( ( event && event.recipients ) || [] )
+						.filter( recipient => recipient.id && data.recipients.map( rec => rec.id ).indexOf( recipient.id ) < 0 ),
+					availableDestinations: HM.Workflows.Destinations
+						.filter( destination => data.destinations.map( dest => dest.id ).indexOf( destination.id ) < 0 ),
 				} );
 			} );
+
 	}
 
 	saveWorkflow() {
@@ -320,7 +328,7 @@ class WorkflowUI extends Component {
 		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
 			credentials: 'same-origin',
 			method: this.props.postId ? 'POST' : 'PATCH',
-			headers:     {
+			headers: {
 				'X-WP-Nonce': HM.Workflows.Nonce,
 				'content-type': 'application/json',
 			},
@@ -333,11 +341,18 @@ class WorkflowUI extends Component {
 				},
 				subject: this.state.subject,
 				message: this.state.message,
-				recipients: this.state.recipients.map( recipient => {
+				recipients: this.state.recipients.filter( rec => rec.id ).map( recipient => {
 					const recipientObject = { id: recipient.id };
-					const recipientValue  = recipient.value
-						? { value: recipient.multi ? recipient.value : [ recipient.value ] }
-						: {};
+					let recipientValue = {};
+
+					if ( recipient.value ) {
+						if ( recipient.isMulti ) {
+							recipientValue = { value: recipient.value };
+						} else {
+							recipientValue = { value: [ recipient.value ] };
+						}
+					}
+
 					return Object.assign( {}, recipientObject, recipientValue );
 				} ),
 				destinations: this.state.destinations.map( destination => ({
@@ -378,14 +393,23 @@ class WorkflowUI extends Component {
 	}
 
 	render() {
-		const availableDestinations = HM.Workflows.Destinations
-			.filter( destination => this.state.destinations.map( dest => dest.id ).indexOf( destination.id ) < 0 );
-		const availableRecipients = HM.Workflows.Recipients
-			.concat( (this.state.event && this.state.event.recipients) || [] )
-			.filter( recipient => this.state.recipients.map( rec => rec.id ).indexOf( recipient.id ) < 0 );
+		const {
+			loading,
+			errors,
+			enabled,
+			saving,
+			event,
+			subject,
+			defaultSubject,
+			defaultMessage,
+			recipients,
+			destinations,
+			availableRecipients,
+			availableDestinations,
+		} = this.state;
 
 		// If we have data show a loading indicator before we get to the UI.
-		if ( this.state.loading ) {
+		if ( loading ) {
 			return <Loading>
 				<Portal target="#hm-workflow-options">
 					<SubmitBox>
@@ -408,8 +432,8 @@ class WorkflowUI extends Component {
 								id="hm-workflow-enabled"
 								name="workflow-enabled"
 								value="1"
-								checked={this.state.enabled}
-								onChange={() => this.setState( { enabled: ! this.state.enabled } )}
+								checked={ enabled }
+								onChange={ () => this.setState( { enabled: ! enabled } ) }
 								icons={false}
 							/>
 							{ __( 'Enable' ) }
@@ -419,47 +443,52 @@ class WorkflowUI extends Component {
 						<button
 							type="button"
 							className="button button-primary"
-							disabled={this.state.saving}
-							onClick={() => this.saveWorkflow()}
+							disabled={ saving }
+							onClick={ () => this.saveWorkflow() }
 						>
-							{this.state.saving ? __( 'Saving' ) : __( 'Save' )}
+							{ saving ? __( 'Saving' ) : __( 'Save' ) }
 						</button>
-						<span className={`spinner ${this.state.saving && 'is-active'}`}/>
+						<span className={`spinner ${ saving && 'is-active' }`}/>
 					</div>
 				</SubmitBox>
 			</Portal>
 
-			<Errors errors={this.state.errors} />
+			<Errors errors={ errors } />
 
 			<QuestionBox step={1} in={true}>
 				<Question>{ __( 'When should the workflow run?' ) }</Question>
-				<Form hasFields={!!(this.state.event && this.state.event.ui.fields.length)}>
+				<Form hasFields={!!(event && event.ui.fields.length)}>
 					<Fieldset in={true}>
 						<Select
-							options={HM.Workflows.Events.map( event => ({
-								value:  event.id,
-								label:  event.ui.name,
-								object: event
-							}) )}
+							options={HM.Workflows.Events}
 							name="event"
-							value={(this.state.event && this.state.event.id) || ''}
+							getOptionLabel={ option => option.ui.name }
+							getOptionValue={ option => option.id }
+							value={this.state.event || ''}
 							onChange={option => this.setState( {
-								event:  option.object || null,
+								event:  option || null,
 								errors: this.updateErrors( option.object, 'no-event' ),
+								recipients: recipients
+									.slice()
+									.filter( rec => HM.Workflows.Recipients.map( rec => rec.id ).indexOf( rec.id ) >= 0 ),
+								availableRecipients: availableRecipients
+									.slice()
+									.filter( rec => HM.Workflows.Recipients.map( rec => rec.id ).indexOf( rec.id ) >= 0 )
+									.concat( ( option && option.recipients ) || [] ),
 							}, () => {
 								this.refs.subject.focus();
 							} )}
 							resetValue=""
 						/>
 					</Fieldset>
-					<Fieldset in={!!(this.state.event && this.state.event.ui.fields.length)}>
-						{ this.state.event && <UIForm
+					<Fieldset in={!!(event && event.ui.fields.length)}>
+						{ event && <UIForm
 							name="event"
-							{...this.state.event.ui}
+							{...event.ui}
 							onChange={( value, field ) => this.setState( {
-								event: Object.assign( {}, this.state.event, {
-									ui: Object.assign( {}, this.state.event.ui, {
-										data: Object.assign( {}, this.state.event.ui.data, {
+								event: Object.assign( {}, event, {
+									ui: Object.assign( {}, event.ui, {
+										data: Object.assign( {}, event.ui.data, {
 											[ field.name ]: value
 										} )
 									} )
@@ -470,7 +499,7 @@ class WorkflowUI extends Component {
 				</Form>
 			</QuestionBox>
 
-			<QuestionBox step={2} in={!!this.state.event}>
+			<QuestionBox step={2} in={!!event}>
 				<Question>{ __( 'What message should be sent?' ) }</Question>
 
 				<Field>
@@ -481,9 +510,9 @@ class WorkflowUI extends Component {
 						name="subject"
 						ref="subject"
 						placeholder={ __( 'Briefly state what has happened or the action to take...' ) }
-						content={this.state.defaultSubject}
+						content={ defaultSubject }
 						onChange={content => this.setState( { subject: content } )}
-						tags={this.state.event && this.state.event.tags}
+						tags={ event && event.tags }
 					/>
 				</Field>
 
@@ -494,17 +523,17 @@ class WorkflowUI extends Component {
 						name="message"
 						placeholder={ __( 'Add an optional detailed message here...' ) }
 						ref="message"
-						content={this.state.defaultMessage}
-						onChange={content => this.setState( { message: content } )}
-						tags={this.state.event && this.state.event.tags}
+						content={ defaultMessage }
+						onChange={ content => this.setState( { message: content } ) }
+						tags={ event && event.tags }
 					/>
 				</Field>
 
-				{this.state.event && this.state.event.actions.length
+				{ event && event.actions.length
 					? <MessageActions>
 						<p>{ __( 'The following actions will be added to the message.' ) }</p>
 						<ul>
-							{this.state.event.actions.map( action => {
+							{ event.actions.map( action => {
 								return <li key={action.id}><span className="button button-secondary">{action.text}</span></li>;
 							} )}
 						</ul>
@@ -513,111 +542,168 @@ class WorkflowUI extends Component {
 				}
 			</QuestionBox>
 
-			<QuestionBox step={3} in={!!(this.state.event && this.state.subject)}>
+			<QuestionBox step={3} in={!!(event && subject)}>
 				<Question>{ __( 'Who should be notified?' ) }</Question>
-				{this.state.recipients.map( recipient => {
-					return <Form key={recipient.id} hasFields={recipient.items || recipient.endpoint}>
+				{ recipients.map( recipient => {
+					return  recipient.id && ( <Form key={recipient.id} hasFields={recipient.options || recipient.endpoint}>
 						<Fieldset in={true}>
 							<Select
-								value={recipient.id}
-								options={[ { value: recipient.id, label: recipient.name } ]}
-								onInputChange={value => {
+								value={ recipient }
+								options={[]}
+								onInputChange={ value => {
 									if ( ! value ) {
-										this.setState( { recipients: this.state.recipients.filter( rec => rec.id !== recipient.id ) } )
+										this.setState( {
+											recipients: recipients.filter( rec => rec.id !== recipient.id ),
+											availableRecipients: availableRecipients.concat( [ recipient ] ),
+										} )
 									}
-								}}
-								openOnClick={false}
+								} }
+								getOptionLabel={ option => option.name }
+								getOptionValue={ option => option.id }
+								openMenuOnClick={false}
+								openMenuOnFocus={false}
+								isClearable
 								searchable={false}
-								menuRenderer={() => null}
-								onBlurResetsInput={false}
-								onCloseResetsInput={false}
+								components={{
+									Menu: () => null,
+									DropdownIndicator: () => null,
+									IndicatorSeparator: () => null,
+								}}
 							/>
 						</Fieldset>
-						<Fieldset in={!!(recipient.items && recipient.items.length)}>
+						<Fieldset in={!!(recipient.options && recipient.options.length && ! recipient.endpoint)}>
 							<Select
-								options={recipient.items}
-								multi={recipient.multi}
-								value={recipient.value}
-								onChange={option => this.setState( {
-									recipients: this.state.recipients.map( rec => {
+								options={ recipient.options }
+								isMulti={ recipient.isMulti }
+								value={ recipient.value && recipient.options && (
+									recipient.isMulti
+										? recipient.options.filter( item => recipient.value.indexOf( item.value ) > -1 )
+										: recipient.options.find( item => recipient.value === item.value )
+								) }
+								getOptionLabel={ option => option.label }
+								getOptionValue={ option => option.value }
+								onChange={ option => this.setState( {
+									recipients: recipients.map( rec => {
 										if ( rec.id !== recipient.id ) {
 											return rec;
 										}
 										return Object.assign( {}, rec, {
-											value: rec.multi ? option.map( opt => opt.value ) : option.value
+											value: recipient.isMulti ? option.map( item => item.value ) : [ option.value ],
 										} );
-									} )
+									} ),
 								} )}
 							/>
 						</Fieldset>
 						<Fieldset in={!!(recipient.endpoint)}>
-							{recipient.endpoint && <AsyncSelect
-								options={recipient.items}
-								multi={recipient.multi}
-								autoload={true}
-								loadOptions={input => fetch( `${recipient.endpoint.url}?search=${encodeURIComponent( input )}`, {
-									credentials: 'same-origin',
-									headers:     {
-										'X-WP-Nonce': HM.Workflows.Nonce
+							{ recipient.endpoint && <AsyncSelect
+								isMulti={ recipient.isMulti }
+								defaultOptions
+								cacheOptions
+								loadOptions={ async input => {
+									const fetchOpts = {
+										credentials: 'same-origin',
+										headers:     {
+											'X-WP-Nonce': HM.Workflows.Nonce,
+										},
+									};
+
+									let results = [];
+									let exclude = '';
+
+									// Get selected.
+									if ( recipient.value ) {
+										const valueResponse = await fetch( `${recipient.endpoint.url}?include=${ recipient.value }`, fetchOpts );
+										const value = await valueResponse.json();
+										results.concat( value );
+										exclude = `&exclude=${ value.map( item => item.id ).join( ',' ) }`;
+
+										this.setState( {
+											recipients: recipients.map( rec => {
+												if ( rec.id !== recipient.id ) {
+													return rec;
+												}
+												return Object.assign( {}, rec, {
+													options: recipient.isMulti ? value : value.shift(),
+												} );
+											} )
+										} );
 									}
-								} )
-									.then( response => response.json() )
-									.then( data => ({ options: data }) )
-								}
-								value={recipient.value}
-								labelKey={recipient.endpoint.labelKey || 'name'}
-								valueKey={recipient.endpoint.valueKey || 'id'}
-								onChange={option => this.setState( {
-									recipients: this.state.recipients.map( rec => {
+
+									const search = input ? `&search=${encodeURIComponent( input )}` : '';
+									const response = await fetch( `${recipient.endpoint.url}?per_page=100&_locale=user${ exclude }${ search }`, fetchOpts );
+									const data = await response.json();
+
+									return data;
+								} }
+								value={ recipient.options }
+								getOptionLabel={ option => option[ recipient.endpoint.labelKey || 'name' ] }
+								getOptionValue={ option => option[ recipient.endpoint.valueKey || 'id' ] }
+								onChange={ option => this.setState( {
+									recipients: recipients.map( rec => {
 										if ( rec.id !== recipient.id ) {
 											return rec;
 										}
+										const key = recipient.endpoint.valueKey || 'id';
 										return Object.assign( {}, rec, {
-											value: rec.multi
-												       ? option.map( opt => opt[ recipient.endpoint.valueKey || 'id' ] )
-												       : option[ recipient.endpoint.valueKey || 'id' ]
+											options: option,
+											value: recipient.isMulti ? option.map( item => item[ key ] ) : [ option[ key ] ],
 										} );
 									} )
-								} )}
-							/>}
+								} ) }
+							/> }
 						</Fieldset>
-					</Form>
+					</Form> )
 				} )}
 				<Fieldset in={!!availableRecipients.length}>
 					<Select
-						options={availableRecipients.map( recipient => ({ label: recipient.name, object: recipient }) )}
+						options={ availableRecipients }
 						name="who[]"
-						placeholder={this.state.recipients.length ? __( 'Select another...' ) : __( 'Select...' )}
-						onChange={option => this.setState( { recipients: this.state.recipients.concat( [ option.object ] ) } )}
+						getOptionLabel={ option => option.name }
+						getOptionValue={ option => option.id }
+						value={''}
+						placeholder={ recipients.length ? __( 'Select another...' ) : __( 'Select...' ) }
+						onChange={ option => this.setState( {
+							recipients: recipients.slice().concat( [ option ] ),
+							availableRecipients: availableRecipients.slice().filter( recipient => recipient.id !== option.id ),
+						} ) }
 					/>
 				</Fieldset>
 			</QuestionBox>
 
-			<QuestionBox step={4} in={!!(this.state.event && this.state.subject && this.state.recipients.length)}>
+			<QuestionBox step={4} in={!!(event && subject && recipients.length)}>
 				<Question>{ __( 'Where should they be notified?' ) }</Question>
-				{this.state.destinations.map( destination => {
+				{ destinations.map( destination => {
 					return <Form key={destination.id} hasFields={destination.ui.fields.length}>
 						<Fieldset in={true}>
 							<Select
-								value={destination.id}
-								options={[ { value: destination.id, label: destination.ui.name } ]}
-								onInputChange={value => {
+								value={ destination }
+								options={[]}
+								onInputChange={ value => {
 									if ( ! value ) {
-										this.setState( { destinations: this.state.destinations.filter( dest => dest.id !== destination.id ) } )
+										this.setState( {
+											destinations: destinations.filter( dest => dest.id !== destination.id ),
+											availableDestinations: availableDestinations.concat( [ destination ] ),
+										} );
 									}
-								}}
-								openOnClick={false}
+								} }
+								getOptionLabel={ option => option.ui.name }
+								getOptionValue={ option => option.id }
+								openMenuOnClick={false}
+								openMenuOnFocus={false}
 								searchable={false}
-								menuRenderer={() => null}
-								onBlurResetsInput={false}
-								onCloseResetsInput={false}
+								isClearable
+								components={{
+									Menu: () => null,
+									DropdownIndicator: () => null,
+									IndicatorSeparator: () => null,
+								}}
 							/>
 						</Fieldset>
 						<Fieldset in={!!(destination.ui && destination.ui.fields.length)}>
 							<UIForm
-								{...destination.ui}
+								{ ...destination.ui }
 								onChange={( value, field ) => this.setState( {
-									destinations: this.state.destinations.map( dest => {
+									destinations: destinations.map( dest => {
 										if ( dest.id !== destination.id ) {
 											return dest;
 										}
@@ -634,16 +720,16 @@ class WorkflowUI extends Component {
 				} )}
 				<Fieldset in={!!availableDestinations.length}>
 					<Select
-						options={availableDestinations.map( destination => ({
-							value:  destination.id,
-							label:  destination.ui.name,
-							object: destination
-						}) )}
+						options={ availableDestinations }
 						name="where[]"
-						placeholder={this.state.destinations.length ? __( 'Select another...' ) : __( 'Select...' )}
-						onChange={option => this.setState( {
-							destinations: this.state.destinations.concat( [ option.object ] )
-						} )}
+						getOptionLabel={ option => option.ui.name }
+						getOptionValue={ option => option.id }
+						value={''}
+						placeholder={ this.state.destinations.length ? __( 'Select another...' ) : __( 'Select...' ) }
+						onChange={ option => this.setState( {
+							destinations: destinations.slice().concat( [ option ] ),
+							availableDestinations: availableDestinations.slice().filter( destination => destination.id !== option.id ),
+						} ) }
 					/>
 				</Fieldset>
 			</QuestionBox>

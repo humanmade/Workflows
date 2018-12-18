@@ -13,7 +13,8 @@ const StyledUser = styled.span`
 		margin-top: -2px;
 		vertical-align: middle;
 		margin-right: 5px;
-		border-radius: 3px;
+		border-radius: 100px;
+		box-shadow: inner 0 0 3px rgba( 0, 0, 0, .8 );
 	}
 `;
 

@@ -1,10 +1,14 @@
-// eslint-disable-next-line
-/*global HM*/
+import HM from 'HM';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Loadable from 'react-loadable';
 import Loading from './Loading';
 import registerServiceWorker from './registerServiceWorker';
+
+if ( process.env.NODE_ENV === 'production' ) {
+	// eslint-disable-next-line
+	__webpack_public_path__ = HM.Workflows.BuildURL;
+}
 
 /**
  * Async loading Workflow UI.

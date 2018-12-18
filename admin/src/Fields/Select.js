@@ -2,9 +2,10 @@
 import React from 'react';
 import Field from  './Field';
 import Select, { Async } from 'react-select';
-import 'react-select/dist/react-select.css';
 
 class SelectField extends Field {
+
+	state = {}
 
 	input( props = {} ) {
 		const params = this.props.params || {};
@@ -12,17 +13,59 @@ class SelectField extends Field {
 
 		// Set up
 		if ( params.endpoint ) {
-			params.autoload    = params.autoload || true;
-			params.loadOptions = input => fetch( `${params.endpoint.url}?search=${encodeURIComponent( input )}`, {
-				credentials: 'same-origin',
-				headers:     {
-					'X-WP-Nonce': HM.Workflows.Nonce
+			params.loadOptions = async input => {
+				const fetchOpts = {
+					credentials: 'same-origin',
+					headers:     {
+						'X-WP-Nonce': HM.Workflows.Nonce,
+					},
+				};
+
+				let results = [];
+				let exclude = '';
+
+				// Get selected.
+				if ( this.props.value ) {
+					const valueResponse = await fetch( `${params.endpoint.url}?include=${ this.props.value.toString() }`, fetchOpts );
+					const value = await valueResponse.json();
+					results.concat( value );
+					exclude = `&exclude=${ value.map( item => item[ params.endpoint.valueKey || 'id' ] ).join( ',' ) }`;
+
+					this.setState( {
+						value,
+					} );
 				}
-			} )
-				.then( response => response.json() )
-				.then( data => ({ options: data }) );
-			params.labelKey = params.endpoint.labelKey || 'name';
-			params.valueKey = params.endpoint.valueKey || 'id';
+
+				const search = input ? `&search=${encodeURIComponent( input )}` : '';
+				const response = await fetch( `${params.endpoint.url}?per_page=100&_locale=user${ exclude }${ search }`, fetchOpts );
+				const data = await response.json();
+
+				return data;
+			}
+
+			params.cacheOptions   = params.cacheOptions || true;
+			params.defaultOptions = params.defaultOptions || true;
+			params.getOptionLabel = option => option[ params.endpoint.labelKey || 'name' ];
+			params.getOptionValue = option => option[ params.endpoint.valueKey || 'id' ];
+		}
+
+		// Get default value.
+		let value;
+
+		if ( params.options && ! params.isMulti ) {
+			value = params.options.filter( item => item.value === this.props.value );
+		}
+
+		if ( params.options && params.isMulti ) {
+			value = params.options.filter( item => this.props.value.indexOf( item.value ) >= 0 );
+		}
+
+		if ( this.state.value ) {
+			value = this.state.value;
+		}
+
+		if ( value && ! params.isMulti ) {
+			value = value.shift();
 		}
 
 		return <Input
@@ -30,22 +73,32 @@ class SelectField extends Field {
 			id={this.props.name}
 			name={this.props.name}
 			onChange={this.onChange.bind(this)}
-			value={this.props.value}
+			value={value}
+			getOptionLabel={option => option.label}
+			getOptionValue={option => option.value}
 			{...params}
 		/>;
 	}
 
 	onChange( option ) {
-		if ( this.props.onChange ) {
-			const valueKey = this.props.params.endpoint
-				? ( this.props.params.endpoint.valueKey || 'id' )
+		const { onChange, params } = this.props;
+
+		if ( onChange ) {
+			const valueKey = params.endpoint
+				? ( params.endpoint.valueKey || 'id' )
 				: 'value';
 
-			const value = this.props.params.multi
-				? option.map( opt => opt[valueKey] )
-				: option[valueKey]
+			if ( params.endpoint ) {
+				this.setState( {
+					value: option,
+				} );
+			}
 
-			this.props.onChange( value, option );
+			const value = params.isMulti
+				? option.map( opt => opt[ valueKey ] )
+				: option[ valueKey ];
+
+			onChange( value, option );
 		}
 	}
 

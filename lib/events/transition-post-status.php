@@ -187,7 +187,7 @@ Event::register( 'transition_post_status' )
 	->add_ui( __( 'When a post changes status', 'hm-workflows' ) )
 	->get_ui()
 	->add_field( 'from', __( 'From statuses', 'hm-workflows' ), 'select', [
-		'multi'   => true,
+		'isMulti'   => true,
 		'options' => array_values( array_map( function ( $status ) {
 			return [
 				'label' => $status->label,
@@ -204,7 +204,7 @@ Event::register( 'transition_post_status' )
 		}, get_post_stati( [ 'internal' => false ], 'objects' ) ) ),
 	] )
 	->add_field( 'types', __( 'For post types', 'hm-workflows' ), 'select', [
-		'multi'   => true,
+		'isMulti'   => true,
 		'options' => array_values( array_map( function ( \WP_Post_Type $post_type ) {
 			return [
 				'label' => $post_type->label,

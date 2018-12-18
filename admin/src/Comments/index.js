@@ -1,14 +1,13 @@
 /*global HM*/
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Async as AsyncSelect } from 'react-select';
 import styled from 'styled-components';
 import Errors from '../Errors';
 import UserList from './UserList';
 import __ from '../l10n';
 import ReactHtmlParser from 'react-html-parser';
-import moment from 'moment';
+import { formatDistance } from 'date-fns';
 import 'whatwg-fetch';
-import 'react-select/dist/react-select.css';
 
 const CommentsWrap = styled.div`
 	max-width: 640px;
@@ -40,7 +39,7 @@ const Form = styled.div`
 		padding: 3px 12px;
 	}
 
-	.Select {
+	.hm-workflows-comment-form__assignee-select {
 		flex: 1;
 	}
 `;
@@ -78,7 +77,7 @@ const Comment = styled.li`
 			img {
 				margin-right: 8px;
 				float: left;
-				border-radius: 3px;
+				border-radius: 100px;
 			}
 		}
 
@@ -105,6 +104,16 @@ const Comment = styled.li`
 		}
 	}
 `;
+
+const Avatar = styled.img`
+	border-radius: 100px;
+	display: inline-block;
+	margin-right: 6px;
+	width: ${ ( { size = 24 } ) => size }px;
+	height: ${ ( { size = 24 } ) => size }px;
+	vertical-align: middle;
+	box-shadow: inner 0 0 3px rgba( 0, 0, 0, .8 );
+`
 
 class Comments extends React.Component {
 
@@ -174,7 +183,10 @@ class Comments extends React.Component {
 
 				const updatedComments = comments.concat( data );
 
-				this.setState( { comments: updatedComments, loading: false } );
+				this.setState( {
+					comments: updatedComments,
+					loading: false,
+				} );
 			} );
 	}
 
@@ -213,7 +225,7 @@ class Comments extends React.Component {
 				author: HM.Workflows.User,
 				status: 'approved',
 				meta: {
-					assignees: this.state.newAssignees,
+					assignees: this.state.newAssignees.map( assignee => assignee.id ),
 				},
 			} ),
 		} )
@@ -226,7 +238,11 @@ class Comments extends React.Component {
 
 				const { comments, newComments } = this.state;
 				comments.unshift( data );
-				this.setState( { comments, comment: '', newComments: newComments + 1 } );
+				this.setState( {
+					comments,
+					comment: '',
+					newComments: newComments + 1,
+				} );
 			} );
 	}
 
@@ -241,7 +257,7 @@ class Comments extends React.Component {
 				'Content-Type': 'application/json',
 			},
 			body: JSON.stringify( {
-				assignees: this.state.newAssignees,
+				assignees: this.state.newAssignees.map( assignee => assignee.id ),
 			} ),
 		} )
 			.then( response => response.json() )
@@ -250,7 +266,10 @@ class Comments extends React.Component {
 					return;
 				}
 
-				this.setState( { assignees: newAssignees, newAssignees: [] } );
+				this.setState( {
+					assignees: newAssignees.map( assignee => assignee.id ),
+					newAssignees: [] ,
+				} );
 			} );
 	}
 
@@ -292,23 +311,33 @@ class Comments extends React.Component {
 						value={ comment }
 					/>
 					<AsyncSelect
+						className="hm-workflows-comment-form__assignee-select"
 						placeholder={ __( 'Assignees - No change' ) }
-						multi={true}
-						autoload={true}
-						loadOptions={ input => fetch( `${HM.Workflows.Endpoints.WP}/users?search=${encodeURIComponent( input )}`, {
+						formatOptionLabel={ ( { name, avatar_urls }, { context } ) => (
+							<Fragment>
+								{ avatar_urls && <Avatar src={ avatar_urls['48'] } alt="" size={context === 'menu' ? 24 : 18} /> }
+								{ name }
+							</Fragment>
+						) }
+						isMulti
+						cacheOptions
+						defaultOptions
+						getOptionLabel={ option => option.name }
+						getOptionValue={ option => option.id }
+						loadOptions={ async input => {
+							const search = input ? `&search=${encodeURIComponent( input )}` : '';
+							const response = await fetch( `${HM.Workflows.Endpoints.WP}/users?per_page=100&_locale=user${ search }`, {
 								credentials: 'same-origin',
 								headers:     {
 									'X-WP-Nonce': HM.Workflows.Nonce
 								}
-							} )
-								.then( response => response.json() )
-								.then( data => ( { options: data } ) )
-						}
+							} );
+							const data = await response.json();
+							return data;
+						} }
 						value={ this.state.newAssignees }
-						labelKey="name"
-						valueKey="id"
 						onChange={ options => this.setState( {
-							newAssignees: options.map( opt => opt.id ),
+							newAssignees: options,
 							errors: [],
 						} ) }
 					/>
@@ -328,10 +357,10 @@ class Comments extends React.Component {
 						<Comment key={ editorialComment.id }>
 							<header className="hm-workflows-comments-comment-header">
 								<div className="hm-workflows-comments-comment-author">
-									<img src={ editorialComment.author_avatar_urls['48'] } alt="" />
+									<Avatar src={ editorialComment.author_avatar_urls['48'] } alt="" size={ 48 } />
 									{ editorialComment.author_name }
 								</div>
-								<time>{ moment.utc( editorialComment.date ).fromNow() }</time>
+								<time>{ formatDistance( editorialComment.date, Date.now(), { addSuffix: true } ) }</time>
 							</header>
 							<div className="hm-workflows-comments-comment-body">
 								{ ReactHtmlParser( editorialComment.content.rendered ) }
