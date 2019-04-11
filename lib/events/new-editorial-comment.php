@@ -276,7 +276,7 @@ function assignees_api() {
 
 }
 
-add_action( 'init', __NAMESPACE__ . '\assignees_api' );
+add_action( 'rest_api_init', __NAMESPACE__ . '\assignees_api' );
 
 function assignees_permission( WP_REST_Request $request ) {
 	$post_id = $request->get_param( 'id' );
