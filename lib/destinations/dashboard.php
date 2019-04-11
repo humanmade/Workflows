@@ -129,6 +129,12 @@ function get_notifications( WP_User $user ) {
 	return $notifications;
 }
 
+/**
+ * Decode notification JSON and unslash it.
+ *
+ * @param string $notification The notification JSON string.
+ * @return array
+ */
 function _decode( string $notification ) : array {
 	$notification = json_decode( $notification, ARRAY_A );
 
@@ -149,6 +155,12 @@ function _decode( string $notification ) : array {
 	return $notification;
 }
 
+/**
+ * Slash notification array and encode it.
+ *
+ * @param array $notification The notification array.
+ * @return string
+ */
 function _encode( array $notification ) : string {
 	// Force action data to be of type array.
 	$notification['actions'] = array_map( function ( $action ) {
