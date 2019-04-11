@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v0.3.2
+
+- Enhancement: Add post author recipient handler to new editorial comment event
+- Bug: Fall back to post meta assignees if none set with comment
+- Bug: Fix non super admin capabalities on multisite
+- Bug: Fix escaping of quotes in dashboard notifications
+- Bug: Fix rest_api_init action warning
+
 v0.3.1
 
 - Bug: Fix the editorial comments assignees endpoints.
