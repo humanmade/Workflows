@@ -3,6 +3,7 @@ Changelog
 
 v0.3.2
 
+- Bug: Fix z-index issue with dropdowns on editor screen
 - Enhancement: Add post author recipient handler to new editorial comment event
 - Bug: Fall back to post meta assignees if none set with comment
 - Bug: Fix non super admin capabalities on multisite
