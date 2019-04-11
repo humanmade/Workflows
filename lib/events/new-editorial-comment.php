@@ -78,11 +78,22 @@ Event::register( 'new_editorial_comment' )
 	->add_recipient_handler(
 		'assignees',
 		function ( WP_Comment $comment ) {
+			$assignees = (array) get_comment_meta( $comment->comment_ID, 'assignees' );
+			if ( empty( $assignees ) ) {
+				$assignees = (array) get_post_meta( $comment->comment_post_ID, 'assignees' );
+			}
 			return array_map( function ( $user_id ) {
 				return get_user_by( 'id', $user_id );
-			}, (array) get_comment_meta( $comment->comment_ID, 'assignees' ) );
+			}, $assignees );
 		},
 		__( 'Assignees', 'hm-workflows' )
+	)
+	->add_recipient_handler(
+		'post_author',
+		function ( WP_Comment $comment ) {
+			return get_user_by( 'id', get_post( $comment->comment_post_ID )->post_author );
+		},
+		__( 'Post author', 'hm-workflows' )
 	);
 
 
