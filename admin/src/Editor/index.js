@@ -20,6 +20,8 @@ const StyledEditor = styled.div`
 		border: 1px solid #ccc;
 		background: #fff;
 		padding: 8px;
+		position: relative;
+		z-index: 0;
 		${ props => props.type === 'textarea' && css`
 			min-height: 4em;
 		` }

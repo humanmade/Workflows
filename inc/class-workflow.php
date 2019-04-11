@@ -269,7 +269,6 @@ class Workflow {
 	 * @param array $args The return value from the callback or arguments from the action.
 	 */
 	public function run( array $args = [] ) {
-
 		// Process recipients.
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {

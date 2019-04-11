@@ -51,6 +51,7 @@ add_action( 'init', function () {
 		'show_in_menu'          => true,
 		'query_var'             => true,
 		'capability_type'       => 'workflow',
+		'map_meta_cap'          => false,
 		'has_archive'           => false,
 		'hierarchical'          => false,
 		'menu_position'         => 121,
@@ -66,6 +67,32 @@ add_action( 'init', function () {
 
 	remove_post_type_support( 'hm_workflow', 'revisions' );
 }, 1 );
+
+/**
+ * Maps capabilities for managing workflows.
+ *
+ * Site admins are always allowed, plus anyone with the
+ * special cap 'manage_workflows'.
+ */
+add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id ) {
+	switch ( $cap ) {
+		case 'edit_workflow':
+		case 'read_workflow':
+		case 'publish_workflow':
+		case 'delete_workflow':
+			$caps = array_diff( $caps, [ $cap ] );
+			if ( user_can( $user_id, 'manage_options' ) ) {
+				$caps[] = 'manage_options';
+			} elseif ( user_can( $user_id, 'manage_workflows' ) ) {
+				$caps[] = 'manage_workflows';
+			} else {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+	}
+
+	return $caps;
+}, 10, 4 );
 
 /**
  * Temporary fix for autosave creating empty drafts before explicit save.

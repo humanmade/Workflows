@@ -178,6 +178,11 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		}
 
 		/**
+		 * Filter comment for HTML.
+		 */
+		$prepared_comment['comment_content'] = wp_kses_post( $prepared_comment['comment_content'] );
+
+		/**
 		 * Filters a comment before it is inserted via the REST API.
 		 *
 		 * Allows modification of the comment right before it is inserted via wp_insert_comment().
