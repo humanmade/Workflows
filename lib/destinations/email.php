@@ -10,7 +10,7 @@ namespace HM\Workflows;
 Destination::register( 'email', __NAMESPACE__ . '\email_handler' )
 	->add_ui( __( 'Email', 'hm-workflows' ) )
 	->get_ui()
-	->add_field( 'group_email', __( 'Send group email?' ), 'checkbox', [
+	->add_field( 'group_email', __( 'Send group email?', 'hm-workflows' ), 'checkbox', [
 		'description' => __( 'CC all recipients with the message. This can be useful if you prefer to collaborate via email.', 'hm-workflows' ),
 	] );
 

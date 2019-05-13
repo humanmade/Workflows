@@ -83,7 +83,7 @@ Event::register( 'draft_to_pending' )
 		},
 		[ 'post_id' => 'intval' ]
 	)
-	->add_ui( __( 'A post is pending review' ) );
+	->add_ui( __( 'A post is pending review', 'hm-workflows' ) );
 
 Event::register( 'publish_post' )
 	->add_message_tags( get_messages_tags() )
@@ -113,7 +113,7 @@ Event::register( 'publish_page' )
 		},
 		[ 'post_id' => 'intval' ]
 	)
-	->add_ui( __( 'A page is published' ) );
+	->add_ui( __( 'A page is published', 'hm-workflows' ) );
 
 Event::register( 'transition_post_status' )
 	->set_listener( [
