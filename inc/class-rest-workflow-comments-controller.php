@@ -92,12 +92,12 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		}
 
 		if ( ! empty( $request['id'] ) ) {
-			return new WP_Error( 'rest_comment_exists', __( 'Cannot create existing comment.' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_comment_exists', __( 'Cannot create existing comment.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
 		// Do not allow comments to be created with a workflow type.
 		if ( ! empty( $request['type'] ) && 'workflow' !== $request['type'] ) {
-			return new WP_Error( 'rest_invalid_comment_type', __( 'Cannot create a comment with that type.' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_invalid_comment_type', __( 'Cannot create a comment with that type.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
 		$prepared_comment = $this->prepare_item_for_database( $request );
@@ -112,7 +112,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		 * comment_content. See wp_handle_comment_submission().
 		 */
 		if ( empty( $prepared_comment['comment_content'] ) ) {
-			return new WP_Error( 'rest_comment_content_invalid', __( 'Invalid comment content.' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_comment_content_invalid', __( 'Invalid comment content.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
 		// Setting remaining values before wp_insert_comment so we can use wp_allow_comment().
@@ -138,7 +138,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		// Honor the discussion setting that requires a name and email address of the comment author.
 		if ( get_option( 'require_name_email' ) ) {
 			if ( empty( $prepared_comment['comment_author'] ) || empty( $prepared_comment['comment_author_email'] ) ) {
-				return new WP_Error( 'rest_comment_author_data_required', __( 'Creating a comment requires valid author name and email values.' ), array( 'status' => 400 ) );
+				return new WP_Error( 'rest_comment_author_data_required', __( 'Creating a comment requires valid author name and email values.', 'hm-workflows' ), array( 'status' => 400 ) );
 			}
 		}
 
@@ -157,7 +157,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		$check_comment_lengths = wp_check_comment_data_max_lengths( $prepared_comment );
 		if ( is_wp_error( $check_comment_lengths ) ) {
 			$error_code = $check_comment_lengths->get_error_code();
-			return new WP_Error( $error_code, __( 'Comment field exceeds maximum length allowed.' ), array( 'status' => 400 ) );
+			return new WP_Error( $error_code, __( 'Comment field exceeds maximum length allowed.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
 		$prepared_comment['comment_approved'] = wp_allow_comment( $prepared_comment, true );
@@ -203,7 +203,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		$comment_id = wp_insert_comment( wp_filter_comment( wp_slash( (array) $prepared_comment ) ) );
 
 		if ( ! $comment_id ) {
-			return new WP_Error( 'rest_comment_failed_create', __( 'Creating comment failed.' ), array( 'status' => 500 ) );
+			return new WP_Error( 'rest_comment_failed_create', __( 'Creating comment failed.', 'hm-workflows' ), array( 'status' => 500 ) );
 		}
 
 		if ( isset( $request['status'] ) ) {
@@ -264,7 +264,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		$result = parent::get_comment( $id );
 
 		if ( isset( $result['type'] ) && $result['type'] !== 'workflow' ) {
-			return new WP_Error( 'rest_post_invalid_type', __( 'Invalid comment type.' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rest_post_invalid_type', __( 'Invalid comment type.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
 		return $result;
