@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.3.3
+
+- Bug: Fix recipient data types #77
+- Bug: Add missing text domains for translation #78
+
 v0.3.2
 
 - Bug: Fix z-index issue with dropdowns on editor screen

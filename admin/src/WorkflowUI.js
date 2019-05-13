@@ -33,7 +33,7 @@ const SubmitBox = styled.div`
 const StyledQuestionBox = styled.div`
 	margin-top: 10px;
 	padding: 0 0 10px 0;
-	
+
 	.hm-workflows-arrow {
 		display: block;
 		width: 40%;
@@ -41,7 +41,7 @@ const StyledQuestionBox = styled.div`
 		background: rgba(0,0,0,.25);
 		position: relative;
 		margin: 0 auto 50px;
-	
+
 		&:before {
 			position: absolute;
 			top: 0px;
@@ -51,7 +51,7 @@ const StyledQuestionBox = styled.div`
 			height: 50px;
 			margin-left: 50%;
 		}
-		
+
 		&:after {
 			position: absolute;
 			top: 50px;
@@ -64,7 +64,7 @@ const StyledQuestionBox = styled.div`
 			margin-left: 50%;
 		}
 	}
-	
+
 	&.hm-question-appear,
 	&.hm-question-enter {
 		.hm-workflows-arrow {
@@ -77,14 +77,14 @@ const StyledQuestionBox = styled.div`
 				top: 0;
 			}
 		}
-		
+
 		.hm-question-body {
 			position: relative;
 			opacity: 0.01;
 			top: 100px;
 		}
 	}
-	
+
 	&.hm-question-appear.hm-question-appear-active,
 	&.hm-question-enter.hm-question-enter-active {
 		.hm-workflows-arrow {
@@ -100,34 +100,34 @@ const StyledQuestionBox = styled.div`
 				transition: top .5s ease-out .25s, opacity .5s ease-out;
 			}
 		}
-	
+
 		.hm-question-body {
 			transition: opacity .65s ease-out .25s, top .3s ease-out .25s;
 			opacity: 1;
 			top: 0;
 		}
 	}
-	
+
 	&.hm-question-exit {
 		.hm-question-body {
 			position: relative;
 			opacity: 1;
 			top: 0;
 		}
-		
+
 		.hm-workflows-arrow {
 			width: 40%;
 			opacity: 1;
 		}
 	}
-	
+
 	&.hm-question-exit.hm-question-exit-active {
 		.hm-workflows-arrow {
 			width: 0;
 			opacity: 0;
 			transition: width .3s ease-in, opacity .25s ease-in;
 		}
-	
+
 		.hm-question-body {
 			transition: opacity .3s ease-in, top .3s ease-in;
 			opacity: 0;
@@ -173,7 +173,7 @@ const MessageActions = styled.div`
 
 const Form = styled.div`
 	margin-bottom: 20px;
-	
+
 	${ props => props.hasFields && css`
 		display: flex;
 	` }
@@ -181,26 +181,26 @@ const Form = styled.div`
 
 const StyledFieldset = styled.fieldset`
 	flex: 1;
-	
+
 	& ~ fieldset {
 		margin-left: 10px;
 	}
-	
+
 	&.hm-workflows-fields-enter,
 	&.hm-workflows-fields-appear {
 		opacity: 0.01;
 	}
-	
+
 	&.hm-workflows-fields-enter.hm-workflows-fields-enter-active,
 	&.hm-workflows-fields-appear.hm-workflows-fields-appear-active {
 		opacity: 1;
 		transition: opacity .3s ease-out;
 	}
-	
+
 	&.hm-workflows-fields-exit {
 		opacity: 1;
 	}
-	
+
 	&.hm-workflows-fields-exit.hm-workflows-fields-exit-active {
 		opacity: 0;
 		transition: opacity .3s ease-in;
@@ -223,7 +223,7 @@ const Fieldset = props => <CSSTransition
 const Field = styled.div`
 	margin: 0 auto 1em;
 	padding: 8px 0;
-	
+
 	label {
 		font-weight: bold;
 		display: block;
@@ -519,8 +519,8 @@ class WorkflowUI extends Component {
 					return <Form key={recipient.id} hasFields={recipient.items || recipient.endpoint}>
 						<Fieldset in={true}>
 							<Select
-								value={recipient.id}
-								options={[ { value: recipient.id, label: recipient.name } ]}
+								value={String( recipient.id )}
+								options={[ { value: String( recipient.id ), label: recipient.name } ]}
 								onInputChange={value => {
 									if ( ! value ) {
 										this.setState( { recipients: this.state.recipients.filter( rec => rec.id !== recipient.id ) } )
@@ -544,7 +544,7 @@ class WorkflowUI extends Component {
 											return rec;
 										}
 										return Object.assign( {}, rec, {
-											value: rec.multi ? option.map( opt => opt.value ) : option.value
+											value: rec.multi ? option.map( opt => String( opt.value ) ) : String( option.value )
 										} );
 									} )
 								} )}
@@ -574,8 +574,8 @@ class WorkflowUI extends Component {
 										}
 										return Object.assign( {}, rec, {
 											value: rec.multi
-												       ? option.map( opt => opt[ recipient.endpoint.valueKey || 'id' ] )
-												       : option[ recipient.endpoint.valueKey || 'id' ]
+												       ? option.map( opt => String( opt[ recipient.endpoint.valueKey || 'id' ] ) )
+												       : String( option[ recipient.endpoint.valueKey || 'id' ] )
 										} );
 									} )
 								} )}
