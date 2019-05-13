@@ -13,7 +13,7 @@ Destination::register( 'slack', __NAMESPACE__ . '\slack_handler' )
 	->set_description(
 		__( 'Note: Slack notifications are sent to a channel rather than individual users.', 'hm-worklows' )
 	)
-	->add_field( 'incoming_webhook', __( 'Incoming webhook URL' ), 'url', [
+	->add_field( 'incoming_webhook', __( 'Incoming webhook URL', 'hm-workflows' ), 'url', [
 		'description' => __( 'Paste in an incoming webhook URL from your slack app. You can create an app at https://api.slack.com/apps.', 'hm-workflows' ),
 		'required'    => true,
 	] )
