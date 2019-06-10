@@ -2,6 +2,7 @@
 
 namespace HM\Workflows;
 
+use WP_Error;
 use WP_REST_Comments_Controller;
 use WP_REST_Request;
 

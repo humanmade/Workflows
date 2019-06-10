@@ -248,10 +248,17 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 			'sha1',
 			$this->base64_url_encode( $headers ) . '.' .
 			$this->base64_url_encode( $payload ),
-			defined( 'HM_WORKFLOWS_WEBHOOK_SECRET' )
-				? HM_WORKFLOWS_WEBHOOK_SECRET
-				: NONCE_SALT
+			$this->get_signing_secret()
 		);
+	}
+
+	protected function get_signing_secret() : string {
+		if ( defined( 'HM_WORKFLOWS_WEBHOOK_SECRET' ) ) {
+			return HM_WORKFLOWS_WEBHOOK_SECRET;
+		} elseif( defined( 'NONCE_SALT' ) ) {
+			return NONCE_SALT;
+		}
+		return md5( home_url( '/workflows' ) );
 	}
 
 	protected function base64_url_encode( $input ) {

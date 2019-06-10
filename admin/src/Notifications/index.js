@@ -3,6 +3,7 @@ import React from 'react';
 import withFetch from '../withFetch';
 import Portal from '../Portal';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import ReactHtmlParser from 'react-html-parser';
 import __ from '../l10n';
 
 import './index.css';
@@ -72,11 +73,11 @@ class Notifications extends React.Component {
 				>
 					<li className={this.props.adminBar ? '' : 'notice notice-dismissable'}>
 						<div className="hm-workflows-notification">
-							<h4>{notification.subject}</h4>
+							<h4>{ReactHtmlParser( notification.subject )}</h4>
 							{notification.text && <div className="hm-workflows-notification-message">
 								{this.state.expanded.indexOf( notification.id ) >= 0
 									? [
-										<p key="message">{notification.text}</p>,
+										<p key="message">{ReactHtmlParser( notification.text )}</p>,
 										<p key="close" className="hm-workflows-notification-actions">
 											<a
 												href="#hm-notification-message-close"
@@ -134,7 +135,7 @@ class Notifications extends React.Component {
 const notificationsWithFetch = withFetch(
 	`${HM.Workflows.Namespace}/notifications/${HM.Workflows.User}`,
 	{
-		expires:     30 * 1000,
+		expires:     10 * 1000,
 		credentials: 'include',
 		headers:     {
 			'X-WP-Nonce':   HM.Workflows.Nonce,
