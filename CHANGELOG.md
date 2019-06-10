@@ -1,6 +1,13 @@
 Changelog
 =========
 
+v0.3.4
+
+- Bug: Fix incorrect escaping for dashboard notifications #81
+- Bug: Fix missing `use` statement in editorial comments controller
+- Bug: Fix post type capability warning on post list table
+- Bug: Fix dashboard notification request timer
+
 v0.3.3
 
 - Bug: Fix recipient data types #77

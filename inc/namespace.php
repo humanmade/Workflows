@@ -51,7 +51,7 @@ add_action( 'init', function () {
 		'show_in_menu'          => true,
 		'query_var'             => true,
 		'capability_type'       => 'workflow',
-		'map_meta_cap'          => false,
+		'map_meta_cap'          => true,
 		'has_archive'           => false,
 		'hierarchical'          => false,
 		'menu_position'         => 121,
