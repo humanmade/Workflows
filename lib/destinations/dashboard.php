@@ -144,7 +144,7 @@ function _decode( string $notification ) : array {
 		return $action;
 	}, $notification['actions'] );
 
-	$notification = wp_unslash( $notification, JSON_UNESCAPED_UNICODE );
+	$notification = wp_unslash( $notification );
 
 	// Force action data to be of type object.
 	$notification['actions'] = array_map( function ( $action ) {
@@ -196,13 +196,13 @@ function sanitize_notification( $notification ) {
 
 	$sanitized_notification = [
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
-		'text'    => wp_kses( $notification['text'] ?? '', [] ),
+		'text'    => wp_kses_post( $notification['text'] ?? '' ),
 		'actions' => array_values( array_map( function ( $action, $id ) {
 			return [
 				'id'   => isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id ),
-				'text' => wp_kses( sanitize_text_field( $action['text'] ), [] ),
+				'text' => sanitize_text_field( $action['text'] ),
 				'url'  => esc_url_raw( $action['url'] ),
-				'data' => (object) array_map( 'sanitize_text_field', $action['data'] ),
+				'data' => (object) array_map( 'sanitize_text_field', is_array( $action['data'] ) ? $action['data'] : [] ),
 			];
 		}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) ),
 	];
@@ -284,7 +284,7 @@ function create( WP_REST_Request $request ) {
 	$notification['id'] = intval( $meta_id );
 
 	// And update using value from above.
-	$result = update_user_meta( $user->ID, 'hm.workflows.notification', _encode( $notification ), $placeholder );
+	$result = update_user_meta( $user->ID, 'hm.workflows.notification', wp_slash( _encode( $notification ) ), $placeholder );
 
 	if ( ! $result ) {
 		delete_user_meta( $user->ID, 'hm.workflows.notification', $placeholder );
@@ -357,7 +357,7 @@ function delete( WP_REST_Request $request ) {
 	$data = $notification->get_data();
 
 	// Delete the user meta matching the encoded value.
-	$result = delete_user_meta( $user->ID, 'hm.workflows.notification', _encode( $data ) );
+	$result = delete_user_meta( $user->ID, 'hm.workflows.notification', wp_slash( _encode( $data ) ) );
 
 	if ( ! $result ) {
 		return new WP_Error( 'hm.workflows.notifications.delete', __( 'Could not delete notification from data store.', 'hm-workflows' ) );

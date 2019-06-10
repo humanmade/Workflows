@@ -23,19 +23,24 @@ const withFetch = ( url, options = {}, name = null ) => {
 					error:    false,
 				};
 
-				this.doFetch = this.doFetch.bind( this );
-			}
+				// Timer reference.
+				this.timer = null;
 
-			componentWillMount() {
-				const item = this.getStore();
-				if ( item ) {
-					this.setState( item );
-				}
+				this.doFetch = this.doFetch.bind( this );
 			}
 
 			componentDidMount() {
 				if ( this.state.expires > Date.now() ) {
 					return;
+				}
+
+				if ( this.timer ) {
+					clearTimeout( this.timer );
+				}
+
+				const item = this.getStore();
+				if ( item ) {
+					this.setState( item );
 				}
 
 				this.setState( { loading: true } );
@@ -73,8 +78,11 @@ const withFetch = ( url, options = {}, name = null ) => {
 				};
 
 				// Add a timeout to update the data after expiry time.
-				if ( options.expires && ! error ) {
-					setTimeout( this.doFetch, parseInt( options.expires, 10 ) )
+				if ( options.expires && !error ) {
+					if ( this.timer ) {
+						clearTimeout( this.timer );
+					}
+					this.timer = setTimeout( this.doFetch, parseInt( options.expires, 10 ) );
 				}
 
 				// Update store.
