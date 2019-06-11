@@ -42,7 +42,7 @@ Event::register( 'new_editorial_comment' )
 			return implode( ', ', $assignees );
 		},
 		'post.title'     => function ( WP_Comment $comment ) {
-			return get_the_title( $comment->comment_post_ID );
+			return get_post( $comment->comment_post_ID )->post_title;
 		},
 		'post.url'       => function ( WP_Comment $comment ) {
 			$post = get_post( $comment->comment_post_ID );
