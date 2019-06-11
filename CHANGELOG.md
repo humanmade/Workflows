@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.3.5
+
+- Bug: Fix character encoding in titles, should send raw data to destination endpoints
+
 v0.3.4
 
 - Bug: Fix incorrect escaping for dashboard notifications #81
