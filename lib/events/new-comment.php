@@ -37,7 +37,7 @@ Event::register( 'published_comment' )
 			return get_comment_link( $comment );
 		},
 		'post.title'     => function ( WP_Comment $comment ) : string {
-			return get_the_title( $comment->comment_post_ID );
+			return get_post( $comment->comment_post_ID )->post_title;
 		},
 		'post.url'       => function ( WP_Comment $comment ) : string {
 			return get_permalink( $comment->comment_post_ID );

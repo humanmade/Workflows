@@ -8,7 +8,7 @@ namespace HM\Workflows;
 function get_messages_tags() {
 	return [
 		'title'   => function ( $post ) {
-			return get_the_title( get_post( $post )->ID );
+			return get_post( $post )->post_title;
 		},
 		'excerpt' => function ( $post ) {
 			if ( has_excerpt( $post ) ) {
