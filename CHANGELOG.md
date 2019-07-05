@@ -1,6 +1,12 @@
 Changelog
 =========
 
+- Enhancement: Allow action data attribute to be a callback receiving action arguments and returning data to be stored, to allow dynamic on-execution data storage.
+- Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
+- Enhancement: Allow overriding the action data sanitisation callback to permit more flexible schemas.
+
+v0.3.6
+
 - Bug: Fix regex for PHP7.3 pcre2 compat #86
 
 v0.3.5
