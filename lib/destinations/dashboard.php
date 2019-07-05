@@ -117,7 +117,7 @@ function get_notifications( WP_User $user ) {
 		return [];
 	}
 
-	$notifications = array_map( function ( $notification ) {
+	$notifications = array_map( function ( $notification ) use ( $user ) {
 		// Decode the notification.
 		$notification = _decode( $notification );
 
