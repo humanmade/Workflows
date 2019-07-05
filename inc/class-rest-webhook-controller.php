@@ -30,7 +30,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 * Register the routes.
 	 */
 	public function register_routes() {
-		register_rest_route( $this->namespace, $this->rest_base . '/(?P<event>[\\w-\.]+)\/(?P<action>[\\w-\.]+)', [
+		register_rest_route( $this->namespace, $this->rest_base . '/(?P<event>[\\w\-\.]+)\/(?P<action>[\\w\-\.]+)', [
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => [ $this, 'handle_endpoint_response' ],
 			'args'     => [
