@@ -121,6 +121,15 @@ function get_notifications( WP_User $user ) {
 		// Decode the notification.
 		$notification = _decode( $notification );
 
+		/**
+		 * Filters notification content for any dynamic changes that might be needed
+		 *
+		 * @param \WP_User $user  User object
+		 *
+		 * @return object $notification
+		 */
+		$notification = apply_filters( 'hm.workflows.notification.pre.output', $notification, $user );
+
 		return sanitize_notification( $notification );
 	}, $notifications );
 
