@@ -407,10 +407,16 @@ class Workflow {
 				continue;
 			}
 
+			if ( is_callable( $action['data'] ) ) {
+				$data = call_user_func_array( $action['data'], $args );
+			} else {
+				$data =  $action['data'];
+			}
+
 			$parsed_message['actions'][ $id ] = [
 				'text' => $action['text'],
 				'url'  => $url,
-				'data' => $action['data'],
+				'data' => $data,
 			];
 		}
 

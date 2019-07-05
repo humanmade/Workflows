@@ -168,12 +168,12 @@ class Event {
 	 * @param null|callable   $args            An optional function that receives the return value of the event action.
 	 * @param array           $schema          An array of accepted $_GET arguments and their corresponding
 	 *                                         sanitisation callbacks.
-	 * @param array           $data            Arbitrary data passed to the Destination via $messages to any other
-	 *                                         action data such as type.
+	 * @param array|callable  $data            Arbitrary data passed to the Destination via $messages to any other
+	 *                                         action data such as type. Pass a callback to execute with action args.
 	 *
 	 * @return Event
 	 */
-	public function add_message_action( string $id, string $text, $callback_or_url, $args = null, array $schema = [], array $data = [] ): Event {
+	public function add_message_action( string $id, string $text, $callback_or_url, $args = null, array $schema = [], $data = [] ): Event {
 		$this->message_actions[ $id ] = [
 			'text'            => $text,
 			'callback_or_url' => $callback_or_url,

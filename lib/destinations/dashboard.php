@@ -194,6 +194,18 @@ function sanitize_notification( $notification ) {
 		'actions' => [],
 	] );
 
+	/**
+	 * Allow implementations to override sanitisation function for data to permit more
+	 * flexible data objects.
+	 *
+	 * @return callable Sanitisation function.
+	 */
+	$data_sanitization_fn = apply_filters( 'hm.workflows.action.data.sanitizer', 'sanitize_text_field' );
+
+	if ( ! is_callable( $data_sanitization_fn ) ) {
+		$data_sanitization_fn = 'sanitize_text_field';
+	}
+
 	$sanitized_notification = [
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
@@ -202,7 +214,7 @@ function sanitize_notification( $notification ) {
 				'id'   => isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id ),
 				'text' => sanitize_text_field( $action['text'] ),
 				'url'  => esc_url_raw( $action['url'] ),
-				'data' => (object) array_map( 'sanitize_text_field', is_array( $action['data'] ) ? $action['data'] : [] ),
+				'data' => (object) array_map( $data_sanitization_fn, is_array( $action['data'] ) ? $action['data'] : [] ),
 			];
 		}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) ),
 	];
