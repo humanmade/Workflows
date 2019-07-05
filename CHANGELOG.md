@@ -1,6 +1,8 @@
 Changelog
 =========
 
+- Bug: Fix regex for PHP7.3 pcre2 compat #86
+
 v0.3.5
 
 - Bug: Fix character encoding in titles, should send raw data to destination endpoints
