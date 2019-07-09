@@ -22,6 +22,10 @@ const REST_NAMESPACE = 'workflows/v1';
 add_action( 'rest_api_init', function () {
 
 	$schema = [
+		'type'    => [
+			'type'     => 'string',
+			'required' => true,
+		],
 		'subject' => [
 			'type'     => 'string',
 			'required' => true,
@@ -205,6 +209,7 @@ function _encode( array $notification ) : string {
  */
 function sanitize_notification( $notification ) {
 	$notification = wp_parse_args( $notification, [
+		'type'    => '',
 		'subject' => '',
 		'text'    => '',
 		'actions' => [],
@@ -223,6 +228,7 @@ function sanitize_notification( $notification ) {
 	}
 
 	$sanitized_notification = [
+		'type'    => sanitize_text_field( $notification['type'] ?? '' ),
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
 		'time'    => intval( $notification['time'] ?? 0 ),
@@ -306,6 +312,7 @@ function create( WP_REST_Request $request ) {
 		'subject' => $request->get_param( 'subject' ),
 		'text'    => $request->get_param( 'text' ),
 		'time'    => $request->get_param( 'time' ),
+		'type'    => $request->get_param( 'type' ),
 	] );
 
 	// Store a placeholder to get a meta ID.
@@ -354,6 +361,7 @@ function edit( WP_REST_Request $request ) {
 		'subject' => $request->get_param( 'subject' ) ?: $old_notification['subject'],
 		'text'    => $request->get_param( 'text' ) ?: $old_notification['text'],
 		'data'    => $request->get_param( 'data' ) ?: $old_notification['data'],
+		'type'    => $request->get_param( 'type' ) ?: $old_notification['type'],
 		'actions' => $request->get_param( 'actions' ) ?: $old_notification['actions'],
 	] );
 
