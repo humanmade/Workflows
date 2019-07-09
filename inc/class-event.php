@@ -52,6 +52,13 @@ class Event {
 	protected $message_actions = [];
 
 	/**
+	 *  Event data callback
+	 *
+	 * @var callable
+	 */
+	protected $message_data_callback = null;
+
+	/**
 	 * Event recipient handlers.
 	 *
 	 * @var array
@@ -158,6 +165,13 @@ class Event {
 		return $this;
 	}
 
+	/**
+	 * Add optional data callback to execute on the event execution
+	 *
+	 * @param callable $callback
+	 *
+	 * @return \HM\Workflows\Event
+	 */
 	public function add_message_data_callback( callable $callback ): Event {
 		$this->message_data_callback = $callback;
 
@@ -296,6 +310,15 @@ class Event {
 	 */
 	public function get_message_action( string $id ): array {
 		return $this->message_actions[ $id ] ?? null;
+	}
+
+	/**
+	 * Gets the message data callback
+	 *
+	 * @return callable|null
+	 */
+	public function get_message_data_callback(): ? callable {
+		return $this->message_data_callback;
 	}
 
 	/**

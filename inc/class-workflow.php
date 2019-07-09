@@ -363,8 +363,9 @@ class Workflow {
 		$parsed_message['data']    = [];
 		$parsed_message['actions'] = [];
 
-		if ( $this->event->message_data_callback && is_callable( $this->event->message_data_callback ) ) {
-			$parsed_message['data'] = call_user_func_array( $this->event->message_data_callback, $args );
+		$data_callback = $this->event->get_message_data_callback();
+		if ( is_callable( $data_callback ) ) {
+			$parsed_message['data'] = call_user_func_array( $data_callback, $args );
 		}
 
 		// Add actions from the message if any.

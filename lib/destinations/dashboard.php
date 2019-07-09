@@ -353,6 +353,7 @@ function edit( WP_REST_Request $request ) {
 		'id'      => $old_notification['id'],
 		'subject' => $request->get_param( 'subject' ) ?: $old_notification['subject'],
 		'text'    => $request->get_param( 'text' ) ?: $old_notification['text'],
+		'data'    => $request->get_param( 'data' ) ?: $old_notification['data'],
 		'actions' => $request->get_param( 'actions' ) ?: $old_notification['actions'],
 	] );
 
