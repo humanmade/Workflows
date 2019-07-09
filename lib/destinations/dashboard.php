@@ -30,6 +30,13 @@ add_action( 'rest_api_init', function () {
 			'type'     => 'string',
 			'required' => true,
 		],
+		'time'    => [
+			'type'     => 'int',
+			'required' => true,
+		],
+		'data'    => [
+			'type' => 'object',
+		],
 		'actions' => [
 			'type'  => 'array',
 			'items' => [
@@ -211,14 +218,16 @@ function sanitize_notification( $notification ) {
 	 */
 	$data_sanitization_fn = apply_filters( 'hm.workflows.action.data.sanitizer', 'sanitize_text_field' );
 
-	if ( ! is_callable( $data_sanitization_fn ) ) {
+	if ( ! $data_sanitization_fn || ! is_callable( $data_sanitization_fn ) ) {
 		$data_sanitization_fn = 'sanitize_text_field';
 	}
 
 	$sanitized_notification = [
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
-		'actions' => array_values( array_map( function ( $action, $id ) {
+		'time'    => intval( $notification['time'] ?? 0 ),
+		'data'    => $notification['data'] ?? [],
+		'actions' => array_values( array_map( function ( $action, $id ) use ( $data_sanitization_fn ) {
 			return [
 				'id'   => isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id ),
 				'text' => sanitize_text_field( $action['text'] ),
@@ -292,9 +301,11 @@ function create( WP_REST_Request $request ) {
 	}
 
 	$notification = sanitize_notification( [
+		'actions' => $request->get_param( 'actions' ),
+		'data'    => $request->get_param( 'data' ),
 		'subject' => $request->get_param( 'subject' ),
 		'text'    => $request->get_param( 'text' ),
-		'actions' => $request->get_param( 'actions' ),
+		'time'    => $request->get_param( 'time' ),
 	] );
 
 	// Store a placeholder to get a meta ID.

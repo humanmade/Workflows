@@ -158,6 +158,12 @@ class Event {
 		return $this;
 	}
 
+	public function add_message_data_callback( callable $callback ): Event {
+		$this->message_data_callback = $callback;
+
+		return $this;
+	}
+
 	/**
 	 * Adds a message action.
 	 *
