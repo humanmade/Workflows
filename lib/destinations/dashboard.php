@@ -35,8 +35,7 @@ add_action( 'rest_api_init', function () {
 			'required' => true,
 		],
 		'data'    => [
-			'type'     => 'string',
-			'required' => true,
+			'type' => 'object',
 		],
 		'actions' => [
 			'type'  => 'array',
