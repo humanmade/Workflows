@@ -464,7 +464,7 @@ function delete( WP_REST_Request $request ) {
 	}
 
 	clear_cache( $user->ID );
-	rest_ensure_response( $result );
+	return rest_ensure_response( $result );
 }
 
 /**
