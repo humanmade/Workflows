@@ -216,38 +216,97 @@ function sanitize_notification( $notification ) {
 	] );
 
 	/**
-	 * Allow implementations to override sanitisation function for data to permit more
-	 * flexible data objects.
+	 * Filter notification data array
 	 *
-	 * @return callable Sanitisation function.
+	 * @param array Notification array
+	 *
+	 * @return array Notification data array
 	 */
-	$data_sanitization_fn = apply_filters( 'hm.workflows.action.data.sanitizer', 'sanitize_text_field' );
-
-	if ( ! $data_sanitization_fn || ! is_callable( $data_sanitization_fn ) ) {
-		$data_sanitization_fn = 'sanitize_text_field';
-	}
+	$data = apply_filters(
+		'hm.workflows.notification.data',
+		sanitize_notification_data( (array) $notification['data'] ?? [], 'notification:' . $notification['type'] ),
+		$notification
+	);
 
 	$sanitized_notification = [
 		'type'    => sanitize_text_field( $notification['type'] ?? '' ),
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
 		'time'    => intval( $notification['time'] ?? 0 ),
-		'data'    => $notification['data'] ?? [],
-		'actions' => array_values( array_map( function ( $action, $id ) use ( $data_sanitization_fn ) {
-			return [
-				'id'   => isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id ),
-				'text' => sanitize_text_field( $action['text'] ),
-				'url'  => esc_url_raw( $action['url'] ),
-				'data' => (object) array_map( $data_sanitization_fn, is_array( $action['data'] ) ? $action['data'] : [] ),
-			];
-		}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) ),
+		'data'    => (array) $data,
+		'actions' => [],
 	];
+
+	$sanitized_notification['actions'] = array_values( array_map( function ( $action, $id ) use ( $sanitized_notification ) {
+		$action_id = isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id );
+
+		/**
+		 * Filter notification action data
+		 *
+		 * @param array Action array
+		 * @param array Notification array
+		 *
+		 * @return array Data array
+		 */
+		$data      = apply_filters(
+			'hm.workflows.notification.action.data',
+			sanitize_notification_data( (array) $action['data'], 'action:' . $action_id ),
+			$action,
+			$sanitized_notification
+		);
+
+		return [
+			'id'   => $action_id,
+			'text' => sanitize_text_field( $action['text'] ),
+			'url'  => esc_url_raw( $action['url'] ),
+			'data' => (object) $data,
+		];
+	}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) );
 
 	if ( isset( $notification['id'] ) ) {
 		$sanitized_notification['id'] = intval( $notification['id'] );
 	}
 
 	return $sanitized_notification;
+}
+
+/**
+ * Sanitise notification or action data array, which may contains arbitrary data schema
+ *
+ * @param array       $data       Data array
+ * @param string      $type       Notification type or action ID, eg: 'notification:followed', 'action:follow'
+ * @param string|null $parent_key Parent key name if nested
+ *
+ * @return array
+ */
+function sanitize_notification_data( array $data, string $type, string $parent_key = null ) : array {
+	foreach ( $data as $key => $value ) {
+		$fullpath_key = ( $parent_key ? $parent_key . ':' : '' ) . $key;
+		/**
+		 * Pre-filter data item value
+		 *
+		 * @param string $key   Data item key, may contain parent key if present
+		 * @param string $value Data item value
+		 * @param string $type  Notification type or action ID, eg: 'notification:followed', 'action:follow'
+		 *
+		 * @return mixed Data item value if pre-filtered, short-circuits the sanitization process
+		 */
+		$check = apply_filters( 'hm.workflows.notification.data.item', null, $fullpath_key, $value, $type );
+		if ( $check !== null ) {
+			$data[ $key ] = $check;
+			continue;
+		}
+
+		if ( is_numeric( $value ) ) {
+			$data[ $key ] = floatval( $value );
+		} elseif ( is_string( $value ) ) {
+			$data[ $key ] = sanitize_text_field( $value );
+		} elseif ( is_object( $value ) || is_array( $value ) ) {
+			$data[ $key ] = sanitize_notification_data( (array) $value, $type, $fullpath_key );
+		}
+	}
+
+	return (array) $data;
 }
 
 /**
