@@ -233,7 +233,7 @@ function sanitize_notification( $notification ) {
 	 *
 	 * @return array Array of tags to be used with wp_kses
 	 */
-	$allowed_subject_tags = apply_filters( 'hm.workflows.destination.subject.tags', [] );
+	$allowed_subject_tags = apply_filters( 'hm.workflows.destination.subject.allowed.tags', [] );
 
 	$sanitized_notification = [
 		'type'    => sanitize_text_field( $notification['type'] ?? '' ),
