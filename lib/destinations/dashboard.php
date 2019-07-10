@@ -228,9 +228,16 @@ function sanitize_notification( $notification ) {
 		$notification
 	);
 
+	/**
+	 * Filter allowed HTML tags in subjects
+	 *
+	 * @return array Array of tags to be used with wp_kses
+	 */
+	$allowed_subject_tags = apply_filters( 'hm.workflows.destination.subject.tags', [] );
+
 	$sanitized_notification = [
 		'type'    => sanitize_text_field( $notification['type'] ?? '' ),
-		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
+		'subject' => wp_kses( $notification['subject'] ?? '', $allowed_subject_tags ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
 		'time'    => intval( $notification['time'] ?? 0 ),
 		'data'    => (array) $data,
