@@ -206,6 +206,21 @@ class Event {
 	}
 
 	/**
+	 * Remove a message action.
+	 *
+	 * @param string $id The reference name for the action.
+	 *
+	 * @return Event
+	 */
+	public function remove_message_action( string $id ) {
+		if ( isset( $this->message_actions[ $id ] ) ) {
+			unset( $this->message_actions[ $id ] );
+		}
+
+		return $this;
+	}
+
+	/**
 	 * This method should add the $name and $callback parameter to $this->recipient_handlers with $id as the key.
 	 *
 	 * @param string   $id       An identifier for the recipient handler to be used in the WorkFlow()->who() method.
