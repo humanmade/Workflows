@@ -144,9 +144,16 @@ function get_notifications( WP_User $user ) {
 		return sanitize_notification( $notification );
 	}, $notifications );
 
-	$notifications = array_values( $notifications );
+	$notifications = array_filter( array_values( $notifications ) );
 
-	return $notifications;
+	/**
+	 * Filter user notifications before rendering
+	 *
+	 * @param \WP_User User object
+	 *
+	 * @return array Filtered notifications array
+	 */
+	return apply_filters( 'hm.workflow.notifications', $notifications, $user );
 }
 
 /**
