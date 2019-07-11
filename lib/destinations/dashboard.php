@@ -153,7 +153,7 @@ function get_notifications( WP_User $user ) {
 	 *
 	 * @return array Filtered notifications array
 	 */
-	return apply_filters( 'hm.workflow.notifications', $notifications, $user );
+	return apply_filters( 'hm.workflows.notifications', $notifications, $user );
 }
 
 /**
