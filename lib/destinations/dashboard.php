@@ -231,7 +231,7 @@ function sanitize_notification( $notification ) {
 	 */
 	$data = apply_filters(
 		'hm.workflows.notification.data',
-		sanitize_notification_data( (array) $notification['data'] ?? [], 'notification:' . $notification['type'] ),
+		sanitize_notification_data( (array) ( $notification['data'] ?? [] ), 'notification:' . $notification['type'] ),
 		$notification
 	);
 
