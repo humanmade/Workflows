@@ -1,7 +1,10 @@
 Changelog
 =========
 
+v0.3.6
+
 - Bug: Fix regex for PHP7.3 pcre2 compat #86
+- Enhancement: Add SRI support for JS chunks #91
 
 v0.3.5
 
