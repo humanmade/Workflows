@@ -18,7 +18,7 @@ module.exports = function ( config, env ) {
 			chunkName: 'hm-workflows',
 		} ) );
 		config.plugins.push( new SriPlugin( {
-			hashFuncNames: [ 'sha256', 'sha512' ],
+			hashFuncNames: [ 'sha384' ],
 			enabled: true,
 		} ) );
 	}
