@@ -80,6 +80,15 @@ class Destination {
 	}
 
 	/**
+	 * Remove an existing Destination object.
+	 *
+	 * @param string $id
+	 */
+	public static function remove( string $id ) {
+		unset( self::$instances[ $id ] );
+	}
+
+	/**
 	 * Destination constructor.
 	 *
 	 * @param string   $id      Destination ID.
