@@ -1,6 +1,9 @@
 Changelog
 =========
 
+v0.3.7
+- Bug: add `remove` method for Destinations #100
+
 v0.3.6
 
 - Bug: Fix regex for PHP7.3 pcre2 compat #86
