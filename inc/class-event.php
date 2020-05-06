@@ -107,6 +107,15 @@ class Event {
 	}
 
 	/**
+	 * Remove an existing Event object.
+	 *
+	 * @param string $id
+	 */
+	public static function remove( string $id ) {
+		unset( self::$instances[ $id ] );
+	}
+
+	/**
 	 * Event constructor.
 	 *
 	 * @param string $id Event ID.
