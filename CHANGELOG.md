@@ -1,6 +1,9 @@
 Changelog
 =========
 
+v0.3.8
+- Bug add `remove` method for Events #107
+
 v0.3.7
 - Bug: add `remove` method for Destinations #100
 
