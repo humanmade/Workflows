@@ -268,10 +268,10 @@ class Event {
 	 *
 	 * @param string $id The handler ID.
 	 *
-	 * @return callable
+	 * @return callable|null
 	 */
-	public function get_recipient_handler( string $id ): callable {
-		return $this->recipients_handlers[ $id ]['callback'];
+	public function get_recipient_handler( string $id ) {
+		return $this->recipients_handlers[ $id ]['callback'] ?? null;
 	}
 
 	/**
