@@ -76,6 +76,10 @@ add_action( 'init', function () {
  */
 add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id ) {
 	switch ( $cap ) {
+		case 'edit_workflow':
+		case 'read_workflow':
+		case 'publish_workflow':
+		case 'delete_workflow':
 		case 'edit_workflows':
 		case 'edit_others_workflows':
 		case 'publish_workflows':
