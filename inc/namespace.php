@@ -76,10 +76,16 @@ add_action( 'init', function () {
  */
 add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id ) {
 	switch ( $cap ) {
-		case 'edit_workflow':
-		case 'read_workflow':
-		case 'publish_workflow':
-		case 'delete_workflow':
+		case 'edit_workflows':
+		case 'edit_others_workflows':
+		case 'publish_workflows':
+		case 'read_private_workflows':
+		case 'delete_workflows':
+		case 'delete_private_workflows':
+		case 'delete_published_workflows':
+		case 'delete_others_workflows':
+		case 'edit_private_workflows':
+		case 'edit_published_workflows':
 			$caps = array_diff( $caps, [ $cap ] );
 			if ( user_can( $user_id, 'manage_options' ) ) {
 				$caps[] = 'manage_options';

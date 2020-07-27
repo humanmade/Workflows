@@ -1,11 +1,14 @@
 Changelog
 =========
 
+v0.3.10
+- Bug: Allow site admins access to workflows UI
+
 v0.3.9
 - Bug: Fix crash with "specific users" recipient #112
 
 v0.3.8
-- Bug add `remove` method for Events #107
+- Bug: add `remove` method for Events #107
 
 v0.3.7
 - Bug: add `remove` method for Destinations #100
