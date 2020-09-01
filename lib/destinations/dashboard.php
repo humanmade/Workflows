@@ -62,10 +62,10 @@ add_action( 'rest_api_init', function () {
 	];
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)', [
-		'methods'              => WP_REST_Server::READABLE,
-		'callback'             => __NAMESPACE__ . '\get_all',
-		'permissions_callback' => __NAMESPACE__ . '\permissions',
-		'schema'               => [
+		'methods'             => WP_REST_Server::READABLE,
+		'callback'            => __NAMESPACE__ . '\get_all',
+		'permission_callback' => __NAMESPACE__ . '\permissions',
+		'schema'              => [
 			'type'  => 'array',
 			'items' => [
 				'type'       => 'object',
@@ -75,32 +75,32 @@ add_action( 'rest_api_init', function () {
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)', [
-		'methods'              => WP_REST_Server::CREATABLE,
-		'callback'             => __NAMESPACE__ . '\create',
-		'permissions_callback' => __NAMESPACE__ . '\permissions',
-		'args'                 => $schema,
-		'schema'               => $schema_with_id,
+		'methods'             => WP_REST_Server::CREATABLE,
+		'callback'            => __NAMESPACE__ . '\create',
+		'permission_callback' => __NAMESPACE__ . '\permissions',
+		'args'                => $schema,
+		'schema'              => $schema_with_id,
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
-		'methods'              => WP_REST_Server::READABLE,
-		'callback'             => __NAMESPACE__ . '\get_one',
-		'permissions_callback' => __NAMESPACE__ . '\permissions',
-		'schema'               => $schema_with_id,
+		'methods'             => WP_REST_Server::READABLE,
+		'callback'            => __NAMESPACE__ . '\get_one',
+		'permission_callback' => __NAMESPACE__ . '\permissions',
+		'schema'              => $schema_with_id,
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
-		'methods'              => WP_REST_Server::EDITABLE,
-		'callback'             => __NAMESPACE__ . '\edit',
-		'permissions_callback' => __NAMESPACE__ . '\permissions',
-		'args'                 => $schema,
-		'schema'               => $schema_with_id,
+		'methods'             => WP_REST_Server::EDITABLE,
+		'callback'            => __NAMESPACE__ . '\edit',
+		'permission_callback' => __NAMESPACE__ . '\permissions',
+		'args'                => $schema,
+		'schema'              => $schema_with_id,
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
-		'methods'              => WP_REST_Server::DELETABLE,
-		'callback'             => __NAMESPACE__ . '\delete',
-		'permissions_callback' => __NAMESPACE__ . '\permissions',
+		'methods'             => WP_REST_Server::DELETABLE,
+		'callback'            => __NAMESPACE__ . '\delete',
+		'permission_callback' => __NAMESPACE__ . '\permissions',
 	] );
 } );
 
