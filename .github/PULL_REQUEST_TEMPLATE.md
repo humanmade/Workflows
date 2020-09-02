@@ -1,0 +1,2 @@
+- [ ] Updated changelog
+- [ ] Updated version number in `package.json` and `plugin.php` file with appropriate MAJOR.MINOR.PATCH change
