@@ -1,6 +1,9 @@
 Changelog
 =========
 
+v0.3.11
+- Bug: Fix warnings for missing `permission_callback`s on REST routes
+
 v0.3.10
 - Bug: Allow site admins access to workflows UI
 
