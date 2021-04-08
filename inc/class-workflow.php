@@ -272,7 +272,12 @@ class Workflow {
 		// Process recipients.
 		$recipients = [];
 		foreach ( $this->recipients as $recipient ) {
-			if ( is_string( $recipient ) && is_email( $recipient ) ) {
+			if ( is_numeric( $recipient ) ) {
+				$user = get_user_by( 'id', intval( $recipient ) );
+				if ( is_a( $user, 'WP_User' ) ) {
+					$recipients[] = $user;
+				}
+			} elseif ( is_string( $recipient ) && is_email( $recipient ) ) {
 				// Get user by email or add plain email.
 				$user = get_user_by( 'email', $recipient );
 				if ( is_a( $user, 'WP_User' ) ) {
@@ -315,11 +320,6 @@ class Workflow {
 				} );
 
 				$recipients = array_merge( $recipients, $results );
-			} elseif ( is_numeric( $recipient ) ) {
-				$user = get_user_by( 'id', intval( $recipient ) );
-				if ( is_a( $user, 'WP_User' ) ) {
-					$recipients[] = $user;
-				}
 			}
 		}
 
