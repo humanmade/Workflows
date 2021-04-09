@@ -10,7 +10,6 @@ use WP_Comment_Query;
 use WP_Error;
 use WP_REST_Server;
 use WP_REST_Request;
-use WP_REST_Response;
 use WP_Query;
 
 Event::register( 'new_editorial_comment' )
@@ -128,7 +127,7 @@ function editorial_coments_metabox( $post_type, $post ) {
 
 	add_meta_box(
 		'hm.workflows.editorial-comments',
-		__( 'Workflow', 'hm-workflows' ),
+		__( 'Editorial Comments', 'hm-workflows' ),
 		function ( $post ) {
 			printf( '<div id="hm-workflows-comments" data-post-id="%d"></div>', $post->ID );
 		},

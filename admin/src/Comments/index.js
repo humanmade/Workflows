@@ -26,6 +26,10 @@ const Assignees = styled.div`
 	ul {
 		flex: 1;
 	}
+
+	.components-button {
+		margin-top: 14px;
+	}
 `;
 
 const Form = styled.div`
@@ -200,6 +204,19 @@ class Comments extends React.Component {
 	}
 
 	addComment() {
+		const body = {
+			content: this.state.comment,
+			post: this.props.postId,
+			author: HM.Workflows.User,
+			status: 'approved',
+		};
+
+		if ( this.state.newAssignees.length > 0 ) {
+			body.meta = {
+				assignees: this.state.newAssignees,
+			};
+		}
+
 		fetch( `${HM.Workflows.Namespace}/comments?context=edit`, {
 			method: 'POST',
 			credentials: 'same-origin',
@@ -207,15 +224,7 @@ class Comments extends React.Component {
 				'X-WP-Nonce': HM.Workflows.Nonce,
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify( {
-				content: this.state.comment,
-				post: this.props.postId,
-				author: HM.Workflows.User,
-				status: 'approved',
-				meta: {
-					assignees: this.state.newAssignees,
-				},
-			} ),
+			body: JSON.stringify( body ),
 		} )
 			.then( response => response.json() )
 			.then( data => {
@@ -254,11 +263,6 @@ class Comments extends React.Component {
 			} );
 	}
 
-	assigneesHaveChanged() {
-		const { assignees, newAssignees } = this.state;
-		return assignees.sort().join( ',' ) !== newAssignees.sort().join( ',' );
-	}
-
 	render() {
 		const { postId } = this.props;
 		const { errors, assignees, newAssignees, comment, comments, page, loading, newComments } = this.state;
@@ -275,6 +279,16 @@ class Comments extends React.Component {
 					<Assignees className="hm-workflows-comments-assignees" aria-live="polite">
 						<p><em>{ __( 'Currently assigned to' ) }:</em></p>
 						<UserList userIds={ assignees } />
+						<button
+							className={`components-button is-link is-destructive`}
+							onClick={ e => {
+								this.setState( { newAssignees: [] } );
+								this.updateAssignees();
+							} }
+							type="button"
+						>
+							{  __( 'Clear', 'hm-workflows' ) }
+						</button>
 					</Assignees>
 				) }
 				{ assignees.length === 0 && (
@@ -328,7 +342,7 @@ class Comments extends React.Component {
 						<Comment key={ editorialComment.id }>
 							<header className="hm-workflows-comments-comment-header">
 								<div className="hm-workflows-comments-comment-author">
-									<img src={ editorialComment.author_avatar_urls['48'] } alt="" />
+									{ editorialComment.author_avatar_urls['48'] && <img src={ editorialComment.author_avatar_urls['48'] } alt="" /> }
 									{ editorialComment.author_name }
 								</div>
 								<time>{ moment.utc( editorialComment.date ).fromNow() }</time>
