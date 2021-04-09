@@ -1,6 +1,9 @@
 Changelog
 =========
 
+v0.3.12
+- Bug: Fix handling of numeric recipients passed as strings
+
 v0.3.11
 - Bug: Fix warnings for missing `permission_callback`s on REST routes
 
