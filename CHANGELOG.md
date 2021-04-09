@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v0.3.13
+- Bug: Avoid error message when submitting editorial comment
+- Enhancement: Rename editorial comments meta box
+- Enhancement: Enable clearing assignees
+
 v0.3.12
 - Bug: Fix handling of numeric recipients passed as strings
 
