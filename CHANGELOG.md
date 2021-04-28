@@ -1,6 +1,10 @@
 Changelog
 =========
 
+v0.3.14
+- Bug: Fix cache key in `withFetch` component
+- Enhancement: Reduce polling time for admin notifications
+
 v0.3.13
 - Bug: Avoid error message when submitting editorial comment
 - Enhancement: Rename editorial comments meta box
