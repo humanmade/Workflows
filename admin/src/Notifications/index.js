@@ -135,7 +135,7 @@ class Notifications extends React.Component {
 const notificationsWithFetch = withFetch(
 	`${HM.Workflows.Namespace}/notifications/${HM.Workflows.User}`,
 	{
-		expires:     60000,
+		expires:     60 * 1000,
 		credentials: 'include',
 		headers:     {
 			'X-WP-Nonce':   HM.Workflows.Nonce,
