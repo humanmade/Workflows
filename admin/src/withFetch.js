@@ -6,8 +6,8 @@ import sh from 'shorthash';
  * Fetch HoC using localStorage.
  */
 const withFetch = ( url, options = {}, name = null ) => {
-	// Store key.
-	const key = `${url}:${sh.unique(JSON.stringify(options))}`;
+	// Store key without expiration.
+	const key = `${url}:${sh.unique(JSON.stringify({ ...options, expires: 0}))}`;
 	// HoC.
 	return Component => {
 		class fetchComponent extends React.Component {
