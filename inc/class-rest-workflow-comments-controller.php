@@ -56,6 +56,35 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	}
 
 	/**
+	 * Only allow reading editorial comments if the user can edit all the posts being queried.
+	 *
+	 * @param WP_REST_Request $request
+	 * @return bool
+	 */
+	public function get_items_permissions_check( $request ) {
+		$post_ids = $request->get_param( 'post' );
+		return array_reduce(
+			$post_ids,
+			function ( $can_edit, $post_id ) {
+				return $can_edit && current_user_can( 'edit_post', $post_id );
+			},
+			true
+		);
+	}
+
+	/**
+	 * Users who can edit a post should be able to view single editorial
+	 * comments on that post.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return bool
+	 */
+	public function get_item_permissions_check( $request ) {
+		$comment = $this->get_comment( $request['id'] );
+		return current_user_can( 'edit_post', $comment->comment_post_ID );
+	}
+
+	/**
 	 * Allow creating editorial comments.
 	 *
 	 * @param WP_REST_Request $request
