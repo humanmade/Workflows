@@ -1,9 +1,11 @@
 Changelog
 =========
 
+v0.3.16
+- Bug: Remove ability for query for editorial comments on all posts.
+
 v0.3.15
 - Bug: Add permissions check to REST controller for editorial comments.
-- Bug: Remove ability for query for editorial comments on all posts.
 
 v0.3.14
 - Bug: Fix cache key in `withFetch` component
