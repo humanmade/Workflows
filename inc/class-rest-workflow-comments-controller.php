@@ -27,7 +27,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	 * Make the post ID or IDs required.
 	 *
 	 * (It's theoretically possible to query for all editorial comments on any
-	 * opst, but the generated query is extremely inefficient as there isn't
+	 * post, but the generated query is extremely inefficient as there isn't
 	 * an index available to use, so it's better to just disallow by default.)
 	 *
 	 * @return [] Comments collection parameters.
