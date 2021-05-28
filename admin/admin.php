@@ -15,6 +15,7 @@ add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_ui_assets', 20 )
 add_action( 'wp_footer', __NAMESPACE__ . '\\enqueue_ui_assets', 3000 );
 add_action( 'add_meta_boxes_hm_workflow', __NAMESPACE__ . '\\meta_boxes' );
 add_action( 'edit_form_after_title', __NAMESPACE__ . '\\main_ui' );
+add_action( 'admin_init', __NAMESPACE__ . '\\filter_custom_columns' );
 
 function meta_boxes() {
 	remove_meta_box( 'submitdiv', 'hm_workflow', 'side' );
@@ -167,5 +168,61 @@ function enqueue_ui_assets() {
 
 	if ( current_action() === 'wp_footer' ) {
 		wp_print_footer_scripts();
+	}
+}
+
+/**
+ * Add a Workflow assignee column.
+ */
+function filter_custom_columns() {
+	$post_types = get_post_types( ['public' => true], 'names' );
+
+	// Loop through public post types to add custom columns to each.
+	foreach ( $post_types as $post_type ) {
+		// Add the assignee column.
+		add_filter( "manage_{$post_type}_posts_columns", function( $columns ) {
+			return array_merge( $columns, [ 'assignees' => __( 'Assignees', 'hm-workflows' ) ] );
+		} );
+
+		// Render the assignee column.
+		add_action( "manage_{$post_type}_posts_custom_column", __NAMESPACE__ . '\\add_assignee_column', 10, 2 );
+	}
+}
+
+/**
+ * Render the Assignees column.
+ *
+ * @param string $column The column to filter. We're only concerned about the 'assignees' column we registered above.
+ * @param int $post_id The post ID.
+ */
+function add_assignee_column( string $column, int $post_id ) {
+	if ( $column === 'assignees' ) {
+		// Get an array of assignees.
+		$assignees = get_post_meta( $post_id, 'assignees', false );
+
+		// Bail if no assignees.
+		if ( empty( $assignees ) ) {
+			echo '&mdash;';
+			return;
+		}
+
+		// Get user objects for the assignees.
+		$users = get_users( [ 'include' => $assignees ] );
+
+		// Loop through users and render a link.
+		for ( $i = 0; $i < count( $users ) ; $i++ ) {
+			$user = $users[ $i ];
+			$separator = $i + 1 < count( $users ) ? ',' : '';
+
+			echo sprintf(
+				'<a href="%1$s">%2$s%3$s</a> ',
+				esc_url( add_query_arg( [
+					'author' => $user->ID,
+					'post_type' => get_post_type( $post_id ),
+				], get_admin_url( null, 'edit.php' ) ) ),
+				esc_html( $user->display_name ),
+				$separator
+		 	);
+		}
 	}
 }
