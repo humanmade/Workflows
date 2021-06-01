@@ -175,7 +175,7 @@ function enqueue_ui_assets() {
  * Add a Workflow assignee column.
  */
 function filter_custom_columns() {
-	$post_types = get_post_types( ['public' => true], 'names' );
+	$post_types = get_post_types_by_support( 'editorial-comments' );
 
 	// Loop through public post types to add custom columns to each.
 	foreach ( $post_types as $post_type ) {
