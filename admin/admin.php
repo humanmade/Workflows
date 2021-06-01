@@ -196,33 +196,36 @@ function filter_custom_columns() {
  * @param int $post_id The post ID.
  */
 function add_assignee_column( string $column, int $post_id ) {
-	if ( $column === 'assignees' ) {
-		// Get an array of assignees.
-		$assignees = get_post_meta( $post_id, 'assignees', false );
+	// Return early if we're not looking at assignees.
+	if ( $column !== 'assignees' ) {
+		return;
+	}
 
-		// Bail if no assignees.
-		if ( empty( $assignees ) ) {
-			echo '&mdash;';
-			return;
-		}
+	// Get an array of assignees.
+	$assignees = get_post_meta( $post_id, 'assignees', false );
 
-		// Get user objects for the assignees.
-		$users = get_users( [ 'include' => $assignees ] );
+	// Bail if no assignees.
+	if ( empty( $assignees ) ) {
+		echo '&mdash;';
+		return;
+	}
 
-		// Loop through users and render a link.
-		for ( $i = 0; $i < count( $users ) ; $i++ ) {
-			$user = $users[ $i ];
-			$separator = $i + 1 < count( $users ) ? ',' : '';
+	// Get user objects for the assignees.
+	$users = get_users( [ 'include' => $assignees ] );
 
-			echo sprintf(
-				'<a href="%1$s">%2$s%3$s</a> ',
-				esc_url( add_query_arg( [
-					'author' => $user->ID,
-					'post_type' => get_post_type( $post_id ),
-				], get_admin_url( null, 'edit.php' ) ) ),
-				esc_html( $user->display_name ),
-				$separator
-		 	);
-		}
+	// Loop through users and render a link.
+	for ( $i = 0; $i < count( $users ) ; $i++ ) {
+		$user = $users[ $i ];
+		$separator = $i + 1 < count( $users ) ? ',' : '';
+
+		echo sprintf(
+			'<a href="%1$s">%2$s%3$s</a> ',
+			esc_url( add_query_arg( [
+				'author' => $user->ID,
+				'post_type' => get_post_type( $post_id ),
+			], get_admin_url( null, 'edit.php' ) ) ),
+			esc_html( $user->display_name ),
+			$separator
+		);
 	}
 }
