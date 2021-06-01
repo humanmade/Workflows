@@ -212,20 +212,16 @@ function add_assignee_column( string $column, int $post_id ) {
 
 	// Get user objects for the assignees.
 	$users = get_users( [ 'include' => $assignees ] );
+	$links = array_map( function( $user ) {
+		$post_type = get_post_type();
+		$link = add_query_arg( [
+			'post_type' => $post_type,
+			'assigned' => $user->ID,
+		], get_admin_url( null, 'edit.php' ) );
+		return sprintf( '<a href="%1$s">%2$s</a>', $link, $user->display_name );
+	}, $users );
 
-	// Loop through users and render a link.
-	for ( $i = 0; $i < count( $users ) ; $i++ ) {
-		$user = $users[ $i ];
-		$separator = $i + 1 < count( $users ) ? ',' : '';
+	$link_list = implode( ', ', $links );
 
-		echo sprintf(
-			'<a href="%1$s">%2$s%3$s</a> ',
-			esc_url( add_query_arg( [
-				'author' => $user->ID,
-				'post_type' => get_post_type( $post_id ),
-			], get_admin_url( null, 'edit.php' ) ) ),
-			esc_html( $user->display_name ),
-			$separator
-		);
-	}
+	echo wp_kses_post( $link_list );
 }
