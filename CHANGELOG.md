@@ -1,5 +1,7 @@
 Changelog
 =========
+v0.3.17
+- Enhancement: Add assignee column to post lists.
 
 v0.3.16
 - Bug: Remove ability for query for editorial comments on all posts.
