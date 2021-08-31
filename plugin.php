@@ -33,6 +33,6 @@ add_action( 'plugins_loaded', function () {
 }, 9 );
 
 // Run a consistent hook to load all the stored Workflows.
-add_action( 'plugins_loaded', function () {
+add_action( 'init', function () {
 	do_action( 'hm.workflows.init' );
 }, 20 );
