@@ -1,0 +1,39 @@
+{
+  "name": "hm-workflows-admin",
+  "repository": "https://github.com/humanmade/Workflows",
+  "homepage": "https://github.com/humanmade/Workflows",
+  "private": true,
+  "dependencies": {
+    "draft-js": "^0.10.5",
+    "moment": "^2.22.2",
+    "polished": "^1.9.2",
+    "react": "^16.4.0",
+    "react-app-rewire-styled-components": "^3.0.2",
+    "react-app-rewire-svg-react-loader": "github:codebandits/react-app-rewire-svg-react-loader",
+    "react-app-rewired": "^1.5.2",
+    "react-dom": "^16.4.0",
+    "react-html-parser": "^2.0.2",
+    "react-loadable": "^5.4.0",
+    "react-scripts": "^1.1.4",
+    "react-select": "^1.3.0",
+    "react-toggle": "^4.0.2",
+    "react-transition-group": "^2.4.0",
+    "react-wp-scripts": "github:humanmade/react-wp-scripts",
+    "recompose": "^0.27.1",
+    "shorthash": "0.0.2",
+    "styled-components": "^3.3.3",
+    "webpack-subresource-integrity": "^1.5.1",
+    "whatwg-fetch": "^2.0.4"
+  },
+  "scripts": {
+    "start": "react-app-rewired start --scripts-version react-wp-scripts",
+    "build": "NODE_ENV=production react-app-rewired build",
+    "postbuild": "replace-in-file /\\\"\\/humanmade\\/Workflows\\//ig 'self.registration.scope + \"' build/service-worker.js --isRegex",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "replace-in-file": "^3.4.0",
+    "dynamic-public-path-webpack-plugin": "^1.0.4"
+  }
+}
