@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.0
+- Enhancement: Load stored workflows on init hook.
+
 v0.3.17
 - Enhancement: Add assignee column to post lists.
 
