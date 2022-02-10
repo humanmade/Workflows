@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.1
+- Bug: Fix duplicate emails when publishing posts or pages.
+
 v0.4.0
 - Enhancement: Load stored workflows on init hook.
 
