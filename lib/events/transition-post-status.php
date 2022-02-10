@@ -93,6 +93,10 @@ Event::register( 'publish_post' )
 				return null;
 			}
 
+			if ( $post->post_type !== 'post' ) {
+				return null;
+			}
+
 			if ( $new_status !== 'publish' ) {
 				return null;
 			}
@@ -120,6 +124,10 @@ Event::register( 'publish_page' )
 		'action'        => 'transition_post_status',
 		'callback'      => function ( $new_status, $old_status, \WP_Post $post ) {
 			if ( $new_status === $old_status ) {
+				return null;
+			}
+
+			if ( $post->post_type !== 'page' ) {
 				return null;
 			}
 
