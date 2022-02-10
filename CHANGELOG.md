@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.3.18
+- Bug: Fix duplicate emails when publishing posts or pages.
+
 v0.3.17
 - Enhancement: Add assignee column to post lists.
 
