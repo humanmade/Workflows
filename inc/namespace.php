@@ -74,35 +74,37 @@ add_action( 'init', function () {
  * Site admins are always allowed, plus anyone with the
  * special cap 'manage_workflows'.
  */
-add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id ) {
-	switch ( $cap ) {
-		case 'edit_workflow':
-		case 'read_workflow':
-		case 'publish_workflow':
-		case 'delete_workflow':
-		case 'edit_workflows':
-		case 'edit_others_workflows':
-		case 'publish_workflows':
-		case 'read_private_workflows':
-		case 'delete_workflows':
-		case 'delete_private_workflows':
-		case 'delete_published_workflows':
-		case 'delete_others_workflows':
-		case 'edit_private_workflows':
-		case 'edit_published_workflows':
-			$caps = array_diff( $caps, [ $cap ] );
-			if ( user_can( $user_id, 'manage_options' ) ) {
-				$caps[] = 'manage_options';
-			} elseif ( user_can( $user_id, 'manage_workflows' ) ) {
-				$caps[] = 'manage_workflows';
-			} else {
-				$caps[] = 'do_not_allow';
-			}
-			break;
+add_filter( 'map_meta_cap', function ( $caps, $cap, $user_id, $args ) {
+	$workflow_caps = [
+		'edit_workflow',
+		'read_workflow',
+		'publish_workflow',
+		'delete_workflow',
+		'edit_workflows',
+		'edit_others_workflows',
+		'publish_workflows',
+		'read_private_workflows',
+		'delete_workflows',
+		'delete_private_workflows',
+		'delete_published_workflows',
+		'delete_others_workflows',
+		'edit_private_workflows',
+		'edit_published_workflows',
+	];
+
+	if ( ! array_intersect( $workflow_caps, $caps ) ) {
+		return $caps;
 	}
 
-	return $caps;
-}, 10, 4 );
+	$replacement_cap = user_can( $user_id, 'manage_options' ) ? 'manage_options' : 'manage_workflows';
+
+	// Remove all workflows-related caps, and add our replacement cap.
+	$filtered_caps = array_merge( array_diff( $caps, $workflow_caps ), [ $replacement_cap ] );
+	// `manage_workflows` should imply `read` as well
+	unset( $filtered_caps['read'] );
+
+	return $filtered_caps;
+}, 11, 4 );
 
 /**
  * Temporary fix for autosave creating empty drafts before explicit save.
