@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.2
+- Bug: Fix permission hack around using `manage_workflows` as the sole permissions needed for all operations.
+
 v0.4.1
 - Bug: Fix duplicate emails when publishing posts or pages.
 
