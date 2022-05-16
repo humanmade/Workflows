@@ -1,0 +1,11 @@
+{
+  "name": "hm-workflows",
+  "version": "0.4.3",
+  "repository": "https://github.com/humanmade/Workflows",
+  "scripts": {
+    "start": "cd admin && npm run start",
+    "build": "cd admin && npm run build",
+    "test": "cd admin && npm run test",
+    "postinstall": "cd admin && npm i"
+  }
+}
