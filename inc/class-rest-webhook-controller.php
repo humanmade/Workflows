@@ -113,7 +113,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 		}
 
 		// Pass to callback handler.
-		$result = call_user_func_array( $message_action['callback_or_url'], [ $payload ] );
+		$result = call_user_func_array( $message_action['callback_or_url'], array_values( $payload ) );
 
 		/**
 		 * Fires when a webhook is called successfully.
