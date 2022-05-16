@@ -157,7 +157,7 @@ class Workflow {
 				if ( isset( $listener['callback'] ) && is_callable( $listener['callback'] ) ) {
 					$result = call_user_func_array(
 						$listener['callback'],
-						array_values( array_merge( $args, [ 'ui_data' => $ui_data ] ) )
+						array_merge( $args, [ $ui_data ] )
 					);
 					if ( ! is_null( $result ) ) {
 						if ( ! is_array( $result ) ) {
