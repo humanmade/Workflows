@@ -295,7 +295,7 @@ class Workflow {
 						'paged' => -1,
 					] ) );
 				} elseif ( $this->event->get_recipient_handler( $recipient ) ) {
-					$results = call_user_func_array( $this->event->get_recipient_handler( $recipient ), $args );
+					$results = call_user_func_array( $this->event->get_recipient_handler( $recipient ), [ $args ] );
 
 					if ( ! is_array( $results ) ) {
 						$results = [ $results ];
@@ -314,7 +314,7 @@ class Workflow {
 				}
 			} elseif ( is_callable( $recipient ) ) {
 				// If a callback was passed directly add the results.
-				$results = call_user_func_array( $recipient, $args );
+				$results = call_user_func_array( $recipient, [ $args ] );
 				$results = array_filter( (array) $results, function ( $result ) {
 					return is_a( $result, 'WP_User' );
 				} );
@@ -327,7 +327,7 @@ class Workflow {
 		$tags = [];
 		foreach ( $this->event->get_message_tags() as $key => $val ) {
 			if ( is_callable( $val ) ) {
-				$tags[ '%' . $key . '%' ] = call_user_func_array( $val, $args );
+				$tags[ '%' . $key . '%' ] = call_user_func_array( $val, [ $args ] );
 			} else {
 				$tags[ '%' . $key . '%' ] = $val;
 			}
@@ -345,13 +345,13 @@ class Workflow {
 		}
 
 		if ( is_callable( $message['subject'] ) ) {
-			$subject = call_user_func_array( $message['subject'], $args );
+			$subject = call_user_func_array( $message['subject'], [ $args ] );
 		} else {
 			$subject = $message['subject'];
 		}
 
 		if ( is_callable( $message['text'] ) ) {
-			$text = call_user_func_array( $message['text'], $args );
+			$text = call_user_func_array( $message['text'], [ $args ] );
 		} else {
 			$text = $message['text'];
 		}
@@ -379,7 +379,7 @@ class Workflow {
 			// Get the webhook payload.
 			$payload = [];
 			if ( is_callable( $action['args'] ) ) {
-				$payload = call_user_func_array( $action['args'], $args );
+				$payload = call_user_func_array( $action['args'], [ $args ] );
 			} elseif ( is_array( $action['args'] ) ) {
 				$payload = $action['args'];
 			}
