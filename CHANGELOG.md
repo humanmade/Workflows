@@ -1,7 +1,7 @@
 Changelog
 =========
 v0.4.3
-- Bug: `call_user_func_array()` behaves differently if the parameters array is an associative array.
+- Bug: With PHP 8.0 enabled, `call_user_func_array()` behaves differently if the parameters array is an associative array.
 
 v0.4.2
 - Bug: Fix permission hack around using `manage_workflows` as the sole permissions needed for all operations.
