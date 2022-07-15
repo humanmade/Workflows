@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import Loadable from 'react-loadable';
 import Loading from './Loading';
 import registerServiceWorker from './registerServiceWorker';
+import './custom';
 
 /**
  * Async loading Workflow UI.

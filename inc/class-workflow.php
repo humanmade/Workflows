@@ -51,6 +51,7 @@ class Workflow {
 	 * @var array
 	 */
 	protected $message = [
+		'date' => '',
 		'subject' => '',
 		'text'    => '',
 		'actions' => [],
@@ -334,6 +335,7 @@ class Workflow {
 		}
 
 		$message = wp_parse_args( $this->message, [
+			'date' => '',
 			'subject' => '',
 			'text'    => '',
 			'actions' => [],
@@ -357,6 +359,7 @@ class Workflow {
 		}
 
 		$parsed_message            = [];
+		$parsed_message['date'] = $tags['%date%'];
 		$parsed_message['subject'] = str_replace( array_keys( $tags ), array_values( $tags ), $subject );
 		$parsed_message['text']    = str_replace( array_keys( $tags ), array_values( $tags ), $text );
 		$parsed_message['actions'] = [];

@@ -10,6 +10,9 @@ function get_messages_tags() {
 		'title'   => function ( $post ) {
 			return get_post( $post )->post_title;
 		},
+		'date'   => function ( $post ) {
+			return get_post( $post )->post_date;
+		},
 		'excerpt' => function ( $post ) {
 			if ( has_excerpt( $post ) ) {
 				return get_the_excerpt( $post );
@@ -108,7 +111,7 @@ Event::register( 'publish_post' )
 	->add_message_tags( get_messages_tags() )
 	->add_message_action(
 		'view',
-		__( 'View post', 'hm-workflows' ),
+		__( 'Read more', 'hm-workflows' ),
 		function ( $post_id ) {
 			return get_the_permalink( $post_id );
 		},
