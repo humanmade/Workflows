@@ -68,7 +68,6 @@ class Notifications2 extends React.Component {
 
 		items.push( <TransitionGroup key="items">
 			{data.map( notification => {
-				console.log(notification);
 				return <CSSTransition
 					key={notification.id}
 					timeout={300}
