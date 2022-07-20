@@ -196,7 +196,7 @@ function sanitize_notification( $notification ) {
 	] );
 
 	$sanitized_notification = [
-		'date' => wp_kses( $notification['date'] ?? '', [] ),
+		'date'    => wp_kses( $notification['date'] ?? '', [] ),
 		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
 		'actions' => array_values( array_map( function ( $action, $id ) {
@@ -273,7 +273,7 @@ function create( WP_REST_Request $request ) {
 	}
 
 	$notification = sanitize_notification( [
-		'date' => $request->get_param( 'date' ),
+		'date'    => $request->get_param( 'date' ),
 		'subject' => $request->get_param( 'subject' ),
 		'text'    => $request->get_param( 'text' ),
 		'actions' => $request->get_param( 'actions' ),
@@ -322,7 +322,7 @@ function edit( WP_REST_Request $request ) {
 
 	$new_notification = sanitize_notification( [
 		'id'      => $old_notification['id'],
-		'date' => $request->get_param( 'date' ) ?: $old_notification['date'],
+		'date'    => $request->get_param( 'date' ) ?: $old_notification['date'],
 		'subject' => $request->get_param( 'subject' ) ?: $old_notification['subject'],
 		'text'    => $request->get_param( 'text' ) ?: $old_notification['text'],
 		'actions' => $request->get_param( 'actions' ) ?: $old_notification['actions'],

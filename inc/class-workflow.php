@@ -358,8 +358,14 @@ class Workflow {
 			$text = $message['text'];
 		}
 
+		// Check Date.
+		$event_date = '';
+		if ( ! empty( $tags[ '%date%' ] ) ) {
+			$event_date = strtotime( $tags[ '%date%' ] );
+		}
+
 		$parsed_message            = [];
-		$parsed_message['date'] = $tags['%date%'];
+		$parsed_message['date']    = $event_date;
 		$parsed_message['subject'] = str_replace( array_keys( $tags ), array_values( $tags ), $subject );
 		$parsed_message['text']    = str_replace( array_keys( $tags ), array_values( $tags ), $text );
 		$parsed_message['actions'] = [];

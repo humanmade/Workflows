@@ -10,7 +10,7 @@ function get_messages_tags() {
 		'title'   => function ( $post ) {
 			return get_post( $post )->post_title;
 		},
-		'date'   => function ( $post ) {
+		'date'    => function ( $post ) {
 			return get_post( $post )->post_date;
 		},
 		'excerpt' => function ( $post ) {
