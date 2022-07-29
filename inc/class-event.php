@@ -114,6 +114,15 @@ class Event {
 	}
 
 	/**
+	 * Remove an existing Event object.
+	 *
+	 * @param string $id
+	 */
+	public static function remove( string $id ) {
+		unset( self::$instances[ $id ] );
+	}
+
+	/**
 	 * Event constructor.
 	 *
 	 * @param string $id Event ID.
@@ -294,10 +303,10 @@ class Event {
 	 *
 	 * @param string $id The handler ID.
 	 *
-	 * @return callable
+	 * @return callable|null
 	 */
-	public function get_recipient_handler( string $id ): callable {
-		return $this->recipients_handlers[ $id ]['callback'];
+	public function get_recipient_handler( string $id ) {
+		return $this->recipients_handlers[ $id ]['callback'] ?? null;
 	}
 
 	/**

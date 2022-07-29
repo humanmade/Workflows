@@ -31,9 +31,10 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 	 */
 	public function register_routes() {
 		register_rest_route( $this->namespace, $this->rest_base . '/(?P<event>[\\w\-\.]+)\/(?P<action>[\\w\-\.]+)', [
-			'methods'  => WP_REST_Server::READABLE,
+			'methods' => WP_REST_Server::READABLE,
 			'callback' => [ $this, 'handle_endpoint_response' ],
-			'args'     => [
+			'permission_callback' => '__return_true',
+			'args' => [
 				'payload'   => [
 					'type'              => 'string',
 					'description'       => __( 'A base64 encoded JSON payload.', 'hm-workflows' ),
@@ -112,7 +113,7 @@ class REST_Webhook_Controller extends WP_REST_Controller {
 		}
 
 		// Pass to callback handler.
-		$result = call_user_func_array( $message_action['callback_or_url'], $payload );
+		$result = call_user_func_array( $message_action['callback_or_url'], array_values( $payload ) );
 
 		/**
 		 * Fires when a webhook is called successfully.

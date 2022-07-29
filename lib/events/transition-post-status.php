@@ -86,6 +86,25 @@ Event::register( 'draft_to_pending' )
 	->add_ui( __( 'A post is pending review', 'hm-workflows' ) );
 
 Event::register( 'publish_post' )
+	->set_listener( [
+		'action'        => 'transition_post_status',
+		'callback'      => function ( $new_status, $old_status, \WP_Post $post ) {
+			if ( $new_status === $old_status ) {
+				return null;
+			}
+
+			if ( $post->post_type !== 'post' ) {
+				return null;
+			}
+
+			if ( $new_status !== 'publish' ) {
+				return null;
+			}
+
+			return [ $post, $old_status, $new_status ];
+		},
+		'accepted_args' => 3,
+	] )
 	->add_message_tags( get_messages_tags() )
 	->add_message_action(
 		'view',
@@ -101,6 +120,25 @@ Event::register( 'publish_post' )
 	->add_ui( __( 'A post is published', 'hm-workflows' ) );
 
 Event::register( 'publish_page' )
+	->set_listener( [
+		'action'        => 'transition_post_status',
+		'callback'      => function ( $new_status, $old_status, \WP_Post $post ) {
+			if ( $new_status === $old_status ) {
+				return null;
+			}
+
+			if ( $post->post_type !== 'page' ) {
+				return null;
+			}
+
+			if ( $new_status !== 'publish' ) {
+				return null;
+			}
+
+			return [ $post, $old_status, $new_status ];
+		},
+		'accepted_args' => 3,
+	] )
 	->add_message_tags( get_messages_tags() )
 	->add_message_action(
 		'view',

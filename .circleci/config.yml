@@ -8,6 +8,7 @@ jobs:
       only:
         # Whitelist branches to build for.
         - master
+        - /v\d+.*\-branch/
     steps:
       # Checkout repo & subs:
       - checkout

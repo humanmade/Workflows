@@ -53,7 +53,7 @@ class Destination {
 	 *
 	 * @return Destination
 	 */
-	public static function register( string $id, callable $handler ): Destination {
+	public static function register( string $id, callable $handler ) : Destination {
 		$destination            = new self( $id, $handler );
 		self::$instances[ $id ] = $destination;
 
@@ -80,6 +80,15 @@ class Destination {
 	}
 
 	/**
+	 * Remove an existing Destination object.
+	 *
+	 * @param string $id
+	 */
+	public static function remove( string $id ) {
+		unset( self::$instances[ $id ] );
+	}
+
+	/**
 	 * Destination constructor.
 	 *
 	 * @param string   $id      Destination ID.
@@ -96,7 +105,7 @@ class Destination {
 	 * @param callable $handler
 	 * @return $this
 	 */
-	public function set_handler( callable $handler ): Destination {
+	public function set_handler( callable $handler ) : Destination {
 		$this->handler = $handler;
 
 		return $this;
@@ -136,7 +145,7 @@ class Destination {
 	 *
 	 * @return $this
 	 */
-	public function add_ui( $ui ): Destination {
+	public function add_ui( $ui ) : Destination {
 		if ( is_string( $ui ) ) {
 			$this->ui = UI::register( $ui );
 		}

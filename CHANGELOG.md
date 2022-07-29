@@ -1,5 +1,54 @@
 Changelog
 =========
+v0.4.3
+- Bug: With PHP 8.0 enabled, `call_user_func_array()` behaves differently if the parameters array is an associative array.
+
+v0.4.2
+- Bug: Fix permission hack around using `manage_workflows` as the sole permissions needed for all operations.
+
+v0.4.1
+- Bug: Fix duplicate emails when publishing posts or pages.
+
+v0.4.0
+- Enhancement: Load stored workflows on init hook.
+
+v0.3.17
+- Enhancement: Add assignee column to post lists.
+
+v0.3.16
+- Bug: Remove ability for query for editorial comments on all posts.
+
+v0.3.15
+- Bug: Add permissions check to REST controller for editorial comments.
+
+v0.3.14
+- Bug: Fix cache key in `withFetch` component
+- Enhancement: Reduce polling time for admin notifications
+
+v0.3.13
+- Bug: Avoid error message when submitting editorial comment
+- Enhancement: Rename editorial comments meta box
+- Enhancement: Enable clearing assignees
+
+v0.3.12
+- Bug: Fix handling of numeric recipients passed as strings
+
+v0.3.11
+- Bug: Fix warnings for missing `permission_callback`s on REST routes
+
+v0.3.10
+- Bug: Allow site admins access to workflows UI
+
+v0.3.9
+- Bug: Fix crash with "specific users" recipient #112
+
+v0.3.8
+- Bug: add `remove` method for Events #107
+
+v0.3.7
+- Bug: add `remove` method for Destinations #100
+
+v0.3.6
 
 - Enhancement: Allow action data attribute to be a callback receiving action arguments and returning data to be stored, to allow dynamic on-execution data storage.
 - Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
@@ -8,6 +57,7 @@ Changelog
 v0.3.6
 
 - Bug: Fix regex for PHP7.3 pcre2 compat #86
+- Enhancement: Add SRI support for JS chunks #91
 
 v0.3.5
 

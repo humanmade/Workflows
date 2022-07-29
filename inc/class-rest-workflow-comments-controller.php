@@ -24,6 +24,23 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	}
 
 	/**
+	 * Make the post ID or IDs required.
+	 *
+	 * (It's theoretically possible to query for all editorial comments on any
+	 * post, but the generated query is extremely inefficient as there isn't
+	 * an index available to use, so it's better to just disallow by default.)
+	 *
+	 * @return [] Comments collection parameters.
+	 */
+	public function get_collection_params() {
+		$query_params = parent::get_collection_params();
+
+		$query_params['post']['required'] = true;
+
+		return $query_params;
+	}
+
+	/**
 	 * Ensure only workflow comments are returned.
 	 *
 	 * @param WP_REST_Request $request
@@ -36,6 +53,40 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 		} );
 
 		return parent::get_items( $request );
+	}
+
+	/**
+	 * Only allow reading editorial comments if the user can edit all the posts being queried.
+	 *
+	 * @param WP_REST_Request $request
+	 * @return bool
+	 */
+	public function get_items_permissions_check( $request ) {
+		$post_ids = $request->get_param( 'post' );
+
+		if ( empty( $post_ids ) ) {
+			return false;
+		}
+
+		return array_reduce(
+			$post_ids,
+			function ( $can_edit, $post_id ) {
+				return $can_edit && current_user_can( 'edit_post', $post_id );
+			},
+			true
+		);
+	}
+
+	/**
+	 * Users who can edit a post should be able to view single editorial
+	 * comments on that post.
+	 *
+	 * @param WP_REST_Request $request Current request.
+	 * @return bool
+	 */
+	public function get_item_permissions_check( $request ) {
+		$comment = $this->get_comment( $request['id'] );
+		return current_user_can( 'edit_post', $comment->comment_post_ID );
 	}
 
 	/**
