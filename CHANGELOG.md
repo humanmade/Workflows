@@ -1,5 +1,10 @@
 Changelog
 =========
+
+- Enhancement: Allow action data attribute to be a callback receiving action arguments and returning data to be stored, to allow dynamic on-execution data storage.
+- Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
+- Enhancement: Allow overriding the action data sanitisation callback to permit more flexible schemas.
+
 v0.4.3
 - Bug: With PHP 8.0 enabled, `call_user_func_array()` behaves differently if the parameters array is an associative array.
 
@@ -47,12 +52,6 @@ v0.3.8
 
 v0.3.7
 - Bug: add `remove` method for Destinations #100
-
-v0.3.6
-
-- Enhancement: Allow action data attribute to be a callback receiving action arguments and returning data to be stored, to allow dynamic on-execution data storage.
-- Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
-- Enhancement: Allow overriding the action data sanitisation callback to permit more flexible schemas.
 
 v0.3.6
 
