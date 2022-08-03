@@ -1,6 +1,6 @@
 Changelog
 =========
-v0.4.2
+v0.4.4
 - Bug: Fix fatal error when processing a single editorial comment.
 
 v0.4.3
