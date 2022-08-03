@@ -62,13 +62,24 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	 * @return bool
 	 */
 	public function get_items_permissions_check( $request ) {
-		$post_id = $request->get_param( 'post' );
+		$post_ids = $request->get_param( 'post' );
 
-		if ( empty( $post_id ) ) {
+		if ( empty( $post_ids ) ) {
 			return false;
 		}
 
-		return current_user_can( 'edit_post', $post_id );
+		// Check if $post_ids is an array to handle a single post id.
+		if ( ! is_array( $post_ids ) ) {
+			return current_user_can( 'edit_post', $post_ids );
+		}
+
+		return array_reduce(
+			$post_ids,
+			function ( $can_edit, $post_id ) {
+				return $can_edit && current_user_can( 'edit_post', $post_id );
+			},
+			true
+		);
 	}
 
 	/**
