@@ -68,7 +68,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 			return false;
 		}
 
-		// Check if $post_ids is an array to handle a single post id.
+		// Check if $post_ids is not an array then return true if the user can edit the post.
 		if ( ! is_array( $post_ids ) ) {
 			return current_user_can( 'edit_post', $post_ids );
 		}

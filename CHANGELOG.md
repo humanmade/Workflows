@@ -1,7 +1,7 @@
 Changelog
 =========
 v0.4.4
-- Bug: Adding an editorial comment creates a fatal error. A single post ID is used during `get_items_permissions_check` rather than an array and the use of `array_reduce` was causing a fatal error.
+- Bug: Adding an editorial comment creates a fatal error. Bug fix for `get_items_permissions_check` usage of a single post ID or an array of post ID's.
 
 v0.4.3
 - Bug: With PHP 8.0 enabled, `call_user_func_array()` behaves differently if the parameters array is an associative array.
