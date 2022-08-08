@@ -195,7 +195,7 @@ function exclude_workflow_comments_from_count( $count, $post_id ) {
 	return count( $comments );
 }
 
-add_filter( 'get_comments_number', __NAMESPACE__ . '\\exclude_workflow_comments_from_count', 10, 2 );
+add_filter( 'get_comments_number', __NAMESPACE__ . '\exclude_workflow_comments_from_count', 10, 2 );
 
 /**
  * Register assignees meta.
