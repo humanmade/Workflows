@@ -176,6 +176,28 @@ function comments_query( WP_Comment_Query $query ) {
 add_action( 'pre_get_comments', __NAMESPACE__ . '\comments_query' );
 
 /**
+ * Filter the comment count to exclude workflow comments.
+ *
+ * @param int $count
+ * @param int $post_id
+ * @return int
+ */
+function exclude_workflow_comments_from_count( $count, $post_id ) {
+	if ( $count == 0 ) {
+		return $count;
+	}
+
+	$args = [
+		'post_id' => $post_id,
+		'type__not_in' => [ 'workflow' ],
+	];
+	$comments = get_comments( $args );
+	return count( $comments );
+}
+
+add_filter( 'get_comments_number', __NAMESPACE__ . '\\exclude_workflow_comments_from_count', 10, 2 );
+
+/**
  * Register assignees meta.
  */
 function assignees_api() {
