@@ -183,7 +183,6 @@ add_action( 'pre_get_comments', __NAMESPACE__ . '\comments_query' );
  * @return int
  */
 function exclude_workflow_comments_from_count( $count, $post_id ) {
-
 	if ( intval( $count ) === 0 ) {
 		return $count;
 	}
