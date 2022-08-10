@@ -189,7 +189,7 @@ function exclude_workflow_comments_from_count( $count, $post_id ) {
 
 	$args = [
 		'post_id' => $post_id,
-		'type__not_in' => [ 'workflow' ],
+		'type__not_in' => ['workflow'],
 	];
 	$comments = get_comments( $args );
 	return count( $comments );
