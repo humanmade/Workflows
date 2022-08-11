@@ -178,8 +178,8 @@ add_action( 'pre_get_comments', __NAMESPACE__ . '\comments_query' );
 /**
  * Filter the comment count to exclude workflow comments.
  *
- * @param int $count
- * @param int $post_id
+ * @param int $count The current number of comments found.
+ * @param int $post_id The post ID to return the number of comments for.
  * @return int
  */
 function exclude_workflow_comments_from_count( $count, $post_id ) {
