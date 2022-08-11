@@ -1,0 +1,18 @@
+{
+    "name": "humanmade/workflows",
+    "description": "Workflow management for WordPress, an extensible event and notification system.",
+    "type": "wordpress-plugin",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Robert O'Rourke",
+            "email": "rob@humanmade.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0"
+    },
+    "require-dev": {
+        "humanmade/coding-standards": "^0.5.0"
+    }
+}
