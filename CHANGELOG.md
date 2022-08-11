@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.5
+- Bug: Exclude editorial comments from post comment count.
+
 v0.4.4
 - Bug: Fix fatal error when processing a single editorial comment.
 
