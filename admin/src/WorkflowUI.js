@@ -12,6 +12,13 @@ import UIForm from './Form';
 import Errors from './Errors';
 import __ from './l10n';
 
+const defaultFetchParams = {
+	credentials: 'same-origin',
+	headers:     {
+		'X-WP-Nonce': HM.Workflows.Nonce
+	}
+};
+
 const Loading = styled.div`
 	.spinner {
 		display: block;
@@ -258,12 +265,7 @@ class WorkflowUI extends Component {
 		// Fetch post data and set initial state.
 		this.setState( { loading: true } );
 
-		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, {
-			credentials: 'same-origin',
-			headers:     {
-				'X-WP-Nonce': HM.Workflows.Nonce,
-			}
-		} )
+		fetch( `${ HM.Workflows.Namespace }/workflows/${ this.props.postId }`, defaultFetchParams )
 			.then( response => response.json() )
 			.then( data => {
 				let event = data.event && HM.Workflows.Events.find( event => event.id === data.event.id );
@@ -552,17 +554,29 @@ class WorkflowUI extends Component {
 						</Fieldset>
 						<Fieldset in={!!(recipient.endpoint)}>
 							{recipient.endpoint && <AsyncSelect
-								options={recipient.items}
 								multi={recipient.multi}
 								autoload={true}
-								loadOptions={input => fetch( `${recipient.endpoint.url}?search=${encodeURIComponent( input )}`, {
-									credentials: 'same-origin',
-									headers:     {
-										'X-WP-Nonce': HM.Workflows.Nonce
-									}
-								} )
-									.then( response => response.json() )
-									.then( data => ({ options: data }) )
+								cache={false}
+								loadOptions={input => Promise.all( [
+									fetch( `${recipient.endpoint.url}?include=${(recipient.multi ? (recipient.value || []) : [ recipient.value ]).join(',')}`, defaultFetchParams ),
+									fetch( `${recipient.endpoint.url}?search=${encodeURIComponent( input )}`, defaultFetchParams ),
+								] )
+									.then( response => Promise.all( response.map( res => res.json() ) ) )
+									.then( ( [ current, search ] ) => {
+										const existingIds = current.map( item => item[ recipient.endpoint.valueKey || 'id' ] );
+										search = search.filter( item => existingIds.indexOf( item[ recipient.endpoint.valueKey || 'id' ] ) < 0 );
+										// this.setState( {
+										// 	recipients: this.state.recipients.map( rec => {
+										// 		if ( rec.id !== recipient.id ) {
+										// 			return rec;
+										// 		}
+										// 		return Object.assign( {}, rec, {
+										// 			items: [ ...search, ...current, ...(rec.items || []) ],
+										// 		} );
+										// 	} )
+										// } );
+										return { options: [ ...search, ...current ] };
+									} )
 								}
 								value={recipient.value}
 								labelKey={recipient.endpoint.labelKey || 'name'}
