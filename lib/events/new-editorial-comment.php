@@ -187,12 +187,13 @@ function exclude_workflow_comments_from_count( $count, $post_id ) {
 		return $count;
 	}
 
-	$args = [
+	$workflow_comment_count = get_comments( [
 		'post_id' => $post_id,
-		'type__not_in' => [ 'workflow' ],
+		'type__in' => [ 'workflow' ],
 		'count' => true,
-	];
-	return get_comments( $args );
+	] );
+
+	return $count - $workflow_comment_count;
 }
 
 add_filter( 'get_comments_number', __NAMESPACE__ . '\exclude_workflow_comments_from_count', 10, 2 );
