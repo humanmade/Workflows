@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.6
+- Bug: Do not discard previous filter value when excluding editorial comments from post comment count.
+
 v0.4.5
 - Bug: Exclude editorial comments from post comment count.
 
