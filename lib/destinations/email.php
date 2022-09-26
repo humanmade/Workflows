@@ -71,7 +71,7 @@ function email_handler( array $recipients, array $message, array $data = [] ) {
 	if ( isset( $data['group_email'] ) ) {
 		wp_mail(
 			$emails,
-			wp_specialchars_decode( $message['subject'] ),
+			html_entity_decode( $message['subject'] ),
 			$message['text'],
 			$headers
 		);
@@ -79,7 +79,7 @@ function email_handler( array $recipients, array $message, array $data = [] ) {
 		foreach ( $emails as $email ) {
 			wp_mail(
 				$email,
-				wp_specialchars_decode( $message['subject'] ),
+				html_entity_decode( $message['subject'] ),
 				$message['text'],
 				$headers
 			);
