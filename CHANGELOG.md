@@ -5,6 +5,15 @@ Changelog
 - Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
 - Enhancement: Allow overriding the action data sanitisation callback to permit more flexible schemas.
 
+v0.4.6
+- Bug: Do not discard previous filter value when excluding editorial comments from post comment count.
+
+v0.4.5
+- Bug: Exclude editorial comments from post comment count.
+
+v0.4.4
+- Bug: Fix fatal error when processing a single editorial comment.
+
 v0.4.3
 - Bug: With PHP 8.0 enabled, `call_user_func_array()` behaves differently if the parameters array is an associative array.
 

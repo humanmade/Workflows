@@ -62,7 +62,7 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	 * @return bool
 	 */
 	public function get_items_permissions_check( $request ) {
-		$post_ids = $request->get_param( 'post' );
+		$post_ids = (array) $request->get_param( 'post' );
 
 		if ( empty( $post_ids ) ) {
 			return false;
