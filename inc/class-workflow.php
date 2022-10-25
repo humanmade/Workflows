@@ -357,9 +357,17 @@ class Workflow {
 		}
 
 		$parsed_message            = [];
+		$parsed_message['type']    = $this->event->get_id();
 		$parsed_message['subject'] = str_replace( array_keys( $tags ), array_values( $tags ), $subject );
 		$parsed_message['text']    = str_replace( array_keys( $tags ), array_values( $tags ), $text );
+		$parsed_message['time']    = microtime( true );
+		$parsed_message['data']    = [];
 		$parsed_message['actions'] = [];
+
+		$data_callback = $this->event->get_message_data_callback();
+		if ( is_callable( $data_callback ) ) {
+			$parsed_message['data'] = call_user_func_array( $data_callback, $args );
+		}
 
 		// Add actions from the message if any.
 		foreach ( $message['actions'] as $id => $action ) {
@@ -407,10 +415,16 @@ class Workflow {
 				continue;
 			}
 
+			if ( is_callable( $action['data'] ) ) {
+				$data = call_user_func_array( $action['data'], $args );
+			} else {
+				$data =  $action['data'];
+			}
+
 			$parsed_message['actions'][ $id ] = [
 				'text' => $action['text'],
 				'url'  => $url,
-				'data' => $action['data'],
+				'data' => $data,
 			];
 		}
 

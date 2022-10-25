@@ -52,6 +52,13 @@ class Event {
 	protected $message_actions = [];
 
 	/**
+	 *  Event data callback
+	 *
+	 * @var callable
+	 */
+	protected $message_data_callback = null;
+
+	/**
 	 * Event recipient handlers.
 	 *
 	 * @var array
@@ -168,6 +175,19 @@ class Event {
 	}
 
 	/**
+	 * Add optional data callback to execute on the event execution
+	 *
+	 * @param callable $callback
+	 *
+	 * @return \HM\Workflows\Event
+	 */
+	public function add_message_data_callback( callable $callback ): Event {
+		$this->message_data_callback = $callback;
+
+		return $this;
+	}
+
+	/**
 	 * Adds a message action.
 	 *
 	 * @param string          $id              A reference name for the action.
@@ -177,12 +197,12 @@ class Event {
 	 * @param null|callable   $args            An optional function that receives the return value of the event action.
 	 * @param array           $schema          An array of accepted $_GET arguments and their corresponding
 	 *                                         sanitisation callbacks.
-	 * @param array           $data            Arbitrary data passed to the Destination via $messages to any other
-	 *                                         action data such as type.
+	 * @param array|callable  $data            Arbitrary data passed to the Destination via $messages to any other
+	 *                                         action data such as type. Pass a callback to execute with action args.
 	 *
 	 * @return Event
 	 */
-	public function add_message_action( string $id, string $text, $callback_or_url, $args = null, array $schema = [], array $data = [] ): Event {
+	public function add_message_action( string $id, string $text, $callback_or_url, $args = null, array $schema = [], $data = [] ): Event {
 		$this->message_actions[ $id ] = [
 			'text'            => $text,
 			'callback_or_url' => $callback_or_url,
@@ -190,6 +210,21 @@ class Event {
 			'schema'          => $schema,
 			'data'            => $data,
 		];
+
+		return $this;
+	}
+
+	/**
+	 * Remove a message action.
+	 *
+	 * @param string $id The reference name for the action.
+	 *
+	 * @return Event
+	 */
+	public function remove_message_action( string $id ) {
+		if ( isset( $this->message_actions[ $id ] ) ) {
+			unset( $this->message_actions[ $id ] );
+		}
 
 		return $this;
 	}
@@ -299,6 +334,15 @@ class Event {
 	 */
 	public function get_message_action( string $id ): array {
 		return $this->message_actions[ $id ] ?? null;
+	}
+
+	/**
+	 * Gets the message data callback
+	 *
+	 * @return callable|null
+	 */
+	public function get_message_data_callback(): ? callable {
+		return $this->message_data_callback;
 	}
 
 	/**

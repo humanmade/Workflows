@@ -1,5 +1,10 @@
 Changelog
 =========
+
+- Enhancement: Allow action data attribute to be a callback receiving action arguments and returning data to be stored, to allow dynamic on-execution data storage.
+- Enhancement: Add a new filter to allow manipulating notification object before output, allows for further highly-dynamic data gathering on-output, or data that shouldn't be stored in DB.
+- Enhancement: Allow overriding the action data sanitisation callback to permit more flexible schemas.
+
 v0.4.6
 - Bug: Do not discard previous filter value when excluding editorial comments from post comment count.
 

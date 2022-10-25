@@ -22,6 +22,10 @@ const REST_NAMESPACE = 'workflows/v1';
 add_action( 'rest_api_init', function () {
 
 	$schema = [
+		'type'    => [
+			'type'     => 'string',
+			'required' => true,
+		],
 		'subject' => [
 			'type'     => 'string',
 			'required' => true,
@@ -29,6 +33,13 @@ add_action( 'rest_api_init', function () {
 		'text'    => [
 			'type'     => 'string',
 			'required' => true,
+		],
+		'time'    => [
+			'type'     => 'int',
+			'required' => true,
+		],
+		'data'    => [
+			'type' => 'object',
 		],
 		'actions' => [
 			'type'  => 'array',
@@ -117,16 +128,32 @@ function get_notifications( WP_User $user ) {
 		return [];
 	}
 
-	$notifications = array_map( function ( $notification ) {
+	$notifications = array_map( function ( $notification ) use ( $user ) {
 		// Decode the notification.
 		$notification = _decode( $notification );
+
+		/**
+		 * Filters notification content for any dynamic changes that might be needed
+		 *
+		 * @param \WP_User $user  User object
+		 *
+		 * @return object $notification
+		 */
+		$notification = apply_filters( 'hm.workflows.notification.pre.output', $notification, $user );
 
 		return sanitize_notification( $notification );
 	}, $notifications );
 
-	$notifications = array_values( $notifications );
+	$notifications = array_filter( array_values( $notifications ) );
 
-	return $notifications;
+	/**
+	 * Filter user notifications before rendering
+	 *
+	 * @param \WP_User User object
+	 *
+	 * @return array Filtered notifications array
+	 */
+	return apply_filters( 'hm.workflows.notifications', $notifications, $user );
 }
 
 /**
@@ -189,29 +216,111 @@ function _encode( array $notification ) : string {
  */
 function sanitize_notification( $notification ) {
 	$notification = wp_parse_args( $notification, [
+		'type'    => '',
 		'subject' => '',
 		'text'    => '',
 		'actions' => [],
 	] );
 
+	/**
+	 * Filter notification data array
+	 *
+	 * @param array Notification array
+	 *
+	 * @return array Notification data array
+	 */
+	$data = apply_filters(
+		'hm.workflows.notification.data',
+		sanitize_notification_data( (array) ( $notification['data'] ?? [] ), 'notification:' . $notification['type'] ),
+		$notification
+	);
+
+	/**
+	 * Filter allowed HTML tags in subjects
+	 *
+	 * @return array Array of tags to be used with wp_kses
+	 */
+	$allowed_subject_tags = apply_filters( 'hm.workflows.destination.subject.allowed.tags', [] );
+
 	$sanitized_notification = [
-		'subject' => wp_kses( $notification['subject'] ?? '', [] ),
+		'type'    => sanitize_text_field( $notification['type'] ?? '' ),
+		'subject' => wp_kses( $notification['subject'] ?? '', $allowed_subject_tags ),
 		'text'    => wp_kses_post( $notification['text'] ?? '' ),
-		'actions' => array_values( array_map( function ( $action, $id ) {
-			return [
-				'id'   => isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id ),
-				'text' => sanitize_text_field( $action['text'] ),
-				'url'  => esc_url_raw( $action['url'] ),
-				'data' => (object) array_map( 'sanitize_text_field', is_array( $action['data'] ) ? $action['data'] : [] ),
-			];
-		}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) ),
+		'time'    => intval( $notification['time'] ?? 0 ),
+		'data'    => (array) $data,
+		'actions' => [],
 	];
+
+	$sanitized_notification['actions'] = array_values( array_map( function ( $action, $id ) use ( $sanitized_notification ) {
+		$action_id = isset( $action['id'] ) ? sanitize_key( $action['id'] ) : sanitize_key( $id );
+
+		/**
+		 * Filter notification action data
+		 *
+		 * @param array Action array
+		 * @param array Notification array
+		 *
+		 * @return array Data array
+		 */
+		$data      = apply_filters(
+			'hm.workflows.notification.action.data',
+			sanitize_notification_data( (array) $action['data'], 'action:' . $action_id ),
+			$action,
+			$sanitized_notification
+		);
+
+		return [
+			'id'   => $action_id,
+			'text' => sanitize_text_field( $action['text'] ),
+			'url'  => esc_url_raw( $action['url'] ),
+			'data' => (object) $data,
+		];
+	}, (array) $notification['actions'], array_keys( (array) $notification['actions'] ) ) );
 
 	if ( isset( $notification['id'] ) ) {
 		$sanitized_notification['id'] = intval( $notification['id'] );
 	}
 
 	return $sanitized_notification;
+}
+
+/**
+ * Sanitise notification or action data array, which may contains arbitrary data schema
+ *
+ * @param array       $data       Data array
+ * @param string      $type       Notification type or action ID, eg: 'notification:followed', 'action:follow'
+ * @param string|null $parent_key Parent key name if nested
+ *
+ * @return array
+ */
+function sanitize_notification_data( array $data, string $type, string $parent_key = null ) : array {
+	foreach ( $data as $key => $value ) {
+		$fullpath_key = ( $parent_key ? $parent_key . ':' : '' ) . $key;
+		/**
+		 * Pre-filter data item value
+		 *
+		 * @param string $key   Data item key, may contain parent key if present
+		 * @param string $value Data item value
+		 * @param string $type  Notification type or action ID, eg: 'notification:followed', 'action:follow'
+		 *
+		 * @return mixed Data item value if pre-filtered, short-circuits the sanitization process
+		 */
+		$check = apply_filters( 'hm.workflows.notification.data.item', null, $fullpath_key, $value, $type );
+		if ( $check !== null ) {
+			$data[ $key ] = $check;
+			continue;
+		}
+
+		if ( is_numeric( $value ) ) {
+			$data[ $key ] = floatval( $value );
+		} elseif ( is_string( $value ) ) {
+			$data[ $key ] = sanitize_text_field( $value );
+		} elseif ( is_object( $value ) || is_array( $value ) ) {
+			$data[ $key ] = sanitize_notification_data( (array) $value, $type, $fullpath_key );
+		}
+	}
+
+	return (array) $data;
 }
 
 /**
@@ -271,9 +380,12 @@ function create( WP_REST_Request $request ) {
 	}
 
 	$notification = sanitize_notification( [
+		'actions' => $request->get_param( 'actions' ),
+		'data'    => $request->get_param( 'data' ),
 		'subject' => $request->get_param( 'subject' ),
 		'text'    => $request->get_param( 'text' ),
-		'actions' => $request->get_param( 'actions' ),
+		'time'    => $request->get_param( 'time' ),
+		'type'    => $request->get_param( 'type' ),
 	] );
 
 	// Store a placeholder to get a meta ID.
@@ -321,6 +433,8 @@ function edit( WP_REST_Request $request ) {
 		'id'      => $old_notification['id'],
 		'subject' => $request->get_param( 'subject' ) ?: $old_notification['subject'],
 		'text'    => $request->get_param( 'text' ) ?: $old_notification['text'],
+		'data'    => $request->get_param( 'data' ) ?: $old_notification['data'],
+		'type'    => $request->get_param( 'type' ) ?: $old_notification['type'],
 		'actions' => $request->get_param( 'actions' ) ?: $old_notification['actions'],
 	] );
 
@@ -364,7 +478,7 @@ function delete( WP_REST_Request $request ) {
 	}
 
 	clear_cache( $user->ID );
-	rest_ensure_response( $result );
+	return rest_ensure_response( $result );
 }
 
 /**
