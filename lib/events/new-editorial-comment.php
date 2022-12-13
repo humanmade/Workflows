@@ -298,13 +298,20 @@ function assignees_api() {
 			],
 			'permission_callback' => __NAMESPACE__ . '\assignees_permission',
 		],
-		'schema' => [
-			'id' => [
-				'type' => 'integer',
-				'required' => true,
-				'description' => __( 'The post ID to modify assignees on.', 'hm-workflows' ),
-			],
-		],
+		'schema' => function () {
+			return [
+				'$schema' => 'http://json-schema.org/draft-04/schema#',
+				'title' => 'Manage assigness for a post',
+				'type' => 'object',
+					'properties' => [
+					'id' => [
+						'type' => 'integer',
+						'required' => true,
+						'description' => __( 'The post ID to modify assignees on.', 'hm-workflows' ),
+					],
+				],
+			];
+		},
 	] );
 
 }
