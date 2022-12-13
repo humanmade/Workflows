@@ -1,5 +1,8 @@
 Changelog
 =========
+v0.4.7
+- Bug: REST API schema definitions should be callbacks.
+
 v0.4.6
 - Bug: Do not discard previous filter value when excluding editorial comments from post comment count.
 

@@ -65,13 +65,17 @@ add_action( 'rest_api_init', function () {
 		'methods'             => WP_REST_Server::READABLE,
 		'callback'            => __NAMESPACE__ . '\get_all',
 		'permission_callback' => __NAMESPACE__ . '\permissions',
-		'schema'              => [
-			'type'  => 'array',
-			'items' => [
-				'type'       => 'object',
-				'properties' => $schema_with_id,
-			],
-		],
+		'schema'              => function () use ( $schema_with_id ) {
+			return [
+				'$schema' => 'http://json-schema.org/draft-04/schema#',
+				'title' => 'Get notifications for a user',
+				'type'  => 'array',
+				'items' => [
+					'type' => 'object',
+					'properties' => $schema_with_id,
+				],
+			];
+		},
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)', [
@@ -79,14 +83,28 @@ add_action( 'rest_api_init', function () {
 		'callback'            => __NAMESPACE__ . '\create',
 		'permission_callback' => __NAMESPACE__ . '\permissions',
 		'args'                => $schema,
-		'schema'              => $schema_with_id,
+		'schema'              => function () use ( $schema_with_id ) {
+			return [
+				'$schema' => 'http://json-schema.org/draft-04/schema#',
+				'title' => 'Create a notification for a user',
+				'type' => 'object',
+				'properties' => $schema_with_id,
+			];
+		},
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
 		'methods'             => WP_REST_Server::READABLE,
 		'callback'            => __NAMESPACE__ . '\get_one',
 		'permission_callback' => __NAMESPACE__ . '\permissions',
-		'schema'              => $schema_with_id,
+		'schema'              => function () use ( $schema_with_id ) {
+			return [
+				'$schema' => 'http://json-schema.org/draft-04/schema#',
+				'title' => 'Fetch a notification for a user',
+				'type' => 'object',
+				'properties' => $schema_with_id,
+			];
+		},
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
@@ -94,7 +112,14 @@ add_action( 'rest_api_init', function () {
 		'callback'            => __NAMESPACE__ . '\edit',
 		'permission_callback' => __NAMESPACE__ . '\permissions',
 		'args'                => $schema,
-		'schema'              => $schema_with_id,
+		'schema'              => function () use ( $schema_with_id ) {
+			return [
+				'$schema' => 'http://json-schema.org/draft-04/schema#',
+				'title' => 'Edit a notification for a user',
+				'type' => 'object',
+				'properties' => $schema_with_id,
+			];
+		},
 	] );
 
 	register_rest_route( REST_NAMESPACE, 'notifications/(?P<user>[\\d]+)/(?P<id>[\\d]+)', [
