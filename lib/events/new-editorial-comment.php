@@ -303,7 +303,7 @@ function assignees_api() {
 				'$schema' => 'http://json-schema.org/draft-04/schema#',
 				'title' => 'Manage assigness for a post',
 				'type' => 'object',
-					'properties' => [
+				'properties' => [
 					'id' => [
 						'type' => 'integer',
 						'required' => true,
