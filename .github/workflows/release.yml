@@ -20,7 +20,7 @@ jobs:
         uses: technote-space/release-github-actions@v7
         with:
           CLEAN_TEST_TAG: true
-          CLEAN_TARGETS: .[!.]*,__tests__,package.json,yarn.lock,node_modules,tests,*.xml.dist
+          CLEAN_TARGETS: .[!.]*,__tests__,package.json,yarn.lock,node_modules,admin/node_modules,tests,*.xml.dist
           COMMIT_MESSAGE: "Built release for ${{ steps.get_version.outputs.VERSION }}. For a full change log look at the notes within the original/${{ steps.get_version.outputs.VERSION }} release."
           CREATE_MAJOR_VERSION_TAG: false
           CREATE_MINOR_VERSION_TAG: false
