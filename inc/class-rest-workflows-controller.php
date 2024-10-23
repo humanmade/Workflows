@@ -85,7 +85,30 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 
 		register_rest_field( 'hm_workflow', 'recipients', [
 			'get_callback' => function ( $post ) {
-				return get_post_meta( $post['id'], 'recipients', true ) ?: [];
+				$recipients = get_post_meta( $post['id'], 'recipients', true );
+
+				// Loop through each recipient and set the 'users' field if field type is 'user'
+				foreach ( $recipients as &$recipient ) {
+					if ( isset( $recipient['id'] ) && $recipient['id'] === 'user' ) {
+						$user_ids = isset( $recipient['value'] ) ? $recipient['value'] : [];
+
+						if ( ! empty( $user_ids ) && is_array( $user_ids ) ) {
+							$users = get_users([
+								'include' => $user_ids
+							]);
+
+							// Prepare the formatted response to include only 'id' and 'name'
+							$recipient['users'] = array_map( function( $user ) {
+								return [
+									'id'   => $user->ID,
+									'name' => $user->display_name,
+								];
+							}, $users );
+						}
+					}
+				}
+
+				return $recipients ?: [];
 			},
 			'update_callback' => function ( $value, $post ) {
 				update_post_meta( $post->ID, 'recipients', $value );
