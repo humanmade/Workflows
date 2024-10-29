@@ -294,7 +294,7 @@ class WorkflowUI extends Component {
 							: {};
 						let recipientUsers = {};
 
-						if (recipient.users) {
+						if ( recipient.users && recipient.users.length > 0 ) {
 							recipientUsers = { users: recipientObject.multi ? recipient.users : recipient.users[0] };
 						}
 
