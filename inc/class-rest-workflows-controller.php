@@ -93,12 +93,12 @@ class REST_Workflows_Controller extends WP_REST_Posts_Controller {
 						$user_ids = isset( $recipient['value'] ) ? $recipient['value'] : [];
 
 						if ( ! empty( $user_ids ) && is_array( $user_ids ) ) {
-							$users = get_users([
-								'include' => $user_ids
-							]);
+							$users = get_users( [
+								'include' => $user_ids,
+							] );
 
 							// Prepare the formatted response to include only 'id' and 'name'
-							$recipient['users'] = array_map( function( $user ) {
+							$recipient['users'] = array_map( function ( $user ) {
 								return [
 									'id'   => $user->ID,
 									'name' => $user->display_name,
