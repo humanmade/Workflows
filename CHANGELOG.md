@@ -1,5 +1,11 @@
 Changelog
 =========
+v0.4.9
+- Bug: User selection in workflows doesn't show selected values.
+
+v0.4.8 
+- Chore: Fixes release inclusion of admin/node_modules.
+
 v0.4.7
 - Bug: REST API schema definitions should be callbacks.
 
