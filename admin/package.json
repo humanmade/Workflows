@@ -5,11 +5,11 @@
   "private": true,
   "dependencies": {
     "draft-js": "^0.10.5",
-    "moment": "^2.22.2",
+    "moment": "^2.29.4",
     "polished": "^1.9.2",
     "react": "^16.4.0",
     "react-app-rewire-styled-components": "^3.0.2",
-    "react-app-rewire-svg-react-loader": "github:codebandits/react-app-rewire-svg-react-loader",
+    "react-app-rewire-svg-react-loader": "git+https://github.com/codebandits/react-app-rewire-svg-react-loader.git",
     "react-app-rewired": "^1.5.2",
     "react-dom": "^16.4.0",
     "react-html-parser": "^2.0.2",

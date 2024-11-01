@@ -292,7 +292,13 @@ class WorkflowUI extends Component {
 						const recipientValue  = recipient.value
 							? { value: recipientObject.multi ? recipient.value : recipient.value[0] }
 							: {};
-						return Object.assign( {}, recipientObject, recipientValue );
+						let recipientUsers = {};
+
+						if ( recipient.users && recipient.users.length > 0 ) {
+							recipientUsers = { users: recipientObject.multi ? recipient.users : recipient.users[0] };
+						}
+
+						return Object.assign( {}, recipientObject, recipientValue, recipientUsers );
 					} ),
 					destinations:   data.destinations.map( destination => {
 						const destObject = HM.Workflows.Destinations.find( dest => dest.id === destination.id );
@@ -564,7 +570,11 @@ class WorkflowUI extends Component {
 									.then( response => response.json() )
 									.then( data => ({ options: data }) )
 								}
-								value={recipient.value}
+								value={
+									recipient.multi
+										? ( recipient.users || [] ).filter( user => recipient.value.includes( String( user.id ) ) )
+										: recipient.users
+								}
 								labelKey={recipient.endpoint.labelKey || 'name'}
 								valueKey={recipient.endpoint.valueKey || 'id'}
 								onChange={option => this.setState( {
@@ -572,13 +582,31 @@ class WorkflowUI extends Component {
 										if ( rec.id !== recipient.id ) {
 											return rec;
 										}
-										return Object.assign( {}, rec, {
-											value: rec.multi
-												       ? option.map( opt => String( opt[ recipient.endpoint.valueKey || 'id' ] ) )
-												       : String( option[ recipient.endpoint.valueKey || 'id' ] )
-										} );
-									} )
-								} )}
+
+										// Make sure to only set value if option is not null or empty.
+										const selectedValue = option ?
+											rec.multi
+												? option.map(opt => String(opt[recipient.endpoint.valueKey || 'id']))
+												: String( option[recipient.endpoint.valueKey || 'id'] )
+											: '';
+
+										// Handle single or multi-select options
+										const selectedUsers = rec.multi ? option : [option];
+
+										// Merge with the existing users
+										const mergedItems = [...(rec.users || []), ...( selectedUsers || [])].reduce( ( acc, current ) => {
+											if ( ! acc.some(item => item.id === current.id ) ) {
+												acc.push( current );
+											}
+											return acc;
+										}, [] );
+
+										return Object.assign({}, rec, {
+											value: selectedValue,
+											users: rec.multi ? mergedItems : mergedItems[0]
+										});
+									})
+								})}
 							/>}
 						</Fieldset>
 					</Form>
