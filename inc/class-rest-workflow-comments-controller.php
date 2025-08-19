@@ -315,7 +315,11 @@ class REST_Workflow_Comments_Controller extends WP_REST_Comments_Controller {
 	protected function get_comment( $id ) {
 		$result = parent::get_comment( $id );
 
-		if ( isset( $result['type'] ) && $result['type'] !== 'workflow' ) {
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		if ( isset( $result->comment_type ) && $result->comment_type !== 'workflow' ) {
 			return new WP_Error( 'rest_post_invalid_type', __( 'Invalid comment type.', 'hm-workflows' ), array( 'status' => 400 ) );
 		}
 
