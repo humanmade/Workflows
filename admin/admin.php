@@ -47,7 +47,7 @@ function enqueue_ui_assets() {
 			return;
 		}
 
-		if ( ! apply_filters( 'hm_workflows_show_admin_bar_menu', true, wp_get_current_user() ) ) {
+		if ( ! apply_filters( 'hm.workflows.admin_bar_menu.show', true, wp_get_current_user() ) ) {
 			return;
 		}
 	}
