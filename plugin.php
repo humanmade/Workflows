@@ -34,19 +34,17 @@ add_action( 'plugins_loaded', function () {
 
 // Run a consistent hook to load all the stored Workflows.
 add_action( 'init', function () {
-	// Skip loading workflows on regular frontend page views to avoid unnecessary
-	// database queries on every page load. Workflows need to be loaded for admin,
-	// REST API, AJAX, and cron requests, as well as non-GET frontend requests
-	// (e.g. comment submissions, which can trigger workflow events).
-	if (
-		! is_admin() &&
-		! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) &&
-		! wp_doing_ajax() &&
-		! wp_doing_cron() &&
-		( ! isset( $_SERVER['REQUEST_METHOD'] ) || strtoupper( $_SERVER['REQUEST_METHOD'] ) === 'GET' )
-	) {
-		return;
-	}
+	// Only load workflows when workflow events could conceivably fire.
+	// Skips unnecessary queries on regular frontend GET requests.
+	$should_init = is_admin()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+		|| ( defined( 'WP_CLI' ) && WP_CLI )
+		|| wp_doing_ajax()
+		|| wp_doing_cron()
+		|| ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) !== 'GET' );
 
-	do_action( 'hm.workflows.init' );
+	if ( $should_init ) {
+		do_action( 'hm.workflows.init' );
+	}
 }, 20 );
