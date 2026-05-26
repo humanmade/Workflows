@@ -35,14 +35,14 @@ add_action( 'plugins_loaded', function () {
 // Run a consistent hook to load all the stored Workflows.
 add_action( 'init', function () {
 	// Only load workflows when workflow events could conceivably fire.
-	// Skips unnecessary queries on regular frontend GET requests.
+	// Skips unnecessary queries on regular frontend GET or HEAD requests.
 	$should_init = is_admin()
 		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
 		|| ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 		|| ( defined( 'WP_CLI' ) && WP_CLI )
 		|| wp_doing_ajax()
 		|| wp_doing_cron()
-		|| ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) !== 'GET' );
+		|| ( isset( $_SERVER['REQUEST_METHOD'] ) && ! in_array( strtoupper( $_SERVER['REQUEST_METHOD'] ), [ 'GET', 'HEAD' ], true ) );
 
 	if ( $should_init ) {
 		do_action( 'hm.workflows.init' );
