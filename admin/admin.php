@@ -12,7 +12,7 @@ use WP_Post;
 require_once 'react-loader.php';
 
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_ui_assets', 20 );
-add_action( 'wp_footer', __NAMESPACE__ . '\\enqueue_ui_assets', 3000 );
+add_action( 'wp_footer', __NAMESPACE__ . '\\enqueue_ui_assets', 1 );
 add_action( 'add_meta_boxes_hm_workflow', __NAMESPACE__ . '\\meta_boxes' );
 add_action( 'edit_form_after_title', __NAMESPACE__ . '\\main_ui' );
 add_action( 'admin_init', __NAMESPACE__ . '\\filter_custom_columns' );
@@ -42,8 +42,14 @@ function enqueue_ui_assets() {
 		return;
 	}
 
-	if ( ! is_admin() && ! is_admin_bar_showing() ) {
-		return;
+	if ( ! is_admin() ) {
+		if ( ! is_admin_bar_showing() ) {
+			return;
+		}
+
+		if ( ! apply_filters( 'hm_workflows_show_admin_bar_menu', true, wp_get_current_user() ) ) {
+			return;
+		}
 	}
 
 	enqueue_assets( __DIR__, [
@@ -165,10 +171,6 @@ function enqueue_ui_assets() {
 		sprintf( 'var HM = HM || {}; HM.Workflows = %s;', wp_json_encode( $ui_data ) ),
 		'before'
 	);
-
-	if ( current_action() === 'wp_footer' ) {
-		wp_print_footer_scripts();
-	}
 }
 
 /**
