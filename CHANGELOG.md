@@ -1,5 +1,9 @@
 Changelog
 =========
+
+v0.5.0
+- Bug: Asset enqueuing logic broke style hoisting in classic themes as of WordPress 6.9.
+
 v0.4.9
 - Bug: User selection in workflows doesn't show selected values.
 
