@@ -453,6 +453,10 @@ add_action( 'add_admin_bar_menus', __NAMESPACE__ . '\admin_bar_notices', 1 );
 add_action( 'user_admin_notices', __NAMESPACE__ . '\user_notices' );
 
 function admin_bar_notices() {
+	if ( ! apply_filters( 'hm.workflows.admin_bar_menu.show', true, wp_get_current_user() ) ) {
+		return;
+	}
+
 	global $wp_admin_bar;
 
 	$wp_admin_bar->add_menu( [
