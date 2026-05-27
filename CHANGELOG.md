@@ -3,6 +3,7 @@ Changelog
 
 v0.5.0
 - Bug: Asset enqueuing logic broke style hoisting in classic themes as of WordPress 6.9.
+- Enhancement: Introduce `hm.workflows.admin_bar_menu.show` filter to control admin bar workflow visibility by user/role.
 
 v0.4.9
 - Bug: User selection in workflows doesn't show selected values.
