@@ -20,8 +20,8 @@ namespace HM\Workflows;
 require_once __DIR__ . '/inc/namespace.php';
 require_once __DIR__ . '/admin/admin.php';
 
-// Load built ins early so they can be modified consistently.
-add_action( 'plugins_loaded', function () {
+// Load built-ins at init so their translated labels are not resolved too early.
+add_action( 'init', function () {
 	require_once __DIR__ . '/lib/destinations/email.php';
 	require_once __DIR__ . '/lib/destinations/slack.php';
 	require_once __DIR__ . '/lib/destinations/dashboard.php';
@@ -30,7 +30,7 @@ add_action( 'plugins_loaded', function () {
 	require_once __DIR__ . '/lib/events/new-editorial-comment.php';
 	require_once __DIR__ . '/lib/recipients/post-assignee.php';
 	require_once __DIR__ . '/lib/recipients/post-author.php';
-}, 9 );
+}, 0 );
 
 // Run a consistent hook to load all the stored Workflows.
 add_action( 'init', function () {
